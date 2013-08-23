@@ -217,7 +217,8 @@ Definition WeakCatType := {T:Type & WeakCategory T}.
 
 (* begin hide *)
 
-Program Instance eq_pi1 (T : WeakCatType) : WeakCategory [T] := Π2 T.
+(* Program Instance eq_pi1 (T : WeakCatType) : WeakCategory [T] := Π2 T. *)
+Hint Extern 1 (WeakCategory [?T]) => exact (proj2 T) : typeclass_instances.
 
 (* end hide *)
 
@@ -265,7 +266,9 @@ Class WeakGroupoid T := {
 
 Definition WeakGroupoidType := sigma WeakGroupoid.
 
-Program Instance eq_pi1' (T : WeakGroupoidType) : WeakGroupoid [T] := Π2 T.
+Hint Extern 1 (WeakGroupoid [?T]) => exact (Π2 T) : typeclass_instances.
+
+(* Program Instance eq_pi1' (T : WeakGroupoidType) : WeakGroupoid [T] := Π2 T. *)
 
 (* end hide *)
 
@@ -277,23 +280,31 @@ Definition WeakGroupoidTypeToWeakCatType (T : WeakGroupoidType) : WeakCatType :=
 
 Coercion WeakGroupoidTypeToWeakCatType : WeakGroupoidType >-> WeakCatType. 
 
-Program Instance eq_pi2 (T : WeakCatType) (x y : [T]) : Equivalence (eq2 (x:=x) (y:=y)) := Equivalence_2 x y.
+(* Program Instance eq_pi2 (T : WeakCatType) (x y : [T]) : Equivalence (eq2 (x:=x) (y:=y)) := Equivalence_2 x y. *)
 
-Program Instance eq_pi3 (T : WeakCatType) : CategoryP (@Hom2 (_:@WeakCategory [T])):= Category_1.
 
-Program Instance eq_pi4 (T : WeakCatType) : HomT2 (@eq1 (_:HomT1 [T])) := Hom2.
+Hint Extern 1 (@Equivalence (@eq1 (@Hom1 ?T) ?x ?y) eq2) => 
+  exact (@Equivalence_2 T x y) : typeclass_instances.
 
-Program Instance eq_pi2' (T : WeakGroupoidType) (x y : [T]) : Equivalence (eq2 (x:=x) (y:=y)) := eq_pi2 (T:=T) x y. 
+(* Program Instance eq_pi3 (T : WeakCatType) : CategoryP (@Hom2 (proj2 T)):= Category_1. *)
 
-Program Instance eq_pi3' (T : WeakGroupoidType) : CategoryP (@Hom2 (_:@WeakCategory [T])) := eq_pi3 T. 
+Hint Extern 1 (@CategoryP (proj1 ?T) (@Hom1 ?T) _) => exact (@Category_1 T) : typeclass_instances.
 
-Program Instance eq_pi4' (T : WeakGroupoidType) : HomT2 (@eq1 (_:HomT1 [T])) := Hom2.
+(* Program Instance eq_pi4 (T : WeakCatType) : HomT2 (@eq1 (_:HomT1 [T])) := Hom2. *)
+Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => exact (@Hom2 T) : typeclass_instances.
 
-Program Instance eq_pi5' (T : WeakGroupoidType) : GroupoidP (eq_pi3' T) := G. 
+(* Program Instance eq_pi2' (T : WeakGroupoidType) (x y : [T]) : Equivalence (eq2 (x:=x) (y:=y)) :=  *)
+(*   @Equivalence_2 _ x y.  *)
+(* Program Instance eq_pi3' (T : WeakGroupoidType) : CategoryP (@Hom2 (@WC (proj2 T))) := _. *)
+  (* eq_pi3 T. *)
 
-Program Instance eq_pi6' (T : WeakGroupoidType) : Inverse (@eq1 (_:HomT1 [T])) := Inv.
+(* Program Instance eq_pi4' (T : WeakGroupoidType) : HomT2 (@eq1 (_:HomT1 [T])) := Hom2. *)
 
-Program Instance Weak_Equ (T:WeakCatType) x y : Equivalence (eq2 (HomT2 := eq_pi4 T) (x:=x) (y:=y)).
+(* Program Instance eq_pi5' (T : WeakGroupoidType) : GroupoidP (@Category_1 (@WC (proj2 T))) := _.  *)
+
+(* Program Instance eq_pi6' (T : WeakGroupoidType) : Inverse (@eq1 (_:HomT1 [T])) := Inv. *)
+
+(* Program Instance Weak_Equ (T:WeakCatType) x y : Equivalence (eq2 (HomT2 := eq_pi4 T) (x:=x) (y:=y)). *)
 
 
 Lemma left_simplify_gen {T} {Hom1 : HomT1 T} {Hom2: HomT2 eq1} (cat:CategoryP Hom2)
@@ -435,7 +446,6 @@ between objects of the weak groupoids that transports homs and
 subject to compatibility laws. 
 **)
 
-
 Class WeakFunctor {T U : WeakGroupoidType} (f : [T] -> [U]) : Type :=
 { _map : ∀ {x y}, x ~1 y -> f x ~1 f y ;
   _map_comp : ∀ x y z (e:x ~1 y) (e':y ~1 z),
@@ -444,7 +454,13 @@ Class WeakFunctor {T U : WeakGroupoidType} (f : [T] -> [U]) : Type :=
           (e ~2 e') -> _map  e ~2 _map e' }.
 
 Definition Fun_Type (T U : WeakGroupoidType) :=
-  sigma (@WeakFunctor T U). 
+  sigma (@WeakFunctor T U).
+
+(* Would cut down Fun_Type to 12 - 2 (the two types carrier +1 levels) variables.
+ 15 constraints -> 13 constraints.
+  3 * 2 constraints for groupoid types
+ + 5 for the sigma predicate bound + 2 for sigma carrier bound ?
+ *)
 
 (* begin hide *)
 
@@ -454,8 +470,8 @@ Notation "'map' f" := (@_map (proj2 f) _ _) (at level 0, f at level 0).
 Notation map_comp f := (@_map_comp (proj2 f) _ _ _).
 Notation map2 f := (@_map2 (proj2 f) _ _ _ _).
 
+Hint Extern 0 (WeakFunctor [?f]) => exact (proj2 f) : typeclass_instances.
 (* Program Instance fun_pi (T U : WeakGroupoidType) (f : T ---> U) : WeakFunctor [f] := Π2 f. *)
-
 
 (* Definition map {T U} (f:T ---> U) {x y : [T]} (e : x ~1 y) := _map (WeakFunctor := fun_pi f) e. *)
 (* Definition map_comp {T U} (f:T ---> U) {x y z: [T]} (e: x ~1 y) (e':y ~1 z) :=  *)
@@ -517,6 +533,13 @@ Next Obligation. apply (map2 g). apply (map2 f). auto. Defined.
 Program Instance comp_fun : Composition Fun_Type :=
   { composition x y z X X0 := (λ x, X0 @ (X @ x) ; _) }.
 
+(* Shortcuting type-checking of constants:
+  Statically we can determine for each argument the constraints that are implied
+  by its typechecking. I.e. if |- f_us : Π x : I u1...un -> υ ~> ψ. 
+  And a : I u1 ... un ~> ψa. No need to check the constraints on u1..un in ψ that
+  are already in ψa. s
+ *)
+
 (* end hide *)
 
 (**
@@ -540,7 +563,8 @@ Definition nat_trans T U (f g : T ---> U) :=
 
 (* begin hide *)
 
-Instance nat_pi T U (f g : T ---> U) (α:nat_trans f g) : NaturalTransformation [α] := Π2 α.
+(* Instance nat_pi T U (f g : T ---> U) (α:nat_trans f g) : NaturalTransformation [α] := Π2 α. *)
+Hint Extern 0 (NaturalTransformation [?f]) => exact (proj2 f) : typeclass_instances.
 
 Notation α_map f := (@_α_map (proj2 f) _ _).
 
@@ -628,7 +652,7 @@ Program Instance modification_eq T U (f g : T ---> U) : Equivalence (modificatio
 Program Instance nat_category T U : WeakCategory (T ---> U) := 
   {| Hom1 := nat_transHom T U; Hom2 := modificationHom T U|}.
 
-Program Instance nat_groupoid T U : WeakGroupoid (T ---> U). 
+Program Instance nat_groupoid (T U : WeakGroupoidType) : WeakGroupoid (T ---> U). 
 
 (* end hide *)
 
@@ -763,11 +787,14 @@ Class Iso_struct T U (f : [T --> U]) :=
 Definition Iso A B := {f : A ---> B & Iso_struct f}.
 
 
-Definition adjoint' {A B} (f : Iso A B) := _adjoint (Iso_struct := Π2 f).
-Definition section' {A B} (f : Iso A B) := 
-  _section (Iso_struct := Π2 f) : nat_trans ([f] ° adjoint' f) (identity _).
-Definition retraction' {A B} (f : Iso A B) := 
-  _retraction (Iso_struct := Π2 f) : nat_trans (adjoint' f ° [f]) (identity _) .
+Notation adjoint' f := (@_adjoint (f.(proj2))).
+Notation section' f := (@_section (f.(proj2))).
+Notation retraction' f := (@_retraction (f.(proj2))).
+
+(* Definition section' {A B} (f : Iso A B) :=  *)
+(*   _section (Iso_struct := Π2 f) : nat_trans ([f] ° adjoint' f) (identity _). *)
+(* Definition retraction' {A B} (f : Iso A B) :=  *)
+(*   _retraction (Iso_struct := Π2 f) : nat_trans (adjoint' f ° [f]) (identity _) . *)
 (* end hide *)
 
 (** This type class defines usual equivalences. To get an adjoint
@@ -778,7 +805,7 @@ Definition retraction' {A B} (f : Iso A B) :=
     condition implies the other.  *)
 
 Class Equiv_struct T U (f : T ---> U) := 
-{ iso :> Iso_struct f;
+{ iso : Iso_struct f;
   _triangle : ∀ t, (_section @ (f @ t)) ~ map f (_retraction @ t)}.
 
 Definition Equiv A B := {f : A ---> B & Equiv_struct f}.
@@ -787,9 +814,11 @@ Definition Equiv A B := {f : A ---> B & Equiv_struct f}.
 
 Infix "<~>" := Equiv (at level 55). 
 
-Instance Arrow_pi A B (f : A <~> B) : Equiv_struct [f] := Π2 f.
+Hint Extern 0 (Equiv_struct [?f]) => exact (proj2 f) : typeclass_instances.
+Hint Extern 0 (Iso_struct [?f]) => exact (@iso (proj2 f)) : typeclass_instances.
 
-Instance Arrow_pi2 A B (f : A <~> B) : Iso_struct [f] := iso (Equiv_struct := Π2 f).
+(* Instance Arrow_pi A B (f : A <~> B) : Equiv_struct [f] := Π2 f. *)
+(* Instance Arrow_pi2 A B (f : A <~> B) : Iso_struct [f] := iso (Equiv_struct := Π2 f). *)
 
 Notation adjoint f := (@_adjoint (f.(proj2).(@iso))).
 Notation section f := (@_section (f.(proj2).(@iso))).
@@ -1025,7 +1054,7 @@ Defined.
 Lemma Equiv_adjoint_id A B (f : A <~> B) :
  modification (Equiv_adjoint (identity [f])) (identity _).
 Proof.
-  intro b. eapply composition. apply Equiv_adjoint_simpl.
+  intro b. eapply composition. Transparent Equiv_adjoint. apply Equiv_adjoint_simpl.
   eapply composition. apply comp. apply identity. eapply composition. eapply (map2 (adjoint f)).
   eapply composition. apply comp. apply inv_id. apply identity. apply id_R.
   apply identity. apply (triangle_inv' f).
@@ -1274,9 +1303,9 @@ Program Instance EquivHom : HomT1 WeakGroupoidType := {eq1 := Equiv}.
 
 Program Instance Equiv_eqHom' : HomT2 Equiv := {eq2 := Equiv_eq }.
 
-Program Definition Equiv_adjoint_assoc X Y Z W (f : X <~> Y)(g : Y <~> Z)
+Program Definition Equiv_adjoint_assoc (X : WeakGroupoidType) Y Z W (f : X <~> Y)(g : Y <~> Z)
       (h : Z <~> W) (w:[W]) :
-  @eq2 (eq_pi4' X) _ _  (Equiv_adjoint (nat_assoc [f] [g] [h] : [(h ° g) °f] ~ [h ° (g ° f)])
+  @eq2 (@Hom2 (@WC (proj2 X))) _ _  (Equiv_adjoint (nat_assoc [f] [g] [h] : [(h ° g) °f] ~ [h ° (g ° f)])
                 @ w) (identity _ @ w).
 eapply composition. apply Equiv_adjoint_simpl. simpl.
 unfold id, _Equiv_comp_obligation_1.
@@ -1331,7 +1360,7 @@ Next Obligation. set (H := nat_id_R [f] : [f ° identity x] ~1 [f]). exists H.
                  apply Equiv_adjoint_idR. simpl. apply (map_id [f]). apply identity. apply identity.
 Defined.
 Next Obligation. set (H := nat_id_L [f] :[identity y ° f] ~1 [f]). exists H. 
-                 econstructor. intro. simpl. unfold id. simpl_id_bi'.
+                 econstructor. intro. Opaque Equiv_adjoint. simpl. unfold id. simpl_id_bi'.
                  eapply composition. apply comp. eapply (map2 [f]).
                  apply Equiv_adjoint_idL. apply identity. 
                  eapply composition; try apply id_R. apply comp; [idtac | apply identity].
@@ -1412,35 +1441,59 @@ Definition _Type : WeakGroupoidType :=
 
 (* begin hide *)
 
-Definition equiv_assoc := (@assoc Equiv_cat).
-Definition equiv_comp  := (@comp  Equiv_cat).
-Definition equiv_id_R  := (@id_R  Equiv_cat). 
-Definition equiv_id_L  := (@id_L  Equiv_cat).
+Notation equiv_assoc := (@assoc Equiv_cat).
+Notation equiv_comp  := (@comp  Equiv_cat).
+Notation equiv_id_R  := (@id_R  Equiv_cat). 
+Notation equiv_id_L  := (@id_L  Equiv_cat).
 
-Definition equiv_inv_R  := (@inv_R  Equiv_grp). 
-Definition equiv_inv_L  := (@inv_L  Equiv_grp).
-Definition equiv_inv  := (@inv Equiv_grp).
+Notation equiv_inv_R  := (@inv_R  Equiv_grp). 
+Notation equiv_inv_L  := (@inv_L  Equiv_grp).
+Notation equiv_inv  := (@inv Equiv_grp).
 
-Ltac simpl_id_end := eapply composition ; [match goal with
-                   | [ |- eq2 (?P ^-1 ° ?P) _] => 
-                     first [apply inv_L | apply equiv_inv_L]
-                   | [ |- eq2 (?P ° ?P ^-1) _] => 
-                     first [apply inv_R | apply equiv_inv_R]
-                   | [ |- eq2 (?P ° identity ?x) _] => 
-                     first [apply id_R | apply equiv_id_R]
-                   | [ |- eq2 (identity ?x ° ?P) _] => 
-                     first [apply id_L | apply equiv_id_L]
-                   | [ |- eq2 ((?P ^-1) ^-1) _] => 
-                     first [apply inv_inv | apply (@inv_inv _Type)]
-                   | [ |- eq2 ((identity _) ^-1) _] => 
-                     first [apply inv_id | apply (@inv_id _Type)]
-                   | [ |- Equiv_eq (?P ^-1 ° ?P) _] => apply equiv_inv_L
-                   | [ |- Equiv_eq (?P ° ?P ^-1) _] => apply equiv_inv_R
-                   | [ |- Equiv_eq (?P ° identity ?x) _] => apply equiv_id_R
-                   | [ |- Equiv_eq (identity ?x ° ?P) _] => apply equiv_id_L
-                   | [ |- Equiv_eq ((?P ^-1) ^-1) _] => apply (@inv_inv _Type)
-                   | [ |- Equiv_eq ((identity _) ^-1) _] => apply (@inv_id _Type)
-                 end | idtac].
+Ltac compose := eapply composition.
+
+Ltac simpl_id_end := 
+  match goal with
+    | [ |- eq2 (?P ^-1 ° ?P) _] => compose;
+       [first [apply inv_L | apply equiv_inv_L]|idtac]
+    | [ |- eq2 (?P ° ?P ^-1) _] => compose;
+       [first [apply inv_R | apply equiv_inv_R]|idtac]
+    | [ |- eq2 (?P ° identity ?x) _] => compose;
+       [first [apply id_R | apply equiv_id_R]|idtac]
+    | [ |- eq2 (identity ?x ° ?P) _] => compose;
+       [first [apply id_L | apply equiv_id_L]|idtac]
+    | [ |- eq2 ((?P ^-1) ^-1) _] => compose;
+       [first [apply inv_inv | apply (@inv_inv _Type)]|idtac]
+    | [ |- eq2 ((identity _) ^-1) _] => compose;
+       [first [apply inv_id | apply (@inv_id _Type)]|idtac]
+    | [ |- Equiv_eq (?P ^-1 ° ?P) _] => compose; [apply equiv_inv_L|idtac]
+    | [ |- Equiv_eq (?P ° ?P ^-1) _] => compose; [apply equiv_inv_R|idtac]
+    | [ |- Equiv_eq (?P ° identity ?x) _] => compose; [apply equiv_id_R|idtac]
+    | [ |- Equiv_eq (identity ?x ° ?P) _] => compose; [apply equiv_id_L|idtac]
+    | [ |- Equiv_eq ((?P ^-1) ^-1) _] => compose; [apply (@inv_inv _Type)|idtac]
+    | [ |- Equiv_eq ((identity _) ^-1) _] => compose; [apply (@inv_id _Type)|idtac]
+  end.
+
+(* Ltac simpl_id_end := eapply composition ; [match goal with *)
+(*                    | [ |- eq2 (?P ^-1 ° ?P) _] =>  *)
+(*                      first [apply inv_L | apply equiv_inv_L] *)
+(*                    | [ |- eq2 (?P ° ?P ^-1) _] =>  *)
+(*                      first [apply inv_R | apply equiv_inv_R] *)
+(*                    | [ |- eq2 (?P ° identity ?x) _] =>  *)
+(*                      first [apply id_R | apply equiv_id_R] *)
+(*                    | [ |- eq2 (identity ?x ° ?P) _] =>  *)
+(*                      first [apply id_L | apply equiv_id_L] *)
+(*                    | [ |- eq2 ((?P ^-1) ^-1) _] =>  *)
+(*                      first [apply inv_inv | apply (@inv_inv _Type)] *)
+(*                    | [ |- eq2 ((identity _) ^-1) _] =>  *)
+(*                      first [apply inv_id | apply (@inv_id _Type)] *)
+(*                    | [ |- Equiv_eq (?P ^-1 ° ?P) _] => apply equiv_inv_L *)
+(*                    | [ |- Equiv_eq (?P ° ?P ^-1) _] => apply equiv_inv_R *)
+(*                    | [ |- Equiv_eq (?P ° identity ?x) _] => apply equiv_id_R *)
+(*                    | [ |- Equiv_eq (identity ?x ° ?P) _] => apply equiv_id_L *)
+(*                    | [ |- Equiv_eq ((?P ^-1) ^-1) _] => apply (@inv_inv _Type) *)
+(*                    | [ |- Equiv_eq ((identity _) ^-1) _] => apply (@inv_id _Type) *)
+(*                  end | idtac]. *)
 
 Ltac simpl_id_end_extended := first [ simpl_id_end |
                                       match goal with
@@ -1450,42 +1503,55 @@ Ltac simpl_id_end_extended := first [ simpl_id_end |
                  end].
 
 Ltac simpl_id := first [simpl_id_end ; simpl_id |
-                        match goal with
-                   | [ |- eq2 (?P ^-1) _] => eapply composition;
-                              [first [apply inv | apply equiv_inv] ; simpl_id | idtac]; 
-                              try apply identity
-                   | [ |- eq2 (map ?F (identity _)) _] => eapply composition;
-                              [eapply (map_id F); simpl_id | idtac]; 
-                              simpl_id
-                   | [ |- Equiv_eq (map ?F (identity _)) _] => eapply composition;
-                              [eapply (map_id F); simpl_id | idtac]; 
-                              simpl_id
-                   | [ |- eq2 (map ?F ?P) _] => first [eapply composition;
-                              [eapply (map2 F); simpl_id | idtac]; 
-                              [apply identity | idtac] | 
-                           (progress_evars (eapply composition;
-                                            [eapply (map2 F); simpl_id | idtac];instantiate));
-                                                         simpl_id |idtac]
-                   | [ |- Equiv_eq (map ?F ?P) _] => first [eapply composition;
-                              [eapply (map2 F); simpl_id | idtac]; 
-                              [apply identity | idtac] | 
-                         (progress_evars (eapply composition;
-                                          [eapply (map2 F); simpl_id | idtac];instantiate));
-                                                              simpl_id |idtac]
-                   | [ |- Equiv_eq (?P ^-1) _] => eapply composition;
-                              [apply equiv_inv; simpl_id | idtac]; 
-                              try apply identity
-                   | [ |- Equiv_eq (?Q ° ?P) _] => eapply composition;
-                                                  [apply equiv_comp ; simpl_id | idtac];
-                                                  simpl_id_end_extended
-                   | [ |- Equiv_eq ?e _ ] => apply (identity e)
-                   | [ |- eq2 (?Q ° ?P) _] => eapply composition;
-                                             [first [apply comp |
-                                                     apply equiv_comp] ; simpl_id | idtac];
-                                            simpl_id_end_extended
-                   | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply (identity e)]
-                   | [ |- _ ] => idtac
-                 end].
+  lazymatch goal with
+    | |- context [identity _] => fail
+    | |- _ => apply identity
+  end|
+  match goal with
+    | [ |- eq2 (?P ^-1) _] =>
+      eapply composition;
+        [first [apply equiv_inv | apply inv] ; simpl_id | idtac]; 
+        try apply identity
+    | [ |- eq2 (map ?F (identity _)) _] => 
+      eapply composition;
+        [eapply (map_id F); simpl_id | idtac]; 
+        simpl_id
+    | [ |- Equiv_eq (map ?F (identity _)) _] => 
+      eapply composition;
+        [eapply (map_id F); simpl_id | idtac]; 
+        simpl_id
+    | [ |- eq2 (map ?F ?P) _] => 
+      first [eapply composition;
+              [eapply (map2 F); simpl_id | idtac]; 
+              [apply identity | idtac] | 
+             (progress_evars (eapply composition;
+                              [eapply (map2 F); simpl_id | idtac];instantiate));
+               simpl_id |idtac]
+    | [ |- Equiv_eq (map ?F ?P) _] => 
+      first [eapply composition;
+              [eapply (map2 F); simpl_id | idtac]; 
+              [apply identity | idtac] | 
+             (progress_evars (eapply composition;
+                              [eapply (map2 F); simpl_id | idtac];instantiate));
+               simpl_id |idtac]
+    | [ |- Equiv_eq (?P ^-1) _] =>
+      eapply composition;
+        [apply equiv_inv; simpl_id | idtac]; 
+        try apply identity
+    | [ |- Equiv_eq (?Q ° ?P) _] =>
+      eapply composition;
+        [apply equiv_comp ; simpl_id | idtac];
+        simpl_id_end_extended
+    | [ |- Equiv_eq ?e _ ] => apply (identity e)
+    | [ |- eq2 (?Q ° ?P) _] =>
+      eapply composition;
+        [first [apply comp |
+                apply equiv_comp] ; simpl_id | idtac];
+        simpl_id_end_extended
+    | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply (identity e)]
+    | [ |- _ ] => idtac
+  end].
+
 
 Ltac simpl_id_bi := simpl_id; eapply inverse; simpl_id.
 
@@ -1622,19 +1688,24 @@ Definition Prod_Type (T:[_Type]) (U:[T --> _Type]) :=
 
 (* begin hide *)
 
-Program Instance Prod_pi (T:[_Type]) (U:[T --> _Type]) (f : Prod_Type U) :
-  WeakDependentFunctor U [f] := Π2 f.
+Hint Extern 0 (WeakDependentFunctor _ [?f]) => exact (proj2 f) : typeclass_instances.
 
-Definition Dmap {T:[_Type]} {U:[T --> _Type]} (f: Prod_Type U) {x y : [T]} (e : x ~1 y) :=
-  _Dmap (WeakDependentFunctor := Prod_pi f) e.
-Definition Dmap_comp {T:[_Type]} {U:[T --> _Type]} (f: Prod_Type U) {x y z: [T]} (e: x ~1 y) (e':y ~1 z) := 
-  _Dmap_comp (WeakDependentFunctor := Prod_pi f) x y z e e' :
-    Dmap f (e' ° e) ~2
-      (Dmap f e' ° eq_rect_map U _ (Dmap f e)) ° (eq_rect_comp U e e' @ _).
+(* Program Instance Prod_pi (T:[_Type]) (U:[T --> _Type]) (f : Prod_Type U) : *)
+(*   WeakDependentFunctor U [f] := Π2 f. *)
 
-Definition Dmap2 {T:[_Type]} {U:[T --> _Type]} (f: Prod_Type U) {x y : [T]} {e e' : x ~1 y}
-  (E : e ~ e'):=
-  _Dmap2 (WeakDependentFunctor := Prod_pi f) x y e e' E : Dmap f e ~ Dmap f e' ° (eq_rect_eq U E @ (f @ x)) .
+Notation "'Dmap' f" := (@_Dmap (proj2 f) _ _) (at level 0, f at level 0).
+Notation Dmap_comp f := (@_Dmap_comp (proj2 f) _ _ _).
+Notation Dmap2 f := (@_Dmap2 (proj2 f) _ _ _ _).
+(* Definition Dmap {T:[_Type]} {U:[T --> _Type]} (f: Prod_Type U) {x y : [T]} (e : x ~1 y) := *)
+(*   _Dmap (WeakDependentFunctor := Prod_pi f) e. *)
+(* Definition Dmap_comp {T:[_Type]} {U:[T --> _Type]} (f: Prod_Type U) {x y z: [T]} (e: x ~1 y) (e':y ~1 z) :=  *)
+(*   _Dmap_comp (WeakDependentFunctor := Prod_pi f) x y z e e' : *)
+(*     Dmap f (e' ° e) ~2 *)
+(*       (Dmap f e' ° eq_rect_map U _ (Dmap f e)) ° (eq_rect_comp U e e' @ _). *)
+
+(* Definition Dmap2 {T:[_Type]} {U:[T --> _Type]} (f: Prod_Type U) {x y : [T]} {e e' : x ~1 y} *)
+(*   (E : e ~ e'):= *)
+(*   _Dmap2 (WeakDependentFunctor := Prod_pi f) x y e e' E : Dmap f e ~ Dmap f e' ° (eq_rect_eq U E @ (f @ x)) . *)
 
 Definition Dmap_id {T:[_Type]} {U:[T --> _Type]} (f: Prod_Type U) {x: [T]} : 
   Dmap f (identity x) ~ eq_rect_id U @ (f @ x).
@@ -1673,12 +1744,15 @@ Definition Dnat_trans T (U:[T --> _Type]) (f g: Prod_Type U)  :=
 
 (* begin hide *)
 
-Instance Dnat_pi T (U:[T --> _Type]) (f g: Prod_Type U) (α:Dnat_trans f g) : 
-  DNaturalTransformation [α] := Π2 α.
+Hint Extern 0 (DNaturalTransformation [?f]) => exact (proj2 f) : typeclass_instances.
 
-Definition α_Dmap  T (U:[T --> _Type]) (f g: Prod_Type U) (α:Dnat_trans f g) {t t' : [T]} (e : t ~1 t') := 
-  _α_Dmap (DNaturalTransformation := Dnat_pi α) e.
+(* Instance Dnat_pi T (U:[T --> _Type]) (f g: Prod_Type U) (α:Dnat_trans f g) :  *)
+(*   DNaturalTransformation [α] := Π2 α. *)
 
+Notation α_Dmap f := (@_α_Dmap (proj2 f) _ _).
+
+(* Definition α_Dmap  T (U:[T --> _Type]) (f g: Prod_Type U) (α:Dnat_trans f g) {t t' : [T]} (e : t ~1 t') :=  *)
+(*   _α_Dmap (DNaturalTransformation := Dnat_pi α) e. *)
 
 Program Instance Dnat_id T U : Identity (Dnat_trans (T:=T) (U := U)).
 Next Obligation. rename x into f. exists (λ t , identity (f @ t)).
@@ -1932,7 +2006,7 @@ Next Obligation.
   eapply composition. eapply inverse. apply assoc.
   eapply inverse. eapply composition. eapply inverse. apply assoc.
   apply comp; try apply identity. eapply inverse.
-  simpl_id. eapply inverse.
+  simpl_id. apply inverse.
   apply (α_map [map_comp U [g] [h]]). Defined.
 Next Obligation.
   exists (comp _ _ _ _ _ _ _ [X] [X0]). simpl. unfold eq_rect_comp, eq_rect, eq_rect_eq.
@@ -1953,12 +2027,15 @@ Next Obligation.
   unfold eq_rect_eq. eapply composition. apply assoc. apply identity.
 Defined.
 
+Lemma id_R'' (T : WeakCatType) (x y : [T]) (f g : x ~1 y) : f ~2 g -> f ° identity x ~2 g.
+Proof. intros. eapply composition. apply id_R'. apply X. Defined.
 
 Program Instance sum_groupoid2 (T : [_Type]) (U : [T --> _Type]) :
   GroupoidP (sum_category2 T U).
 Next Obligation. exists (inv_R _ _ _). simpl.
                  unfold eq_rect_comp, eq_rect, eq_rect_eq, eq_rect_id.
-                 unfold Equiv_injective. simpl. simpl_id.
+                 unfold Equiv_injective. simpl.
+                 Time simpl_id.
                  eapply composition. apply comp. apply identity.
                  apply comp. eapply _map2.
                  eapply composition. apply comp. apply identity.
@@ -1990,3 +2067,5 @@ only.
 
 *)
 
+Typeclasses Opaque sum_eq sum_eq2 nat_trans modification 
+            Dnat_trans Dmodification Equiv_eq Equiv_eq2.

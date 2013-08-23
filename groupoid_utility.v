@@ -49,7 +49,7 @@ Defined.
 Definition right_comp_eq' (T T' T'' U : [_Type]) (f:[T --> T']) (f' :[T' --> T''])
            : right_comp U (f' ° f) ~2 right_comp U f' ° right_comp U f.
 exists (fun g => nat_assoc g f f'). econstructor.
-intros; simpl. red. intro. simpl. simpl_id_bi. apply identity. Defined.
+intros; simpl. red. intro. simpl. simpl_id_bi. Defined.
 
 Definition left_comp_eq (T U U' : [_Type]) (g g':[U --> U'])
            (H : g ~2 g')  : left_comp T g ~2 left_comp T g'.
@@ -123,7 +123,7 @@ Program Definition fun_eq_map {Γ : [_Type]} (A: [Γ --> _Type]) (x y z : [Γ]) 
   fun_eq (map A (e' ° e)) (identity _Type) ~1
   fun_eq (map A e') (identity _Type) ° fun_eq (map A e) (identity _Type).
 eapply composition. apply fun_eq_eq. apply (map_comp A). eapply inverse.
-refine (id_R (CategoryP:=Equiv_cat) _ _ (@identity _Type_id _Type)).
+apply (id_R (CategoryP:=Equiv_cat)).
 apply fun_eq_eq'. Defined.
 
 Program Definition fun_eq_id {Γ : [_Type]} (A: [Γ --> _Type]) (x : [Γ]) :
@@ -230,7 +230,7 @@ Defined.
 Program Instance prod_eq2 (A: [_Type]) (T U : [A --> _Type]) (eqTU : T ~1 U) :
         WeakFunctor (λ (t : [_Prod T]), (λ a : [A], [eqTU @ a] @ (t @ a)  ; prod_eq1 A T U eqTU t) : [_Prod U]).
 Next Obligation. exists (fun t => map [[eqTU] t] (X @ t)). intros; simpl.
-                 unfold Dmap. simpl. unfold prod_eq1_obligation_1.
+                 unfold _Dmap. simpl. unfold prod_eq1_obligation_1.
                  econstructor; intros.
                  eapply composition. eapply inverse. apply assoc.
                  eapply composition. apply comp. apply identity.
@@ -250,9 +250,9 @@ Program Definition prod_eq_comp' (A: [_Type]) (T U V: [A --> _Type])
         (e:T ~1 U) (e' : U ~1 V) : 
   ∀ t : [_Prod T], [prod_eq e' ° prod_eq e] t ~1 [prod_eq (e' ° e)] t.
 intro; simpl. red; simpl. exists (fun t => identity _). intros. econstructor; intros.
-unfold eq_rect_map. simpl_id_bi. unfold Dmap. simpl. unfold  prod_eq1_obligation_1. simpl. simpl_id_bi.
+unfold eq_rect_map. simpl_id_bi. simpl. unfold  prod_eq1_obligation_1. simpl. simpl_id_bi.
 unfold groupoid.arrow_comp_obligation_1, eq_rect.
-unfold Dmap. simpl. unfold prod_eq1_obligation_1.
+simpl. unfold prod_eq1_obligation_1.
 eapply composition. apply comp. apply identity. apply _map_comp. 
 eapply composition. apply assoc. apply comp; [idtac | apply identity].
 apply inverse. eapply composition. eapply inverse, comp_inv. 
@@ -261,13 +261,13 @@ apply comp. apply identity. eapply inverse, map_inv. Defined.
 Program Definition prod_eq_comp (A: [_Type]) (T U V: [A --> _Type]) 
         (e:T ~1 U) (e' : U ~1 V) : prod_eq e' ° prod_eq e ~ prod_eq (e' °e).
 exists (prod_eq_comp' e e'). econstructor. intros. simpl. red. intros. simpl.
-simpl_id_bi. apply identity. Defined.
+simpl_id_bi. Defined.
 
 Program Definition prod_eq_map' (A: [_Type]) (T U: [A --> _Type]) 
         (e e':T ~1 U) (H : e ~ e') (t:[_Prod T]) :  
   [prod_eq e] t ~1 [prod_eq e'] t.
 simpl; red; simpl. exists (fun t0 => [H t0] @ (t @ t0)). econstructor; intros; simpl.
-unfold eq_rect_map. unfold Dmap; simpl. unfold prod_eq1_obligation_1.
+unfold eq_rect_map. simpl. unfold prod_eq1_obligation_1.
 simpl. eapply composition. eapply inverse. apply assoc. 
 eapply composition. apply comp. apply identity. apply (α_map [H t']).
 eapply composition. apply assoc. apply inverse.
@@ -283,7 +283,7 @@ simpl; red. exists (prod_eq_map' H). econstructor. intros. simpl. red. intros. s
 Program Definition prod_eq_id' (A: [_Type]) (T: [A --> _Type]) :
 ∀ t : [_Prod T], [prod_eq (identity T)] t ~1 [identity (_Prod T)] t.
 intro; exists (fun _ => identity _). econstructor; intros; simpl. unfold id; simpl_id_bi.
-unfold Dmap; simpl. unfold prod_eq1_obligation_1, id, eq_rect_map. simpl. 
+unfold prod_eq1_obligation_1, id, eq_rect_map. simpl. 
 simpl_id_bi. simpl_id. apply identity. Defined.
 
 Program Definition prod_eq_id (A: [_Type]) (T: [A --> _Type]) 

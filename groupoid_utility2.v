@@ -57,11 +57,15 @@ Definition Equiv_adjoint_identity {Γ:Context} {A:Typ Γ} (a:Elt A) (x:[Γ]) :
   simpl_id. apply inv_R.
 Defined.
 
+Definition ext (Γ: Context) (T : Typ Γ) : Type := 
+  @sigma [Γ] (λ γ, [T @ γ]).
 
+Definition cons {Γ: Context} {T : Typ Γ} (γ : [Γ]) (x : [T @ γ]) : ext T := (γ;x).
 
 Definition sum_id_left {Γ: Context} {T : Typ Γ} 
-        {γ : [Γ]} {x y : [T @ γ]}  (e : x ~1 y) : (γ;x) ~1 (γ;y) :=
+        {γ : [Γ]} {x y : [T @ γ]}  (e : x ~1 y) : (cons γ x) ~1 (cons γ y) :=
    (identity _ ; e ° ([map_id T] @ x)).
+
 
 Definition sum_id_left_map {Γ: Context} {T : Typ Γ}
         (γ : [Γ])   (x y : [T @ γ])  (e e': x ~1 y) (H : e ~2 e') : 
@@ -111,7 +115,7 @@ Defined.
 (* Defined. *)
 
 Definition sum_id_right {Γ} {A:Typ Γ} {γ γ' : [Γ]}
-  (e : γ ~1 γ') (a' : [A @ γ']) : (γ;adjoint (map A e) @ a') ~1 (γ';a').
+  (e : γ ~1 γ') (a' : [A @ γ']) : (cons γ (adjoint (map A e) @ a')) ~1 (cons γ' a').
 exists e. apply ((section (map A e)) @ a'). 
 Defined.
 
@@ -196,9 +200,6 @@ Program Instance Prod_eq_2 {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y)
 (X: Prod_Type ([F] x)) : WeakDependentFunctor ([F] y) (Prod_eq_1 F e X) :=
   prod_eq1 (A @ y) _ (F @ y) (Prod_eq_ F e) (X °° adjoint (map A e)).
 
-Definition map_comp' {T U} (f:T ---> U) {x y z: [T]} (e: x ~1 y) (e':y ~1 z) :=
-  _map_comp (WeakFunctor := proj2 f) x y z e e' : map f (e' ° e) ~ map f e' ° map f e.
-
 Program Instance Prod_eq_3 {Γ} (A:Typ Γ) (F:TypFam A) {x y : [Γ]} (e:x~1 y) :
  WeakFunctor   (λ X : [_Prod (F @ x)],
          (λ a, Prod_eq_1 F e X a; Prod_eq_2 A F e X) : [_Prod (F @ y)]).
@@ -206,12 +207,11 @@ Obligation Tactic := intros.
 Next Obligation. exists (fun a => map [Prod_eq_ F e @ a] 
                                       (X @ ([adjoint (map A e)] a))).
                  econstructor; intros.
-                 unfold Dmap. 
                  unfold groupoid_utility.prod_eq1_obligation_1.
                  eapply composition. eapply inverse. apply assoc.
                  eapply composition. apply comp. apply identity.
                  eapply composition. eapply inverse.
-                 apply (@_map_comp (proj2 [[Dmap F e] t'])).
+                 apply (map_comp [Prod_eq_ F e @ t']).
                  eapply composition. eapply (map2 [Prod_eq_ F e @ t']). 
                  apply (Π2 X).
                  apply (map_comp [Prod_eq_ F e @ t']).
@@ -219,26 +219,29 @@ Next Obligation. exists (fun a => map [Prod_eq_ F e @ a]
                  apply inverse. eapply composition. apply assoc.
                  apply comp; [idtac | apply identity].
                  eapply inverse. eapply composition. eapply inverse.
-                 pose (α_map ((inverse [α_map (Prod_eq_ F e) e0]) : nat_trans _ _)
-                        ([X] ([adjoint (map A e)] t))). apply e1.
+                 apply (α_map ((inverse [α_map (Prod_eq_ F e) e0]) : nat_trans _ _)).
                  apply comp; [idtac | apply identity].
                  apply identity.
 Defined.
 
+Program Instance fun_pi (T U : WeakGroupoidType) (f : T ---> U) : WeakFunctor [f] := Π2 f.
+Definition map_comp' {T U} (f:T ---> U) {x y z: [T]} (e: x ~1 y) (e':y ~1 z) :=
+  _map_comp (WeakFunctor := proj2 f) x y z e e' : map f (e' ° e) ~ map f e' ° map f e.
+
+
 Next Obligation. intro. intros. simpl. refine (map_comp' _ _ _). Defined.
+
 Next Obligation. simpl; red; intros; simpl. apply (_map2 _ _ _ _ (X _)). Defined.
 
 Program Definition Prod_eq {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y): 
  _Prod ([F] x) ---> _Prod ([F] y) := (_; Prod_eq_3 A F e).
-
-Definition map' {T U} (f:T ---> U) {x y : [T]} (e : x ~1 y) := _map (WeakFunctor := proj2 f) e.
 
 Program Definition Prod_eq_comp'' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
         (e:x~1 y) (e' : y ~1 z):
   ∀ t a , [Prod_eq F e' ° Prod_eq F e] t @ a ~1 [Prod_eq F (e' ° e)] t @ a.
 intros. simpl. unfold Prod_eq_1. simpl. unfold id.
 apply inverse. eapply composition. apply ([Dmap_comp F e e' a]). simpl.
-apply map'. apply map'. apply (Dmap t).
+refine (map _ _). refine (map _ _). apply (Dmap t).
 Defined.
 
 Program Definition Prod_eq_comp' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
@@ -250,7 +253,7 @@ admit. Defined.
 Program Definition Prod_eq_comp {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
         (e:x~1 y) (e' : y ~1 z): Prod_eq F e' ° Prod_eq F e ~ Prod_eq F (e' °e).
 exists (Prod_eq_comp' F e e'). econstructor. intros. simpl. red. intros. simpl.
-simpl_id_bi. unfold Prod_eq_comp'', id. simpl. simpl_id_bi. admit. Defined.
+simpl_id_bi. unfold Prod_eq_comp'', id. simpl. (* simpl_id_bi. *) admit. Defined.
 
 Program Definition Prod_eq_map' {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]}
         (e e':x ~1 y) (H : e ~ e') t :  

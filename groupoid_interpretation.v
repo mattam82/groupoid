@@ -106,12 +106,26 @@ Require Import groupoid_utility2.
 Set Implicit Arguments.
 Set Universe Polymorphism.
 Set Program Mode.
+
+(** These are indexed for type class resolution *)
+Typeclasses Opaque Hom_irr sum_eq sum_eq2 nat_trans modification 
+            Dnat_trans Dmodification Equiv_eq Equiv_eq2.
+
+Hint Extern 0 (@Inverse _ (@eq2 (@Hom2 (@WC (proj2 _Type))) _ _)) =>
+  exact (Inv_Equiv_eq _ _) : typeclass_instances.
+Hint Extern 0 (@Composition _ (@eq2 (@Hom2 (@WC (proj2 _Type))) _ _)) =>
+  exact (Comp_Equiv_eq _ _) : typeclass_instances.
+Hint Extern 0 (@Identity _ (@eq2 (@Hom2 (@WC (proj2 _Type))) _ _)) =>
+  exact (Id_Equiv_eq _ _) : typeclass_instances.
  
 Opaque Equiv_adjoint.
 Obligation Tactic := simpl; intros.
+
+Definition curry {Γ: Context} {T : Typ Γ} (U : TypDep T) (γ : [Γ]) :=
+  λ t : [T @ γ], U @ (γ; t).
+
 Instance Curry1 {Γ: Context} {T : Typ Γ}
-        (U : TypDep T) (γ : [Γ]) : 
-  WeakFunctor (λ t : [T @ γ], U @ (γ; t)).
+        (U : TypDep T) (γ : [Γ]) : WeakFunctor (curry U γ).
 Next Obligation. exact (map U (sum_id_left X)). Defined.
 Next Obligation. 
   eapply composition. apply (map2 U (inverse (sum_id_left_comp _ _ _ _ e e'))).
@@ -123,11 +137,13 @@ Defined.
 
 Definition Curry {Γ: Context} {T : Typ Γ}
         (U : TypDep T) (γ : [Γ]) : [T @ γ --> _Type] :=
-  (λ t : [T @ γ], U @ (γ; t) ; _). 
+  (curry U γ ; _). 
+
+Definition Family {Γ: Context} (A : Typ Γ) :=
+  (λ s : [Γ], [A] s --> _Type; TypFam_1 A).
 
 Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: Typ (_Sum A)) :
-  WeakDependentFunctor (λ s : [Γ], [A] s --> _Type; TypFam_1 A)
-                       (λ γ : [Γ], Curry B γ).
+  WeakDependentFunctor (Family A) (Curry B).
 
 Obligation Tactic := idtac.
 Next Obligation. intros. exists (fun a => map B (sum_id_right e a)).
@@ -137,42 +153,195 @@ Next Obligation. intros. exists (fun a => map B (sum_id_right e a)).
                  apply (map2 B). apply inverse, sum_id_left_right. Defined.
 
 Opaque _Type.
-Next Obligation. intros. unfold LamT_1_obligation_1. intro. simpl.
-                 eapply inverse. simpl_id. unfold Curry1_obligation_1. simpl_id.
-                 simpl_id.
-                 eapply composition. apply equiv_comp. apply identity.
-                 eapply inverse. apply (map_comp B).
-                 eapply composition. eapply inverse. apply (map_comp B).
-                 apply (map2 B).
-                 assert (((sum_id_right e' t ° sum_id_right e ([adjoint (map A e')] t))
-      ° sum_id_left ([Equiv_adjoint [map_comp A e e']] t)) ~
-     (sum_id_right (e' ° e) t)).
-                 admit.
-                 exact X.
+
+Lemma all_id_R (W : WeakGroupoidType) (x : [W]) (f g : x ~1 x) : 
+  (f ~ identity x) -> (g ~ identity x) -> (f ° g ~ identity x).
+Proof.
+  intros. eapply composition. apply comp. apply X0. apply X. apply comp_id. 
+Qed.
+Lemma all_id_inv (W : WeakGroupoidType) (x : [W]) (f : x ~1 x) : 
+  (f ~ identity x) -> (f ^-1 ~ identity x).
+Proof.
+  intros. eapply composition. apply inv. apply X. apply inv_id. 
+Qed.
+
+(* Ltac all_id := try apply (@all_id_R _); repeat *)
+(*   match goal with  *)
+(*       |- @eq2 (eq_pi4' ?type) _ _ (_ ° _) (identity _) =>  *)
+(*       apply (@all_id_R type) *)
+(*     | |- @eq2 (eq_pi4' ?type) _ _ (_ ^-1) (identity _) =>  *)
+(*       apply (@all_id_inv type) *)
+(*     | |- @eq2 (eq_pi4' ?type) _ _ (identity _) (identity _) =>  *)
+(*       apply identity *)
+(*   end. *)
+Ltac simpl_id_end ::= 
+  match goal with
+    | [ |- eq2 (?P ^-1 ° ?P) _] => compose;
+       [first [apply equiv_inv_L|apply inv_L]|idtac]
+    | [ |- eq2 (?P ° ?P ^-1) _] => compose;
+       [first [apply equiv_inv_R|apply inv_R]|idtac]
+    | [ |- eq2 (?P ° identity ?x) _] => compose;
+       [first [apply equiv_id_R|apply id_R]|idtac]
+    | [ |- eq2 (identity ?x ° ?P) _] => compose;
+       [first [apply equiv_id_L | apply id_L]|idtac]
+    | [ |- eq2 ((?P ^-1) ^-1) _] => compose;
+       [first [apply (@inv_inv _Type)|apply inv_inv]|idtac]
+    | [ |- eq2 ((identity _) ^-1) _] => compose;
+       [first [apply (@inv_id _Type)|apply inv_id]|idtac]
+    | [ |- Equiv_eq (?P ^-1 ° ?P) _] => compose; [apply equiv_inv_L|idtac]
+    | [ |- Equiv_eq (?P ° ?P ^-1) _] => compose; [apply equiv_inv_R|idtac]
+    | [ |- Equiv_eq (?P ° identity ?x) _] => compose; [apply equiv_id_R|idtac]
+    | [ |- Equiv_eq (identity ?x ° ?P) _] => compose; [apply equiv_id_L|idtac]
+    | [ |- Equiv_eq ((?P ^-1) ^-1) _] => compose; [apply (@inv_inv _Type)|idtac]
+    | [ |- Equiv_eq ((identity _) ^-1) _] => compose; [apply (@inv_id _Type)|idtac]
+  end.
+
+
+Ltac simpl_id_end_extended ::= first [ simpl_id_end |
+                                      match goal with
+                   | [ |- Equiv_eq ?e _ ] => apply (identity e)
+                   | [ |- eq2 ?e _ ] => apply (identity e)
+                   | [ |- _ ] => idtac
+                 end].
+
+Ltac simpl_id ::= first [simpl_id_end ; simpl_id |
+  lazymatch goal with
+    | |- context [identity _] => fail
+    | |- _ => apply identity
+  end|
+  lazymatch goal with
+  | [ |- eq2 (?P ^-1) _] => eapply composition;
+                           [first [apply equiv_inv | apply inv] ; simpl_id | idtac]; 
+                           try apply identity
+  | [ |- eq2 (map ?F (identity _)) _] => eapply composition;
+                                        [eapply (map_id F); simpl_id | idtac]; 
+                                        simpl_id
+  | [ |- Equiv_eq (map ?F (identity _)) _] => eapply composition;
+                                             [eapply (map_id F); simpl_id | idtac]; 
+                                             simpl_id
+  | [ |- eq2 (map ?F ?P) _] => first [eapply composition;
+                                       [eapply (map2 F); simpl_id | idtac]; 
+                                       [apply identity | idtac] | 
+                                      (progress_evars (eapply composition;
+                                                       [eapply (map2 F); simpl_id | idtac];instantiate));
+                                        simpl_id |idtac]
+  | [ |- Equiv_eq (map ?F ?P) _] => 
+    first [eapply composition;
+            [eapply (map2 F); simpl_id | idtac]; 
+            [apply identity | idtac] | 
+           (progress_evars (eapply composition;
+                            [eapply (map2 F); simpl_id | idtac];instantiate));
+             simpl_id |idtac]
+  | [ |- Equiv_eq (?P ^-1) _] =>
+    eapply composition;
+      [apply equiv_inv; simpl_id | idtac]; 
+      try apply identity
+  | [ |- Equiv_eq (?Q ° ?P) _] => 
+    eapply composition;
+      [apply equiv_comp ; simpl_id | idtac];
+      simpl_id_end_extended
+  | [ |- Equiv_eq ?e _ ] => apply (identity e)
+  | [ |- eq2 (?Q ° ?P) _] =>
+    eapply composition;
+      [first [apply equiv_comp 
+             | apply comp] ; simpl_id | idtac];
+      simpl_id_end_extended
+  | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply (identity e)]
+  | [ |- _ ] => idtac
+                         end].
+
+Ltac simpl_id_bi ::= simpl_id; eapply inverse; simpl_id.
+
+(* Ltac simpl_id_end ::=  *)
+(*   match goal with *)
+(*     | |- (@eq2 _ _ _ _ (identity _)) => all_id *)
+(*     | |- (@Equiv_eq _ _ _ (identity _)) => all_id *)
+(*     | |- (@eq2 _ _ _ _ ?R) => try (not_evar R; eapply composition) *)
+(*     | |- (@Equiv_eq _ _ _ ?R) => try (not_evar R; eapply composition) *)
+(*   end; *)
+(*   [match goal with *)
+(*      | [ |- eq2 (?P ^-1 ° ?P) _] =>  *)
+(*        first [apply inv_L | apply equiv_inv_L] *)
+(*      | [ |- eq2 (?P ° ?P ^-1) _] =>  *)
+(*        first [apply inv_R | apply equiv_inv_R] *)
+(*      | [ |- eq2 (?P ° identity ?x) _] =>  *)
+(*        first [apply id_R | apply equiv_id_R] *)
+(*      | [ |- eq2 (identity ?x ° ?P) _] =>  *)
+(*        first [apply id_L | apply equiv_id_L] *)
+(*      | [ |- eq2 ((?P ^-1) ^-1) _] =>  *)
+(*        first [apply inv_inv | apply (@inv_inv _Type)] *)
+(*      | [ |- eq2 ((identity _) ^-1) _] =>  *)
+(*        first [apply inv_id | apply (@inv_id _Type)] *)
+(*      | [ |- Equiv_eq (?P ^-1 ° ?P) _] => apply equiv_inv_L *)
+(*      | [ |- Equiv_eq (?P ° ?P ^-1) _] => apply equiv_inv_R *)
+(*      | [ |- Equiv_eq (?P ° identity ?x) _] => apply equiv_id_R *)
+(*      | [ |- Equiv_eq (identity ?x ° ?P) _] => apply equiv_id_L *)
+(*      | [ |- Equiv_eq ((?P ^-1) ^-1) _] => apply (@inv_inv _Type) *)
+(*      | [ |- Equiv_eq ((identity _) ^-1) _] => apply (@inv_id _Type) *)
+(*    end |idtac ..]. *)
+
+Transparent _Type.
+  
+Ltac mysimpl := 
+  cbn beta iota zeta delta -[_Type curry]. 
+Unset Printing All.
+
+Next Obligation. 
+  intros. unfold LamT_1_obligation_1. intro. mysimpl. Opaque _Type.
+  Transparent _Type.
+  set(foo:= curry B x ([adjoint (map A e)] ([adjoint (map A e')] t))).
+  set(foo':= curry B x ([adjoint (map A (e' ° e))] t)).
+  set(foo'':=(@curry Γ A B x
+                     (proj1
+                        (@_adjoint
+                           (@iso
+                              (proj2
+                                 (@composition (@Comp _)
+                                               (proj1 A x) (proj1 A y)
+                                               (proj1 A z) (@_map (proj2 A) x y e)
+                                               (@_map (proj2 A) y z e'))))) t))).
+  set(bar:=@curry Γ A B) in *.
+  Time eapply inverse. 
+  Time simpl_id. Time simpl_id.
+  eapply composition; [apply equiv_comp|idtac].
+  mysimpl.
+  Time apply identity.
+  Time eapply inverse.
+  apply (map_comp B).
+  eapply composition. eapply inverse. apply (map_comp B).
+  apply (map2 B).
+  assert (((sum_id_right e' t ° sum_id_right e ([adjoint (map A e')] t))
+             ° sum_id_left ([Equiv_adjoint [map_comp A e e']] t)) ~
+                                                                  (sum_id_right (e' ° e) t)).
+  admit.
+  exact X.
 Defined.
-Next Obligation. intros. unfold LamT_1_obligation_1. intro. simpl. unfold Curry1_obligation_1.
-                 apply inverse. simpl_id.
-                 eapply composition. eapply inverse.
-                 apply (map_comp B). apply (map2 B).
-                 exists (inverse H ° id_R _ _ _). simpl. 
-                 unfold eq_rect_eq, eq_rect_comp. simpl_id_bi.
-                 eapply composition. apply comp. apply identity.
-                 apply (eq_section (map2 A H)). simpl.
-                 eapply composition. apply assoc.
-                 eapply inverse.
-                 eapply composition. apply assoc.
-                 apply comp; [idtac | apply identity].
-                 eapply composition. apply comp. apply identity.
-                 apply _map_comp. eapply composition. apply assoc.
-                 eapply inverse.
-                 eapply composition. apply assoc.
-                 apply comp; [idtac | apply identity].
-                 assert (map2 A H ° map2 A (inverse H ° id_R x y e') ~
-                         id_R _ _ _ ° (map_id A ** identity _) °  map_comp A (identity x) e').
-                 trunc_eq.
-                 eapply composition. apply X. 
-                 unfold HorComp. Transparent _Type. simpl.
-                 simpl_id. simpl_id_bi.
+
+Next Obligation. 
+Proof. 
+  intros. unfold LamT_1_obligation_1. intro. mysimpl. unfold Curry1_obligation_1.
+  apply inverse. simpl_id.
+  eapply composition. eapply inverse.
+  apply (map_comp B). apply (map2 B).
+  exists (inverse H ° id_R _ _ _). simpl. 
+  unfold eq_rect_eq, eq_rect_comp. simpl_id_bi.
+  eapply composition. apply comp. apply identity.
+  apply (eq_section (map2 A H)). simpl.
+  eapply composition. apply assoc.
+  eapply inverse.
+  eapply composition. apply assoc.
+  apply comp; [idtac | apply identity].
+  eapply composition. apply comp. apply identity.
+  apply _map_comp. eapply composition. apply assoc.
+  eapply inverse.
+  eapply composition. apply assoc.
+  apply comp; [idtac | apply identity].
+  assert (map2 A H ° map2 A (inverse H ° id_R x y e') ~
+               id_R _ _ _ ° (map_id A ** identity _) °  map_comp A (identity x) e').
+  trunc_eq.
+  eapply composition. apply X. 
+  unfold HorComp. simpl. Transparent _Type. mysimpl.
+  simpl_id. 
 Defined.
 (* end hide *)
 
@@ -196,39 +365,62 @@ Next Obligation. eapply composition; try apply ([Dmap F X] (a @ y)).
                  simpl. unfold id. apply (map (F @ x)).
                  apply equiv_adjoint.
 Defined.
-Next Obligation. unfold SubstT_1_obligation_1.
-                 eapply composition. apply equiv_comp. apply identity.
-                 apply (Dmap_comp F e e' (a @ z)).
-                 eapply composition. apply equiv_assoc. eapply composition. apply equiv_assoc.
-                 eapply inverse. eapply composition. apply equiv_assoc. apply equiv_comp; try apply identity.
-                 unfold eq_rect_map, eq_rect_comp, eq_rect.
-                 unfold groupoid.arrow_id_obligation_1. unfold id.
-                 unfold groupoid.arrow_comp_obligation_1. eapply inverse.
-                 unfold equiv_adjoint. Opaque _Type _Type_comp. simpl.
-                 simpl_id. simpl_id. simpl.
-                 unfold groupoid.arrow_id_obligation_1. unfold id.
-                 simpl_id. eapply inverse. eapply composition. eapply inverse. apply equiv_assoc.
-                 eapply composition. apply equiv_comp. apply identity. eapply inverse.
-                 apply (α_map (Dmap F e)).
-                 eapply composition. apply equiv_assoc.
-                 apply equiv_comp; [idtac | apply identity]. simpl.
-                 unfold groupoid.arrow_comp_obligation_1. simpl.
-                 unfold groupoid.arrow_id_obligation_1. unfold id.
-                 unfold groupoid.arrow_comp_obligation_1.
-                 eapply composition. eapply inverse. apply (map_comp (F @ x)).
-                 eapply inverse. eapply composition.
-                 eapply inverse. apply (map_comp (F @ x)).
-                 apply (map2 (F @ x)). apply Equiv_adjoint_comp.
+
+Tactic Notation "rapply" open_constr(f) := 
+  first[refine (f _ _ _ _ _ _ _ _ _ _)|
+        refine (f _ _ _ _ _ _ _ _ _)|
+        refine (f _ _ _ _ _ _ _ _)|
+        refine (f _ _ _ _ _ _ _ )|
+        refine (f _ _ _ _ _ _ )|
+        refine (f _ _ _ _ _)|
+        refine (f _ _ _ _)|
+        refine (f _ _ _ )|
+        refine (f _ _)|
+        refine (f _)].
+
+Ltac mysimpl ::=
+     cbn beta iota zeta delta -[_Type _Type_comp curry Equiv_cat _Equiv_Id eq_rect_comp].
+
+Next Obligation.
+Proof. 
+  unfold SubstT_1_obligation_1.
+  eapply composition. apply equiv_comp. apply identity.
+  apply (Dmap_comp F e e' (a @ z)). 
+  eapply composition.
+  mysimpl.
+  eapply equiv_assoc. eapply composition. eapply equiv_assoc.
+  eapply inverse. eapply composition. apply equiv_assoc.
+  apply equiv_comp; try apply identity.
+
+  unfold eq_rect_comp. unfold _map_comp. Opaque _Type. simpl _map_comp.
+  simpl proj1. cbn beta. Transparent _Type.
+  unfold equiv_adjoint.
+  apply inverse. simpl_id. simpl_id.
+  mysimpl.
+  
+  eapply inverse. eapply composition. eapply inverse. apply equiv_assoc.
+  eapply composition. apply equiv_comp. apply identity. eapply inverse.
+  apply (α_map (Dmap F e)).
+  Time eapply composition.
+  Time eapply equiv_assoc.
+  apply equiv_comp; [idtac | apply identity]. 
+  eapply composition. eapply inverse. apply (map_comp (F @ x)).
+  eapply inverse. eapply composition.
+  eapply inverse.
+  apply (map_comp (F @ x)).
+  apply (map2 (F @ x)). apply Equiv_adjoint_comp.
 Defined.
-Next Obligation. unfold SubstT_1_obligation_1.
-                 eapply composition. apply equiv_comp. apply identity.
-                 apply (Dmap2 F X (a @ y)).
-                 simpl.
-                 unfold groupoid.arrow_id_obligation_1, id. simpl_id.
-                 eapply composition. apply equiv_assoc.
-                 apply equiv_comp; [idtac | apply identity].
-                 eapply composition. eapply inverse. apply (map_comp (F @ x)).
-                 apply (map2 (F @ x)). apply Equiv_adjoint_eq.
+
+Next Obligation. 
+Proof. 
+  unfold SubstT_1_obligation_1.
+  eapply composition. apply equiv_comp. apply identity.
+  apply (Dmap2 F X (a @ y)).
+  mysimpl. simpl_id.
+  eapply composition. apply equiv_assoc.
+  apply equiv_comp; [idtac | apply identity].
+  eapply composition. eapply inverse. apply (map_comp (F @ x)).
+  apply (map2 (F @ x)). apply Equiv_adjoint_eq.
 Defined.
  
 (* end hide *)
@@ -285,26 +477,37 @@ Instance substF_1 {T Γ} {A:Typ Γ} (F:TypFam A) (f:[T --> Γ]) :
   WeakDependentFunctor (λ s : [T], [A ° f] s --> _Type; TypFam_1 (A ° f))
      (λ s : [T], [F] ([f] s)).
 Next Obligation. exact (Dmap F (map f e)). Defined.
-Next Obligation. intro. intros; simpl. unfold substF_1_obligation_1, id. simpl_id_bi.
-                 apply inverse.
-                 eapply composition. apply (Dmap2 F (map_comp f e e') t).
-                 eapply composition. apply equiv_comp. apply identity.
-                 apply (Dmap_comp F (map f e) (map f e') t). simpl.
-                 unfold eq_rect_eq. simpl_id.
-                 eapply composition. apply equiv_assoc.
-                 eapply composition. apply equiv_assoc. apply inverse.
-                 eapply composition. apply equiv_assoc.
-                 apply equiv_comp; [idtac | apply identity].
-                 apply equiv_comp; [idtac | apply identity].
-                 apply inverse. eapply composition. apply equiv_assoc.
-                 apply equiv_comp; [idtac | apply identity].
-                 eapply composition. eapply inverse.
-                 apply (map_comp ([F] ([f] x))).
-                 apply (map2 ([F] ([f] x))).
-                 apply inverse. apply (groupoid.Equiv_adjoint_comp [map2 A (map_comp f e e')]  [map_comp A (map f e) (map f e')] t). Defined.
-Next Obligation. intro. eapply composition. eapply (Dmap2 F (map2 f H) t).
-                 simpl_id_bi.
+Next Obligation. 
+  intro. unfold substF_1_obligation_1. mysimpl.
+  eapply inverse. unfold eq_rect_comp. 
+  Opaque _Type. simpl proj1. cbn beta. Transparent _Type.
+  simpl_id. simpl_id.
+  apply inverse.
+  eapply composition. apply (Dmap2 F (map_comp f e e') t).
+  eapply composition. apply equiv_comp. apply identity.
+  apply (Dmap_comp F (map f e) (map f e') t). mysimpl.
+  unfold eq_rect_comp. 
+  Opaque _Type. simpl proj1. cbn beta. Transparent _Type.
+  simpl_id. simpl_id.
+  eapply composition. apply equiv_assoc.
+  eapply composition. apply equiv_assoc. apply inverse.
+  eapply composition. apply equiv_assoc.
+  apply equiv_comp; [idtac | apply identity].
+  apply equiv_comp; [idtac | apply identity].
+  apply inverse.
+  eapply composition. 
+  eapply inverse.
+  apply (map_comp ([F] ([f] x))).
+  apply (map2 ([F] ([f] x))).
+  apply inverse. 
+  apply (groupoid.Equiv_adjoint_comp [map2 A (map_comp f e e')]  [map_comp A (map f e) (map f e')] t). Defined.
+
+Next Obligation. 
+Proof. 
+  intro. eapply composition. eapply (Dmap2 F (map2 f H) t).
+  simpl_id_bi.
 Defined.
+
 
 (* end hide *)
 
@@ -354,10 +557,14 @@ Notation "⇑ A" := (A ° SubWeak) (at level 9, t at level 9).
 
 Definition SubstT {Γ:Context} {A:Typ Γ} (F:TypFam A) (a:Elt A) : Typ Γ :=
   (λ γ, (F @ γ) @ (a @ γ) ; _).
+Obligation Tactic := idtac.
 
+  Transparent _Type.
 Definition substF {T Γ} {A:Typ Γ} (F:TypFam A)
- (σ:[T --> Γ]) : TypFam (A ° σ) := ([ F °° σ] ; _).
-Next Obligation. exact (substF_1 _ _). Defined.
+ (σ:[T --> Γ]) : TypFam (A ° σ).
+  do 3 red.
+  simpl.
+  exists [F °° σ]. (* Diverges apply _. *) apply (substF_1 _ _). Defined.
 
 Notation  "F '°°°' σ " := (substF F σ) (at level 50). 
 
@@ -369,10 +576,13 @@ Notation  "F '{{' a '}}'" := (SubstT F a) (at level 50).
  that [LamT] defines a type level $\lambda$-abstraction.
 
 *)
+Definition rhsBeta {T Γ:Context} {A:Typ Γ} (B:TypDep A)
+      (σ:[T --> Γ]) (a:Elt (A ° σ)) : Typ T :=
+  B ° (SubExt σ a).
 
 Lemma BetaT {T Γ:Context} {A:Typ Γ} (B:TypDep A)
       (σ:[T --> Γ]) (a:Elt (A ° σ)) :
-  LamT B °°° σ {{a}} ~1 B ° (SubExt σ a).
+  rhsBeta B a ~1 LamT B °°° σ {{a}}.  ((B ° (SubExt σ a)) : Typ T).
   exists (fun t => identity _).
   econstructor. intros; simpl. eapply composition. apply equiv_id_L.
   apply inverse. eapply composition. apply equiv_id_R.
@@ -481,7 +691,6 @@ Definition Prod {Γ} (A:Typ Γ) (F:TypFam A) : Typ Γ :=
 
 Instance App_1 {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)) (a:Elt A) :
   WeakDependentFunctor (F {{a}}) (λ s : [Γ], [[c] s] ([a] s)).
-Program Instance fun_pi (T U : WeakGroupoidType) (f : T ---> U) : WeakFunctor [f] := Π2 f.
 
 Next Obligation. eapply composition; try apply (Dmap (c @ y) (Dmap a e)).
                  unfold eq_rect.
@@ -572,7 +781,7 @@ Next Obligation. exact (Lam_2 _). Defined.
   %\paragraph{\lrule{Conv}.}%
 
   It is not possible to prove in %\Coq% that the conversion rule is
-  preserved because the application this rule is implicit and
+  preserved because the application of this rule is implicit and
   can not reified. Nevertheless, to witness this preservation, 
   we show that beta conversion is valid as a Leibniz 
   equality on the first projection. As conversion is only done on 
@@ -821,7 +1030,7 @@ destruct α as [α [H]]. simpl. unfold id in H.
 intro. simpl in α. 
 exists (fun t => α (γ ; t)). 
 econstructor. intros; simpl in *. 
-simpl in H. unfold Dmap in H. simpl in H.
+simpl in H. simpl in H.
 
 assert (foo : forall M: Elt (Prod (LamT F)), App_1_obligation_1 (F := substF (LamT F) SubWeak)
           (λ a : [_Sum A], M @ [a];
