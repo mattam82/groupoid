@@ -206,3 +206,27 @@ Definition TypDep {Γ : Context} (A: Typ Γ) := Typ (_Sum A).
 
 Definition TypFam {Γ : Context} (A: Typ Γ) := 
   [_Prod (λ γ, A @ γ --> _Type; _)]. 
+
+Class Action {T} (homAc : T -> Type) :=
+{  WC :> WeakCategory T;
+   eqAc : ∀ {x}, HomT (homAc x);
+   action : ∀ {x y : T}, (x ~1 y) -> (homAc y) -> (homAc x) ;
+   idAc : ∀ {x} (f : homAc x), eqAc (action (identity x) f) f ;
+   assocAc : ∀ {x y z} (σ: x ~1 y) (τ: y ~1 z) (f: homAc z),
+            eqAc (action (τ ° σ) f) (action σ (action τ f))
+}.
+
+Notation  "f '⋅' σ" := (action σ f) (at level 50).
+
+Instance ActionType : Action (T:=[_Type]) (fun T => T ---> _Type) :=
+  {| WC := WeakCategory_fun ; eqAc := λ T, nat_trans (T:=T) (U:=_Type) ;
+     action := λ T U (σ: [T --> U]) (f : [U --> _Type]), (λ x, f @ (σ @ x) ; arrow_comp _ _ _ _ _) |}.
+Next Obligation. exists (λ t , identity _). econstructor. intros.
+                 eapply composition. apply equiv_id_L. eapply inverse. apply equiv_id_R. Defined.
+Next Obligation. exists (λ t , identity _).  econstructor. intros.
+                 eapply composition. apply equiv_id_L. eapply inverse. apply equiv_id_R. Defined.
+
+Definition idTypDep (Γ:Context) : Typ Γ := (λ t, Γ; _).  
+
+Definition idTypDep'' (Γ:Context) (σ:[Γ --> Γ]) : Typ Γ := idTypDep Γ ⋅ σ.
+

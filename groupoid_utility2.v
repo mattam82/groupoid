@@ -52,7 +52,7 @@ Definition Equiv_adjoint_identity {Γ:Context} {A:Typ Γ} (a:Elt A) (x:[Γ]) :
   eapply composition. eapply comp. apply inverse, comp_inv. apply identity. 
   eapply composition. eapply inverse. apply assoc. eapply composition. apply comp. apply identity. 
   eapply inverse.
-  exact (α_map (inverse (Equiv_adjoint [map_id A])) ([[map_id A]] ([a] x))).
+  exact (α_map (inverse (Equiv_adjoint [map_id A])) ([[map_id A]] ([a] x))). 
   eapply composition. apply assoc. apply comp. apply inv_R. apply identity. apply identity. 
   simpl_id. apply inv_R.
 Defined.
@@ -160,7 +160,7 @@ Instance equiveq_pi T U (f g : T <~> U) (α:Equiv_eq f g) : EquivEq [α] := Π2 
 (* begin hide *)
 
 Instance comp_fun_depfun_1 (T T': [_Type]) (U : [T' --> _Type])
-        (F : [T --> T']) (G : [_Prod U]) : WeakDependentFunctor (U ° F) (λ x : [T], G @ (F @ x)).
+        (F : [T --> T']) (G : [_Prod U]) : WeakDependentFunctor (U ⋅ F) (λ x : [T], G @ (F @ x)).
 Next Obligation. apply (Dmap G (map F e)). Defined.
 Next Obligation. unfold comp_fun_depfun_1_obligation_1. 
                  eapply composition. apply (Dmap2 G (map_comp F e e')).
@@ -171,7 +171,7 @@ Next Obligation. unfold comp_fun_depfun_1_obligation_1.
 Next Obligation. apply (Dmap2 G (map2 F H)). Defined. 
 
 Definition comp_fun_depfun {T T': [_Type]} {U : [T' --> _Type]}
-        (F : [T --> T']) (G : [_Prod U]) : [_Prod (U ° F)] :=
+        (F : [T --> T']) (G : [_Prod U]) : [_Prod (U ⋅ F)] :=
 (λ x : [T], G @ (F @ x); comp_fun_depfun_1 _ _ _ _ _).
 
 (* end hide *)
