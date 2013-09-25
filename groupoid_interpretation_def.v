@@ -141,7 +141,7 @@ Set Implicit Arguments.
 
 Program Definition _Hom_irr T (Hom : HomT1 T) : HomT2 eq1 := {| eq2 := fun x y => Hom_irr _ |}.
 
-Obligation Tactic := intros; constructor; intros; exact tt.
+Obligation Tactic := intros; try (constructor; intros; exact tt).
 
 Program Instance IrrRelEquiv T : Equivalence (Hom_irr T).
 Program Instance IrrRelCat T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1): CategoryP (_Hom_irr Hom).
@@ -160,6 +160,11 @@ Program Definition IrrRelWeakCategory T (Hom : HomT1 T) (id : Identity eq1) (com
 
 Program Definition IrrRelWeakGroupoid T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1) : WeakGroupoid T := 
   {| WC := IrrRelWeakCategory id comp ; G := IrrRelGrp T Hom id comp inv|}.
+
+Next Obligation.
+Proof.
+  simpl in E. red in E. simpl in E'. red in E'. destruct E, E'. reflexivity.
+Qed.
 
 Arguments IrrRelWeakGroupoid {T} Hom {id comp inv}.
 

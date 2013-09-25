@@ -20,15 +20,15 @@ Definition equiv_adjoint {Γ:Context} {A:Typ Γ} (a:Elt A)
 Definition Equiv_adjoint_comp {Γ:Context} {A:Typ Γ} (a:Elt A) (x y z:[Γ]) (e:x~1 y) (e': y ~1 z):
 [Equiv_adjoint [map_comp A e e']] ([a] z) ° equiv_adjoint a (e' ° e) ~
    map (adjoint (map A e)) (equiv_adjoint a e') ° equiv_adjoint a e.
-(* unfold equiv_adjoint. simpl.  *)
-(* eapply composition. apply comp. apply comp. apply identity. *)
-(* eapply composition. apply map2. apply Dmap_comp. eapply composition. *)
-(* apply map_comp. apply comp. apply identity. apply map_comp. apply identity. *)
-(* unfold eq_rect_map, eq_rect_comp.  *)
+unfold equiv_adjoint. simpl.
+eapply composition. apply comp. apply comp. apply identity.
+eapply composition. apply _map2. apply _Dmap_comp. eapply composition.
+apply _map_comp. apply comp. apply identity. apply _map_comp. apply identity.
+unfold eq_rect_map, eq_rect_comp.
 (* unfold map; simpl. *)
-(* eapply composition. apply comp. apply identity. *)
-(* apply (Equiv_adjoint_simpl [map_comp A e e']). simpl. simpl_id. *)
-(* unfold inverse. unfold eq_pi6', id. *)
+eapply composition. apply comp. apply identity.
+apply (Equiv_adjoint_simpl [map_comp A e e']). simpl. simpl_id.
+unfold inverse. 
 Admitted.
 
 Definition Equiv_adjoint_eq {Γ:Context} {A:Typ Γ} (a:Elt A) (x y:[Γ]) (e e':x~1 y) (E: e ~ e'):

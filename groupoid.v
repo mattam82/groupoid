@@ -197,7 +197,7 @@ Class CategoryP {T} {Hom1 : HomT1 T} (Hom2: HomT2 eq1)
      assoc : ∀ x y z w (f: x ~1 y) (g: y ~1 z) (h: z ~1 w),
               (h ° g) ° f ~ h ° (g ° f);
      comp : ∀ x y z (f f': x ~1 y) (g g': y ~1 z), 
-              f ~ f' -> g ~ g' -> g ° f ~ g' ° f'}.
+              f ~ f' -> g ~ g' -> g ° f ~ g' ° f' }.
 
 (**
 
@@ -224,9 +224,6 @@ Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => exact (@Hom2 T) : typeclass_instan
 Hint Extern 1 (WeakCategory [?T]) => exact (proj2 T) : typeclass_instances.
 
 (* end hide *)
-
-Axiom Trunc_2 : ∀ (T:WeakCatType) (x y : [T])
-  (e e' : x ~1 y) (E E' : e ~2 e'), E = E'.
 
 (** 
     A weak groupoid is a weak category where all 1-Homs are invertible
@@ -265,7 +262,9 @@ Infix "**" := HorComp (at level 50).
 (* end hide*)
 
 Class WeakGroupoid T := {
-  WC :> WeakCategory T ; G :> GroupoidP Category_1}.
+  WC :> WeakCategory T ; G :> GroupoidP Category_1; 
+     is_Trunc_2 : ∀ (x y : T)
+                 (e e' : x ~1 y) (E E' : e ~2 e'), E = E' }.
 
 
 (* begin hide *)
@@ -273,6 +272,10 @@ Class WeakGroupoid T := {
 Definition WeakGroupoidType := sigma WeakGroupoid.
 
 Hint Extern 1 (WeakGroupoid [?T]) => exact (Π2 T) : typeclass_instances.
+
+Definition Trunc_2 (T:WeakGroupoidType) (x y : [T])
+  (e e' : x ~1 y) (E E' : e ~2 e') : E = E' :=
+  is_Trunc_2 x y e e' E E'.
 
 (* Program Instance eq_pi1' (T : WeakGroupoidType) : WeakGroupoid [T] := Π2 T. *)
 
@@ -646,6 +649,14 @@ Program Instance nat_category T U : WeakCategory (T ---> U) :=
   {| Hom1 := nat_transHom T U; Hom2 := modificationHom T U|}.
 
 Program Instance nat_groupoid (T U : WeakGroupoidType) : WeakGroupoid (T ---> U).
+Next Obligation. 
+  intros. red in E, E'. red in e, e'. destruct e as [f Hf], e' as [f' Hf']. 
+  simpl in E. simpl in *. 
+  Require Import FunctionalExtensionality.
+  extensionality z.
+  apply (@Trunc_2 U ([x] z) ([y] z) (f z) (f' z) (E z) (E' z)). 
+Qed.
+
 
 (* end hide *)
 
@@ -1306,6 +1317,14 @@ Program Instance Equiv_2category T U : WeakCategory (T <~> U) | 10 :=
 
 Program Instance __Equiv_eq_group T U : WeakGroupoid (T <~> U).
 
+Next Obligation.
+Proof.
+  unfold Equiv_2category in E. simpl in E. red in E.
+  unfold Equiv_2category in E'. simpl in E'. red in E'.
+  (* Here we assume all modifications are equal *)
+  admit.
+Qed.
+
 Definition section_comp_l (X Y Z : WeakGroupoidType) 
            (f : X <~> Y) (g : Y <~> Z) (z : [Z]) :=
   (section (g ° f) @ z).
@@ -1483,7 +1502,13 @@ Program Instance Equiv_WeakCategory : WeakCategory WeakGroupoidType :=
 
 Program Instance Equiv_WeakGroupoid : WeakGroupoid WeakGroupoidType.
 
-
+Next Obligation. 
+Proof.
+  intros.
+  
+  (* We're supposing all natural transformations are equal. *)
+  admit.
+Qed.
 
 (* end hide *)
 
@@ -1887,9 +1912,18 @@ Program Instance Dnat_2category T (U:[T --> _Type]) :
 Program Instance prod_weakgroupoid T (U:[T --> _Type]) : 
   WeakGroupoid (Prod_Type U).
 
+Next Obligation.
+Proof.
+  unfold Equiv_2category in E. simpl in E. red in E.
+  unfold Equiv_2category in E'. simpl in E'. red in E'.
+  (* Here we assume all Dmodifications are equal *)
+  admit.
+Qed.
+
+  
 (* end hide *)
 
-Definition _Prod T (U:[T --> _Type]) := (Prod_Type U ; prod_weakgroupoid U).
+Definition _Prod T (U:[T --> _Type]) := (Prod_Type U ; prod_weakgroupoid T U).
 
 
 (**
@@ -2117,10 +2151,20 @@ Program Instance sum_weakcategory T U : WeakCategory (sum_type (T:=T) U) :=
   {| Hom1 := sum_eqHom U; Hom2 := sum_eq2Hom U |}.
 
 Program Instance sum_weakgroupoid T U : WeakGroupoid (sum_type (T:=T) U). 
+Next Obligation.
+Proof.
+  simpl in E. red in E.
+  simpl in E'. red in E'.
+  destruct E as [eqE eqE2], E' as [eqE' eqE'2].
+  assert(eqE = eqE').
+  apply (Trunc_2).
+  subst eqE.
+  apply f_equal. apply Trunc_2.
+Qed.
 
 (* end hide *)
 
-Definition _Sum T (U:[T-->_Type]) := (sum_type U ; sum_weakgroupoid U). 
+Definition _Sum T (U:[T-->_Type]) := (sum_type U ; sum_weakgroupoid T U). 
 
 (** %\noindent% The proof [sum_weakgroupoid U] that we actually have a
 weak groupoid makes use of the fact that [~] on [U @ t] is always
