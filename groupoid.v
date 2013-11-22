@@ -1890,8 +1890,7 @@ Program Instance Dnat_trans_cat T (U:[T --> _Type]) :
 Next Obligation. intro t. apply id_R. Defined.
 Next Obligation. intro t. apply id_L. Defined.
 Next Obligation. intro t. apply assoc. Defined.
-Next Obligation. 
-  reduce. apply comp. apply X. apply X0. 
+Next Obligation. intro t. apply comp. apply X. apply X0. 
 Defined.
 
 Program Instance Dnat_trans_grp T U : GroupoidP (Dnat_trans_cat T U).
@@ -1917,18 +1916,18 @@ Program Instance Dnat_2category T (U:[T --> _Type]) :
 Program Instance prod_weakgroupoid T (U:[T --> _Type]) : 
   WeakGroupoid (Prod_Type U).
 
-Next Obligation.
-Proof.
-  unfold Equiv_2category in E. simpl in E. red in E.
-  unfold Equiv_2category in E'. simpl in E'. red in E'.
-  (* Here we assume all Dmodifications are equal *)
-  admit.
-Qed.
+(* Next Obligation. *)
+(* Proof. *)
+(*   unfold Equiv_2category in E. simpl in E. red in E. *)
+(*   unfold Equiv_2category in E'. simpl in E'. red in E'. *)
+(*   (* Here we assume all Dmodifications are equal *) *)
+(*   admit. *)
+(* Qed. *)
 
   
 (* end hide *)
 
-Definition _Prod T (U:[T --> _Type]) := (Prod_Type U ; prod_weakgroupoid T U).
+Definition _Prod T (U:[T --> _Type]) := (Prod_Type U ; prod_weakgroupoid U).
 
 
 (**
@@ -2133,21 +2132,21 @@ Program Instance sum_groupoid2 (T : [_Type]) (U : [T --> _Type]) :
 Next Obligation. 
 Proof. 
   exists (inv_R _ _ _).
-  simpl.
-  unfold eq_rect_comp, eq_rect, eq_rect_eq, eq_rect_id.
-  unfold Equiv_injective. simpl. 
-  Time simpl_id.
-  eapply composition. apply comp. apply identity.
-  apply comp. eapply _map2.
-  eapply composition. apply comp. apply identity.
-  eapply composition. eapply inverse. apply comp_inv. 
-  apply comp. eapply composition. eapply inverse. apply map_inv.
-  eapply composition.
-  eapply _map2. apply inv_inv.
-  eapply composition. eapply _map_comp.
-  apply comp. eapply _map_comp.
-  apply identity. apply identity. apply identity. 
-  apply identity. 
+  (* simpl. *)
+  (* unfold eq_rect_comp, eq_rect, eq_rect_eq, eq_rect_id. *)
+  (* unfold Equiv_injective. simpl.  *)
+  (* Time simpl_id. *)
+  (* eapply composition. apply comp. apply identity. *)
+  (* apply comp. eapply _map2. *)
+  (* eapply composition. apply comp. apply identity. *)
+  (* eapply composition. eapply inverse. apply comp_inv.  *)
+  (* apply comp. eapply composition. eapply inverse. apply map_inv. *)
+  (* eapply composition. *)
+  (* eapply _map2. apply inv_inv. *)
+  (* eapply composition. eapply _map_comp. *)
+  (* apply comp. eapply _map_comp. *)
+  (* apply identity. apply identity. apply identity.  *)
+  (* apply identity.  *)
   admit. Defined.
 Next Obligation. simpl in *. exists (inv_L _ _ _). admit. Defined.
 Next Obligation. simpl in *. exists (inv _ _ _ _ [X]). admit. Defined.
@@ -2156,20 +2155,20 @@ Program Instance sum_weakcategory T U : WeakCategory (sum_type (T:=T) U) :=
   {| Hom1 := sum_eqHom U; Hom2 := sum_eq2Hom U |}.
 
 Program Instance sum_weakgroupoid T U : WeakGroupoid (sum_type (T:=T) U). 
-Next Obligation.
-Proof.
-  simpl in E. red in E.
-  simpl in E'. red in E'.
-  destruct E as [eqE eqE2], E' as [eqE' eqE'2].
-  assert(eqE = eqE').
-  apply (Trunc_2).
-  subst eqE.
-  apply f_equal. apply Trunc_2.
-Qed.
+(* Next Obligation. *)
+(* Proof. *)
+(*   simpl in E. red in E. *)
+(*   simpl in E'. red in E'. *)
+(*   destruct E as [eqE eqE2], E' as [eqE' eqE'2]. *)
+(*   assert(eqE = eqE'). *)
+(*   apply (Trunc_2). *)
+(*   subst eqE. *)
+(*   apply f_equal. apply Trunc_2. *)
+(* Qed. *)
 
 (* end hide *)
 
-Definition _Sum T (U:[T-->_Type]) := (sum_type U ; sum_weakgroupoid T U). 
+Definition _Sum T (U:[T-->_Type]) := (sum_type U ; sum_weakgroupoid U). 
 
 (** %\noindent% The proof [sum_weakgroupoid U] that we actually have a
 weak groupoid makes use of the fact that [~] on [U @ t] is always
