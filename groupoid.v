@@ -1767,14 +1767,14 @@ Hint Extern 0 (WeakDependentFunctor _ [?f]) => exact (proj2 f) : typeclass_insta
 Print _Dmap_comp.
 
 Notation "'Dmap' f" := (@_Dmap _ _ _ (proj2 f) _ _) (at level 0, f at level 0).
-Notation Dmap_comp f := (@_Dmap_comp _ _ _ (proj2 f) _ _ _).
-Notation Dmap2 f := (@_Dmap2 _ _ _ (proj2 f) _ _ _ _).
+Notation "'Dmap_comp' f" := (@_Dmap_comp _ _ _ (proj2 f) _ _ _) (at level 0, f at level 0).
+Notation "'Dmap2' f" := (@_Dmap2 _ _ _ (proj2 f) _ _ _ _) (at level 0, f at level 0).
 
 Definition Dmap_id {T:[_Type]} {U:[T --> _Type]} (f: Prod_Type U) {x: [T]} : 
   Dmap f (identity x) ~ eq_rect_id U @ (f @ x).
 Proof.  
   eapply right_simplify'. eapply right_simplify'.
-  eapply composition. eapply inverse. eapply (Dmap_comp f).
+  eapply composition. eapply inverse. eapply (Dmap_comp f). 
   eapply composition. eapply (Dmap2 f (id_L _ _ (identity x))).
   unfold eq_rect_eq, eq_rect_map, eq_rect_comp, eq_rect_id. 
   apply inverse. eapply composition. apply comp. apply identity.
