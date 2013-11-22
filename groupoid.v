@@ -83,18 +83,18 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Require Import Setoid.
+(* Require Import Setoid. *)
 Set Universe Polymorphism.
+Set Primitive Projections.
+Definition id {A : Type} (a : A) := a.
+
+Arguments id /.
 
 Record sigma {A : Type} (P : A -> Type) :=
   { proj1 : A ; proj2 : P proj1 }.
 Notation " { x : T & P } " := (sigma (fun x : T => P)).
 Notation Π1 := proj1.
 Notation Π2 := proj2.
-
-Definition id {A : Type} (a : A) := a.
-
-Arguments id /.
 
 Set Implicit Arguments.
 
@@ -143,14 +143,14 @@ Definition HomT (T : Type) := T -> T -> Type.
 *)
 
 Class HomT1 T := {eq1 : HomT T}.
-Infix "~1" := eq1 (at level 80).
+Infix "~1" := ((_).(eq1)) (at level 80).
 
 Class HomT2 {T} (Hom : HomT T) := 
   {eq2 : ∀ {x y : T}, HomT (Hom x y)}.
-Infix "~2" := eq2 (at level 80).
+Infix "~2" := ((_).(eq2)) (at level 80).
 
 (* begin hide *)
-Infix "~" := eq2 (at level 80). 
+Infix "~" := (_.(eq2)) (at level 80). 
 (* end hide *)
 
 (** Given a [Hom], we define type classes that represent that the
@@ -174,7 +174,7 @@ Class Composition {A} (Hom : HomT A) :=
 
 Notation  "g ° f" := (composition f g) (at level 50). 
 Notation  "f ^-1" := (inverse f) (at level 45). 
-Notation "[ T ]" := (@proj1 T).
+Notation "[ T ]" := (proj1 T).
 Notation " ( x ; p ) " := (@Build_sigma _ _ x p).
 (* end hide *)
 
@@ -219,7 +219,7 @@ Definition WeakCatType := {T:Type & WeakCategory T}.
 
 Hint Extern 1 (@Equivalence (@eq1 (@Hom1 ?T) ?x ?y) eq2) => 
   exact (@Equivalence_2 T x y) : typeclass_instances.
-Hint Extern 1 (@CategoryP (proj1 ?T) (@Hom1 ?T) _) => exact (@Category_1 T) : typeclass_instances.
+(* Hint Extern 1 (@CategoryP (proj1 ?T) (@Hom1 ?T) _) => exact (@Category_1 (proj2 T)) : typeclass_instances. *)
 Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => exact (@Hom2 T) : typeclass_instances.
 Hint Extern 1 (WeakCategory [?T]) => exact (proj2 T) : typeclass_instances.
 
@@ -232,10 +232,8 @@ Hint Extern 1 (WeakCategory [?T]) => exact (proj2 T) : typeclass_instances.
 
 *)
 
-
-
 Class GroupoidP {T} {Hom1 : HomT1 T} {Hom2: HomT2 eq1} 
-  (Cat : CategoryP Hom2) := { Inv :> Inverse eq1;
+  (Cat : CategoryP Hom2) := { Inv :> Inverse eq1 ;
   inv_R : ∀ x y (f: x ~1 y), f ° f ^-1 ~ identity y ;
   inv_L : ∀ x y (f: x ~1 y), f ^-1 ° f ~ identity x ;
   inv :   ∀ x y (f f': x ~1 y), f ~ f' -> f ^-1 ~ f' ^-1}.
@@ -262,9 +260,10 @@ Infix "**" := HorComp (at level 50).
 (* end hide*)
 
 Class WeakGroupoid T := {
-  WC :> WeakCategory T ; G :> GroupoidP Category_1; 
-     is_Trunc_2 : ∀ (x y : T)
-                 (e e' : x ~1 y) (E E' : e ~2 e'), E = E' }.
+  WC :> WeakCategory T ; G :> GroupoidP Category_1 }.
+
+     (* is_Trunc_2 : ∀ (x y : T) *)
+     (*             (e e' : x ~1 y) (E E' : e ~2 e'), E = E' }. *)
 
 
 (* begin hide *)
@@ -273,9 +272,12 @@ Definition WeakGroupoidType := sigma WeakGroupoid.
 
 Hint Extern 1 (WeakGroupoid [?T]) => exact (Π2 T) : typeclass_instances.
 
-Definition Trunc_2 (T:WeakGroupoidType) (x y : [T])
-  (e e' : x ~1 y) (E E' : e ~2 e') : E = E' :=
-  is_Trunc_2 x y e e' E E'.
+Axiom Trunc_2 : forall (T:WeakGroupoidType) (x y : [T])
+  (e e' : x ~1 y) (E E' : e ~2 e'), E = E'.
+
+(* Definition Trunc_2 (T:WeakGroupoidType) (x y : [T]) *)
+(*   (e e' : x ~1 y) (E E' : e ~2 e') : E = E' := *)
+(*   is_Trunc_2 x y e e' E E'. *)
 
 (* Program Instance eq_pi1' (T : WeakGroupoidType) : WeakGroupoid [T] := Π2 T. *)
 
@@ -451,9 +453,9 @@ subject to compatibility laws.
 
 Class WeakFunctor {T U : WeakGroupoidType} (f : [T] -> [U]) : Type :=
 { _map : ∀ {x y}, x ~1 y -> f x ~1 f y ;
-  _map_comp : ∀ x y z (e:x ~1 y) (e':y ~1 z),
+  _map_comp : ∀ {x y z} (e:x ~1 y) (e':y ~1 z),
                 _map (e' ° e) ~2 _map e' ° _map e ;
-  _map2 : ∀ (x y:[T]) (e e' : x ~1 y),
+  _map2 : ∀ {x y:[T]} {e e' : x ~1 y},
           (e ~2 e') -> _map  e ~2 _map e' }.
 
 Definition Fun_Type (T U : WeakGroupoidType) :=
@@ -463,9 +465,9 @@ Definition Fun_Type (T U : WeakGroupoidType) :=
 
 Infix "--->" := Fun_Type (at level 55). 
 
-Notation "'map' f" := (@_map (proj2 f) _ _) (at level 0, f at level 0).
-Notation map_comp f := (@_map_comp (proj2 f) _ _ _).
-Notation map2 f := (@_map2 (proj2 f) _ _ _ _).
+Notation "'map' f" := ((proj2 f).(_map)) (at level 0, f at level 0).
+Notation map_comp f := ((proj2 f).(_map_comp)).
+Notation map2 f := ((proj2 f).(_map2)).
 
 Hint Extern 0 (WeakFunctor [?f]) => exact (proj2 f) : typeclass_instances.
 
@@ -550,7 +552,7 @@ Definition nat_trans T U (f g : T ---> U) :=
 
 Hint Extern 0 (NaturalTransformation [?f]) => exact (proj2 f) : typeclass_instances.
 
-Notation α_map f := (@_α_map (proj2 f) _ _).
+Notation α_map f := ((proj2 f).(_α_map)).
  
 Instance nat_transHom T U : HomT1 (T ---> U) := {eq1 := nat_trans (T:=T) (U:=U)}.
 
@@ -649,13 +651,11 @@ Program Instance nat_category T U : WeakCategory (T ---> U) :=
   {| Hom1 := nat_transHom T U; Hom2 := modificationHom T U|}.
 
 Program Instance nat_groupoid (T U : WeakGroupoidType) : WeakGroupoid (T ---> U).
-Next Obligation. 
-  intros. red in E, E'. red in e, e'. destruct e as [f Hf], e' as [f' Hf']. 
-  simpl in E. simpl in *. 
-  Require Import FunctionalExtensionality.
-  extensionality z.
-  apply (@Trunc_2 U ([x] z) ([y] z) (f z) (f' z) (E z) (E' z)). 
-Qed.
+(* Next Obligation.  *)
+(*   intros. red in E, E'. red in e, e'. destruct e as [f Hf], e' as [f' Hf'].  *)
+(*   simpl in E. simpl in *.  *)
+(*   apply (@Trunc_2 U ([x] z) ([y] z) (f z) (f' z) (E z) (E' z)).  *)
+(* Qed. *)
 
 
 (* end hide *)
@@ -674,7 +674,7 @@ Qed.
 Definition _fun T U : WeakGroupoidType := 
   (T ---> U ; nat_groupoid _ _). 
 
-Infix "-->" := _fun. 
+Infix "-->" := _fun (at level 90). 
 
 (* end hide *)
 
@@ -685,10 +685,11 @@ Instance FunTypeHom : HomT1 WeakGroupoidType := {eq1 := Fun_Type}.
 Instance nat_transHom' : HomT2 Fun_Type := {eq2 := nat_trans}.
 
 Program Instance category_fun : CategoryP nat_transHom'. 
+
 Next Obligation. 
-Proof.
-  exists (λ t , identity _). econstructor. intros. 
-  eapply composition. apply id_L. eapply inverse. apply id_R. 
+Proof. 
+  exists (λ t , identity _). econstructor. intros. simpl.
+  eapply composition. apply id_L. eapply inverse. apply id_R.
 Defined.
 Next Obligation. 
 Proof.
@@ -716,13 +717,13 @@ Defined.
 Program Instance _eq : ∀ (T U : WeakGroupoidType), 
                          Equivalence (nat_trans (T:=T) (U:=U)).
  
-Program Instance WeakCategory_fun : WeakCategory WeakGroupoidType | 2 :=
+Instance WeakCategory_fun : WeakCategory WeakGroupoidType | 2 :=
   {| Hom1 := FunTypeHom; Hom2 := nat_transHom' |}.
 
-Definition nat_id_R  := (@id_R category_fun). 
-Definition nat_id_L  := (@id_L category_fun).
-Definition nat_assoc := (@assoc category_fun).
-Definition nat_comp'  := (@comp category_fun).
+Definition nat_id_R  := (category_fun.(id_R)).
+Definition nat_id_L  := category_fun.(id_L).
+Definition nat_assoc := category_fun.(assoc).
+Definition nat_comp'  := category_fun.(comp).
 
 Lemma nat_comp2 A B C (f f': A ~1 B) (g g' : B ~1 C) 
       (H H': f ~1 f') (G G' : g ~1 g') (e: H ~2 H') (e':G ~2 G') :
@@ -806,9 +807,9 @@ Definition Iso A B := {f : A ---> B & Iso_struct f}.
 
 (* Notations for [Iso] projections. *)
 
-Notation adjoint' f := (@_adjoint (f.(proj2))).
-Notation section' f := (@_section (f.(proj2))).
-Notation retraction' f := (@_retraction (f.(proj2))).
+Notation adjoint' f := f.(proj2).(_adjoint).
+Notation section' f := f.(proj2).(_section).
+Notation retraction' f := f.(proj2).(_retraction).
 
 (* end hide *)
 
@@ -833,13 +834,14 @@ Hint Extern 0 (Equiv_struct [?f]) => exact (proj2 f) : typeclass_instances.
 Hint Extern 0 (Iso_struct [?f]) => exact (@iso (proj2 f)) : typeclass_instances.
 
 (* Notations for [Equiv] projections. *)
-Notation adjoint f := (@_adjoint (f.(proj2).(@iso))).
-Notation section f := (@_section (f.(proj2).(@iso))).
-Notation retraction f := (@_retraction f.(proj2).(@iso)).
-Notation triangle f := (@_triangle f.(proj2)).
+Notation adjoint f := f.(proj2).(iso).(_adjoint).
+Notation section f := f.(proj2).(iso).(_section).
+Notation retraction f := f.(proj2).(iso).(_retraction).
+Notation triangle f := f.(proj2).(_triangle).
 
 Program Definition map_trans A B (f : [A --> B]) : f ~1 f :=
   ((fun t => map f (identity t)); _).
+
 Next Obligation.
 Proof.
   econstructor. intros. simpl.
@@ -951,12 +953,12 @@ Next Obligation. exact (identity T). Defined.
 Next Obligation. 
 Proof.
   exists (λ t , identity t). econstructor. intros.
-  refine (@_α_map (_nat_id T T (identity T)) _ _ _). 
+  refine ((_nat_id T T (identity T)).(_α_map) _). 
 Defined.
 Next Obligation. 
 Proof. 
   exists (λ t , identity t). econstructor. intros.
-  refine (@_α_map (_nat_id T T (identity T)) _ _ _). 
+  refine ((_nat_id T T (identity T)).(_α_map) _). 
 Defined.
 
 Program Instance _Equiv_Id {T} : Equiv_struct (identity T).
@@ -1185,7 +1187,7 @@ Definition Equiv_eq T U (f g : Equiv T U) :=
 
 Instance equiveq_pi T U (f g : T <~> U) (α:Equiv_eq f g) : EquivEq [α] := Π2 α.
 
-Notation eq_section α := (@_eq_section (proj2 α)).
+Notation eq_section α := α.(proj2).(_eq_section).
 
 Definition eq_retraction {T U} {f g : T <~> U} (α:Equiv_eq f g) : 
   retraction f ~
@@ -1317,13 +1319,13 @@ Program Instance Equiv_2category T U : WeakCategory (T <~> U) | 10 :=
 
 Program Instance __Equiv_eq_group T U : WeakGroupoid (T <~> U).
 
-Next Obligation.
-Proof.
-  unfold Equiv_2category in E. simpl in E. red in E.
-  unfold Equiv_2category in E'. simpl in E'. red in E'.
-  (* Here we assume all modifications are equal *)
-  admit.
-Qed.
+(* Next Obligation. *)
+(* Proof. *)
+(*   unfold Equiv_2category in E. simpl in E. red in E. *)
+(*   unfold Equiv_2category in E'. simpl in E'. red in E'. *)
+(*   (* Here we assume all modifications are equal *) *)
+(*   admit. *)
+(* Qed. *)
 
 Definition section_comp_l (X Y Z : WeakGroupoidType) 
            (f : X <~> Y) (g : Y <~> Z) (z : [Z]) :=
@@ -1348,10 +1350,16 @@ Proof.
   simpl. simpl_id_bi'.
 Defined.
 
-Lemma Equiv_adjoint_idR X Y (f : X <~> Y) 
+Hint Extern 1 (@CategoryP (proj1 ?T) (@Hom1 ?T) _) => exact (T.(proj2).(Category_1)) : typeclass_instances.
+
+Lemma Equiv_adjoint_idR X Y (f : X <~> Y)
       (H := nat_id_R [f]:[f ° identity _] ~1 [f]) (y : [Y]) :
-   Equiv_adjoint H @ y ~ identity _ @ y.
+  Equiv_adjoint H @ y ~ Equiv_adjoint H @ y. (* identity _ @ y ~ identity _ @ y. *)
 Proof.
+  Set Printing Projections.
+  let t := type of H in set(foo:= t) in *.
+  set (bar:= (@identity _ _ (Id_Equiv_eq X Y) _) @ y : foo).
+
   eapply composition. apply Equiv_adjoint_simpl. simpl.
   unfold id, _Equiv_comp_obligation_1.
   simpl_id'. simpl_id'. simpl. apply (triangle_inv' f).

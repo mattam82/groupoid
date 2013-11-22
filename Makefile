@@ -1,5 +1,5 @@
 COQDOCOPTS=--utf8 -g --interpolate -coqlib http://coq.inria.fr/stdlib/
-COQOPTS=
+COQOPTS=-q -R . Groupoid
 TARGETS=notations.vo notations.tex defU.vo defU.tex groupoid.vo groupoid.tex groupoid_interpretation_def.vo groupoid_interpretation.vo groupoid_interpretation.tex  groupoid_interpretation_def.tex main.pdf
 COQBIN=
 
