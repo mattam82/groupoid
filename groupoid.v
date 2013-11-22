@@ -1353,13 +1353,8 @@ Defined.
 Hint Extern 1 (@CategoryP (proj1 ?T) (@Hom1 ?T) _) => exact (T.(proj2).(Category_1)) : typeclass_instances.
 
 Lemma Equiv_adjoint_idR X Y (f : X <~> Y)
-      (H := nat_id_R [f]:[f ° identity _] ~1 [f]) (y : [Y]) :
-  Equiv_adjoint H @ y ~ Equiv_adjoint H @ y. (* identity _ @ y ~ identity _ @ y. *)
-Proof.
-  Set Printing Projections.
-  let t := type of H in set(foo:= t) in *.
-  set (bar:= (@identity _ _ (Id_Equiv_eq X Y) _) @ y : foo).
-
+      (H := nat_id_R [f]:[f ° identity X] ~1 [f]) (y : [Y]) :
+  Equiv_adjoint H @ y ~ identity (adjoint f) @ y.
   eapply composition. apply Equiv_adjoint_simpl. simpl.
   unfold id, _Equiv_comp_obligation_1.
   simpl_id'. simpl_id'. simpl. apply (triangle_inv' f).
@@ -1367,7 +1362,7 @@ Defined.
 
 Lemma Equiv_adjoint_idL X Y (f : X <~> Y) 
       (H := (nat_id_L [f]:[identity _°f] ~1 [f])) (y : [Y]) :
-   Equiv_adjoint H @ y ~ identity _ @ y.
+   Equiv_adjoint H @ y ~ identity (adjoint f) @ y.
 Proof.
   eapply composition. apply Equiv_adjoint_simpl. simpl.
   unfold id, _Equiv_comp_obligation_1.
@@ -1378,12 +1373,12 @@ Program Instance EquivHom : HomT1 WeakGroupoidType := {eq1 := Equiv}.
 
 Program Instance Equiv_eqHom' : HomT2 Equiv := {eq2 := Equiv_eq}.
 
+Print Hom2.
+
 Definition Equiv_adjoint_assoc (X Y Z W : WeakGroupoidType)
-        (f : X <~> Y) (g : Y <~> Z) (h : Z <~> W) (w:[W]) :
-  (eq2 (HomT2:=@Hom2 (@WC (proj2 X))))
-    (Equiv_adjoint (f:=(h ° g) °f) (f':=h ° (g ° f)) (nat_assoc [f] [g] [h])
-                   @ w) 
-    (identity _ @ w).
+        (f : X <~> Y) (g : Y <~> Z) (h : Z <~> W) (w:[W]) 
+        (H := (nat_assoc [f] [g] [h] : [(h ° g) °f] ~1 [h ° (g ° f)])) :
+    Equiv_adjoint H @ w ~ identity (adjoint ((h ° g) °f)) @ w.
 Proof.
   eapply composition. apply Equiv_adjoint_simpl. simpl.
   simpl_id'.
@@ -1408,7 +1403,7 @@ Proof.
   eapply inverse.
   (* The anotation is necessary as typeclass resolution 
      is run only after unification *)
-  apply (α_map (@inverse (nat_inv Z Z) _ _ (retraction h))).
+  apply (α_map (@inverse _ _ (nat_inv Z Z) _ _ (retraction h))).
   apply identity.
   eapply composition. apply assoc. eapply composition. apply comp.
   eapply composition. eapply inverse. apply assoc.  apply comp.
@@ -1427,7 +1422,7 @@ Proof.
   apply _map_comp.
   eapply composition. apply assoc. eapply composition. apply comp.
   eapply inverse. 
-  apply (α_map (@inverse (nat_inv _ _) _ _ (retraction g))). apply identity.
+  apply (α_map (@inverse _ _ (nat_inv _ _) _ _ (retraction g))). apply identity.
   eapply composition. eapply inverse. apply assoc. eapply composition. apply comp.
   apply identity. apply (triangle_inv' g). apply id_L.
   apply (triangle_inv' f).
@@ -1510,13 +1505,13 @@ Program Instance Equiv_WeakCategory : WeakCategory WeakGroupoidType :=
 
 Program Instance Equiv_WeakGroupoid : WeakGroupoid WeakGroupoidType.
 
-Next Obligation. 
-Proof.
-  intros.
+(* Next Obligation.  *)
+(* Proof. *)
+(*   intros. *)
   
-  (* We're supposing all natural transformations are equal. *)
-  admit.
-Qed.
+(*   (* We're supposing all natural transformations are equal. *) *)
+(*   admit. *)
+(* Qed. *)
 
 (* end hide *)
 
@@ -1769,9 +1764,11 @@ Definition Prod_Type (T:[_Type]) (U:[T --> _Type]) :=
 
 Hint Extern 0 (WeakDependentFunctor _ [?f]) => exact (proj2 f) : typeclass_instances.
 
-Notation "'Dmap' f" := (@_Dmap (proj2 f) _ _) (at level 0, f at level 0).
-Notation Dmap_comp f := (@_Dmap_comp (proj2 f) _ _ _).
-Notation Dmap2 f := (@_Dmap2 (proj2 f) _ _ _ _).
+Print _Dmap_comp.
+
+Notation "'Dmap' f" := (@_Dmap _ _ _ (proj2 f) _ _) (at level 0, f at level 0).
+Notation Dmap_comp f := (@_Dmap_comp _ _ _ (proj2 f) _ _ _).
+Notation Dmap2 f := (@_Dmap2 _ _ _ (proj2 f) _ _ _ _).
 
 Definition Dmap_id {T:[_Type]} {U:[T --> _Type]} (f: Prod_Type U) {x: [T]} : 
   Dmap f (identity x) ~ eq_rect_id U @ (f @ x).
