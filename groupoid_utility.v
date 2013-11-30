@@ -1,11 +1,10 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Require Import Setoid.
-Set Universe Polymorphism.
+(*Require Import Setoid.*)
 Require Import groupoid.
 
-Set Implicit Arguments.
 Set Universe Polymorphism.
+Set Implicit Arguments.
 Set Program Mode.
 
 Opaque map_id map_inv Dmap_id.

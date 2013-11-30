@@ -1,7 +1,5 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Require Import Setoid.
-Set Universe Polymorphism.
 Require Import groupoid.
 Require Import groupoid_utility.
 Require Import groupoid_interpretation_def.

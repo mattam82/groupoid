@@ -85,7 +85,6 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Require Import Setoid.
 Add Rec LoadPath ".".
 Require Import groupoid.
 Require Import groupoid_utility.
@@ -160,11 +159,6 @@ Program Definition IrrRelWeakCategory T (Hom : HomT1 T) (id : Identity eq1) (com
 
 Program Definition IrrRelWeakGroupoid T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1) : WeakGroupoid T := 
   {| WC := IrrRelWeakCategory id comp ; G := IrrRelGrp T Hom id comp inv|}.
-
-Next Obligation.
-Proof.
-  simpl in E. red in E. simpl in E'. red in E'. destruct E, E'. reflexivity.
-Qed.
 
 Arguments IrrRelWeakGroupoid {T} Hom {id comp inv}.
 
