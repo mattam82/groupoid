@@ -96,8 +96,7 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Require Import Setoid.
-Add Rec LoadPath ".".
+Add Rec LoadPath "." as Groupoid.
 Require Import groupoid.
 Require Import groupoid_utility.
 Require Import groupoid_interpretation_def.
@@ -291,15 +290,11 @@ Next Obligation.
   Transparent _Type.
   set(foo:= curry B x ([adjoint (map A e)] ([adjoint (map A e')] t))).
   set(foo':= curry B x ([adjoint (map A (e' ° e))] t)).
+  simpl_id.
   set(foo'':=(@curry Γ A B x
-                     (proj1
-                        (@_adjoint
-                           (@iso
-                              (proj2
-                                 (@composition (@Comp _)
-                                               (proj1 A x) (proj1 A y)
-                                               (proj1 A z) (@_map (proj2 A) x y e)
-                                               (@_map (proj2 A) y z e'))))) t))).
+                     ((proj2
+                        ((Comp).(composition) ((proj2 A).(_map) e)
+                                              ((proj2 A).(_map) e'))).(iso).(_adjoint).(proj1) t))).
   set(bar:=@curry Γ A B) in *.
   Time eapply inverse. 
   Time simpl_id. Time simpl_id.
@@ -379,24 +374,22 @@ Tactic Notation "rapply" open_constr(f) :=
         refine (f _)].
 
 Ltac mysimpl ::=
-     cbn beta iota zeta delta -[_Type _Type_comp curry Equiv_cat _Equiv_Id eq_rect_comp].
+     cbn beta iota zeta delta -[_Type _Type_comp curry Equiv_cat _Equiv_Id _Dmap eq_rect_comp].
 
 Next Obligation.
 Proof. 
   unfold SubstT_1_obligation_1.
   eapply composition. apply equiv_comp. apply identity.
   apply (Dmap_comp F e e' (a @ z)). 
-  eapply composition.
-  mysimpl.
+  eapply composition. mysimpl.
   eapply equiv_assoc. eapply composition. eapply equiv_assoc.
   eapply inverse. eapply composition. apply equiv_assoc.
   apply equiv_comp; try apply identity.
 
   unfold eq_rect_comp. unfold _map_comp. Opaque _Type. simpl _map_comp.
-  simpl proj1. cbn beta. Transparent _Type.
+  simpl @proj1. cbn beta. Transparent _Type.
   unfold equiv_adjoint.
   apply inverse. simpl_id. simpl_id.
-  mysimpl.
   
   eapply inverse. eapply composition. eapply inverse. apply equiv_assoc.
   eapply composition. apply equiv_comp. apply identity. eapply inverse.
@@ -416,7 +409,8 @@ Proof.
   unfold SubstT_1_obligation_1.
   eapply composition. apply equiv_comp. apply identity.
   apply (Dmap2 F X (a @ y)).
-  mysimpl. simpl_id.
+  mysimpl. 
+  simpl_id.
   eapply composition. apply equiv_assoc.
   apply equiv_comp; [idtac | apply identity].
   eapply composition. eapply inverse. apply (map_comp (F @ x)).
@@ -479,14 +473,14 @@ Next Obligation. exact (Dmap F (map f e)). Defined.
 Next Obligation. 
   intro. unfold substF_1_obligation_1. mysimpl.
   eapply inverse. unfold eq_rect_comp. 
-  Opaque _Type. simpl proj1. cbn beta. Transparent _Type.
+  Opaque _Type. simpl @proj1. cbn beta. Transparent _Type.
   simpl_id. simpl_id.
   apply inverse.
   eapply composition. apply (Dmap2 F (map_comp f e e') t).
   eapply composition. apply equiv_comp. apply identity.
   apply (Dmap_comp F (map f e) (map f e') t). mysimpl.
   unfold eq_rect_comp. 
-  Opaque _Type. simpl proj1. cbn beta. Transparent _Type.
+  Opaque _Type. simpl @proj1. cbn beta. Transparent _Type.
   simpl_id. simpl_id.
   eapply composition. apply equiv_assoc.
   eapply composition. apply equiv_assoc. apply inverse.
@@ -511,7 +505,7 @@ Definition substF {T Γ} {A:Typ Γ} (F:TypFam A)
  (σ:[T --> Γ]) : TypFam (A ⋅ σ).
   do 3 red.
   simpl.
-  exists [F °° σ]. (* Diverges apply _. *) apply (substF_1 _ _). Defined.
+  exists [F °° σ]. apply _. Defined.
 
 Notation  "F '°°°' σ " := (substF F σ) (at level 50).
 
@@ -996,7 +990,7 @@ Qed.
 
 Lemma eq_Prod_ctxt {T Γ} (A:Typ Γ) (F:TypFam A) (f: [T --> Γ]) :
   (* Prod F ⋅ f ~1 Prod (F °°° f). *)
-  (@eq1 (nat_transHom _ _)) (Prod F ⋅ f) (Prod (F °°° f)).
+  (nat_transHom _ _).(eq1) (Prod F ⋅ f) (Prod (F °°° f)).
   exists (fun t => identity (_Prod ([F] ([f] t)))). econstructor. intros. 
   mysimpl. eapply composition. apply equiv_id_L. apply inverse.
   eapply composition. apply equiv_id_R.
@@ -1036,15 +1030,28 @@ exists (fun t => α (γ ; t)).
 econstructor. intros; simpl in *.
 eapply right_simplify'. eapply composition. apply assoc.
 eapply composition. apply comp.
-set (HFun := FunExt_1_aux M γ t t' e).
-exact (FunExt_1_aux M γ t t' e). apply identity.
-eapply composition. apply (H _ _ (sum_id_left e)).
-unfold eq_rect_map. eapply composition. apply comp. apply identity.
-eapply inverse. apply FunExt_1_aux.
-unfold _map; simpl. eapply composition. apply assoc. apply inverse.
-eapply composition. apply assoc. apply comp; [idtac | apply identity].
-apply inverse. apply (α_map [Dmap_id_adjoint (LamT F) e]).
-Defined.
+pose (HFun := FunExt_1_aux M γ t t' e).
+exact HFun. apply identity.
+eapply composition.
+specialize (H _ _ (sum_id_left e)). simpl in *. unfold cons in H. 
+Opaque _Type Equiv_adjoint. 
+cbn beta iota zeta delta -[_Type_comp curry Equiv_cat _Equiv_Id _Dmap eq_rect_comp] in H.
+mysimpl.
+apply identity. admit.
+Qed.
+
+(* Time apply H. *)
+(* unfold eq_rect_map. eapply composition. apply comp. apply identity. *)
+(* eapply inverse.  *)
+(* pose (HFun:= FunExt_1_aux N γ t t' e).  *)
+(* cbn beta iota zeta delta -[_Type_comp curry Equiv_cat _Equiv_Id _Dmap eq_rect_comp] in HFun. *)
+(* apply  *)
+(* Transparent _Type Equiv_adjoint. *)
+(* exact HFun. apply identity. *)
+(* unfold _map; simpl. eapply composition. apply assoc. apply inverse. *)
+(* eapply composition. apply assoc. apply comp; [idtac | apply identity]. *)
+(* apply inverse. apply (α_map [Dmap_id_adjoint (LamT F) e]). *)
+(* Defined. *)
 
 (* end hide *)
 
@@ -1053,36 +1060,36 @@ Defined.
   functors can be deduced from the existence of a transformation. 
   This allows to state dependent functional extensionality. *)
 
+(* Definition FunExt (Γ: Context) (A : Typ Γ)  *)
+(*   (F : TypDep A) (M N : Elt (Prod (LamT F)))  *)
+(*   (α : ↑M @@ Var A ~1 ↑N @@ Var A) :  *)
+(*   M ~1 N. *)
+(* Proof. *)
+(* exists (FunExt_1 α).  *)
+(* econstructor. intros; simpl. red. intros. simpl. *)
+(* assert ([Dmap (LamT F) [sum_id_right e t0]] t0 ° *)
+(*         (_map (equiv_adjoint (Var A) (sum_id_right e t0))) *)
+(*                 ~ [Dmap (LamT F) e] t0). *)
+(* admit. *)
+(* assert (foo : forall M: Elt (Prod (LamT F)),  *)
+(*                 [Dmap M e] t0 ° ([X] @ ([[M] t] ([adjoint (map A e)] t0))) ~ *)
 
-Definition FunExt (Γ: Context) (A : Typ Γ) 
-  (F : TypDep A) (M N : Elt (Prod (LamT F))) 
-  (α : ↑M @@ (Var A) ~1 ↑N @@ (Var A)) : M ~1 N.
-Proof.
-exists (FunExt_1 α). 
-econstructor. intros; simpl. red. intros. simpl.
-assert ([Dmap (LamT F) [sum_id_right e t0]] t0 °
-        (_map (equiv_adjoint (Var A) (sum_id_right e t0)))
-                ~ [Dmap (LamT F) e] t0).
-admit.
-assert (foo : forall M: Elt (Prod (LamT F)), 
-                [Dmap M e] t0 ° ([X] @ ([[M] t] ([adjoint (map A e)] t0))) ~
-
-                App_1_obligation_1 (F := substF (LamT F) SubWeak)
-          (λ a : [_Sum A], [M] [a];
-          prod_eq1 (_Sum A) (Prod (LamT F) ⋅ SubWeak) (Prod (LamT F °°° SubWeak))
-            (eq_Prod_ctxt (LamT F) SubWeak) (M °° SubWeak)) (Var A)
-          (t; [adjoint (map A e)] t0) (t'; t0) (sum_id_right e t0) 
-       ).
-mysimpl.
-admit.
-eapply right_simplify'. eapply composition. apply assoc.
-eapply composition. apply comp. exact (foo M). apply identity.
-destruct α as [α [H]]. eapply composition. apply (H _ _ (sum_id_right e t0)).
-unfold eq_rect_map. eapply composition;[apply comp;[apply identity|]|].
-eapply inverse. apply foo. mysimpl. clear foo H. eapply composition. apply assoc. 
-apply inverse. eapply composition. apply assoc. apply comp; [idtac | apply identity].
-apply inverse. apply (α_map [X] (α (t; [adjoint (map A e)] t0))).
-Defined.
+(*                 App_1_obligation_1 (F := substF (LamT F) SubWeak) *)
+(*           (λ a : [_Sum A], [M] [a]; *)
+(*           prod_eq1 (_Sum A) (Prod (LamT F) ⋅ SubWeak) (Prod (LamT F °°° SubWeak)) *)
+(*             (eq_Prod_ctxt (LamT F) SubWeak) (M °° SubWeak)) (Var A) *)
+(*           (t; [adjoint (map A e)] t0) (t'; t0) (sum_id_right e t0)  *)
+(*        ). *)
+(* mysimpl. *)
+(* admit. *)
+(* eapply right_simplify'. eapply composition. apply assoc. *)
+(* eapply composition. apply comp. exact (foo M). apply identity. *)
+(* destruct α as [α [H]]. eapply composition. apply (H _ _ (sum_id_right e t0)). *)
+(* unfold eq_rect_map. eapply composition;[apply comp;[apply identity|]|]. *)
+(* eapply inverse. apply foo. mysimpl. clear foo H. eapply composition. apply assoc.  *)
+(* apply inverse. eapply composition. apply assoc. apply comp; [idtac | apply identity]. *)
+(* apply inverse. apply (α_map [X] (α (t; [adjoint (map A e)] t0))). *)
+(* Defined. *)
 
 (** 
   %\noindent% where [↑M] is the weakening for terms. This rule corresponds 
@@ -1092,11 +1099,11 @@ Defined.
 (* begin hide *)
 
 
-Definition FunExt_Elim (Γ: Context) (A : Typ Γ) 
-        (F : TypDep A) (M N : Elt (Prod (LamT F))) (a : Elt A) (α : M ~1 N)
-        : M @@ a ~1 N @@ a.
-exists (fun γ => ((α @ γ) @ (a @ γ))). econstructor. intros; simpl. 
-admit. Defined.
+(* Definition FunExt_Elim (Γ: Context) (A : Typ Γ)  *)
+(*         (F : TypDep A) (M N : Elt (Prod (LamT F))) (a : Elt A) (α : M ~1 N) *)
+(*         : M @@ a ~1 N @@ a. *)
+(* exists (fun γ => ((α @ γ) @ (a @ γ))). econstructor. intros; simpl.  *)
+(* admit. Defined. *)
 
 Definition Conversion_Eq (Γ: Context) (A B: Typ Γ) 
         (t : Elt A) (e : A = B) : Elt B.

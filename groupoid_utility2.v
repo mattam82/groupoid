@@ -1,5 +1,6 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
+Add Rec LoadPath "." as Groupoid.
 Require Import groupoid.
 Require Import groupoid_utility.
 Require Import groupoid_interpretation_def.
@@ -20,7 +21,7 @@ Definition Equiv_adjoint_comp {Γ:Context} {A:Typ Γ} (a:Elt A) (x y z:[Γ]) (e:
    map (adjoint (map A e)) (equiv_adjoint a e') ° equiv_adjoint a e.
 unfold equiv_adjoint. simpl.
 eapply composition. apply comp. apply comp. apply identity.
-eapply composition. apply _map2. apply _Dmap_comp. eapply composition.
+eapply composition. apply (@_map2). apply _Dmap_comp. eapply composition.
 apply _map_comp. apply comp. apply identity. apply _map_comp. apply identity.
 unfold eq_rect_map, eq_rect_comp.
 (* unfold map; simpl. *)
@@ -36,7 +37,7 @@ Definition Equiv_adjoint_eq {Γ:Context} {A:Typ Γ} (a:Elt A) (x y:[Γ]) (e e':x
   apply comp. eapply composition. eapply inv. apply (eq_retraction (map2 A E)). 
   simpl. eapply composition. apply inverse, comp_inv. apply comp. apply identity.
   apply inverse, comp_inv. 
-  eapply composition. apply _map2. apply (Dmap2 a E). apply _map_comp. apply identity.
+  eapply composition. apply @_map2. apply (Dmap2 a E). apply _map_comp. apply identity.
   simpl. 
 Admitted.
 
@@ -45,7 +46,7 @@ Definition Equiv_adjoint_identity {Γ:Context} {A:Typ Γ} (a:Elt A) (x:[Γ]) :
    identity ([a] x).
   unfold equiv_adjoint. simpl. eapply composition. apply comp.
   apply comp. eapply composition. apply inv. apply (eq_retraction (map_id A)). 
-  simpl. simpl_id. apply _map2. apply Dmap_id.  apply identity.
+  simpl. simpl_id. apply @_map2. apply Dmap_id.  apply identity.
   unfold eq_rect_id. eapply composition. apply comp.
   eapply composition. eapply comp. apply inverse, comp_inv. apply identity. 
   eapply composition. eapply inverse. apply assoc. eapply composition. apply comp. apply identity. 
@@ -224,12 +225,12 @@ Defined.
 
 Program Instance fun_pi (T U : WeakGroupoidType) (f : T ---> U) : WeakFunctor [f] := Π2 f.
 Definition map_comp' {T U} (f:T ---> U) {x y z: [T]} (e: x ~1 y) (e':y ~1 z) :=
-  _map_comp (WeakFunctor := proj2 f) x y z e e' : map f (e' ° e) ~ map f e' ° map f e.
+  (proj2 f).(_map_comp)  e e' : map f (e' ° e) ~ map f e' ° map f e.
 
 
 Next Obligation. intro. intros. simpl. refine (map_comp' _ _ _). Defined.
 
-Next Obligation. simpl; red; intros; simpl. apply (_map2 _ _ _ _ (X _)). Defined.
+Next Obligation. simpl; red; intros; simpl. apply (_map2 (X _)). Defined.
 
 Program Definition Prod_eq {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y): 
  _Prod ([F] x) ---> _Prod ([F] y) := (_; Prod_eq_3 A F e).
