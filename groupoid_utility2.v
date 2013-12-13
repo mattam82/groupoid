@@ -1,6 +1,10 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
+<<<<<<< HEAD
 (* Add Rec LoadPath "." as Groupoid. *)
+=======
+Add Rec LoadPath "." as Groupoid.
+>>>>>>> 75e850895a47d4c8084f3e518818383c704ed8ec
 Require Import groupoid.
 Require Import groupoid_utility.
 Require Import groupoid_interpretation_def.
@@ -224,6 +228,11 @@ Next Obligation. exists (fun a => map [Prod_eq_ F e @ a]
 Defined.
 
 Program Instance fun_pi (T U : WeakGroupoidType) (f : T ---> U) : WeakFunctor [f] := Π2 f.
+<<<<<<< HEAD
+=======
+Definition map_comp' {T U} (f:T ---> U) {x y z: [T]} (e: x ~1 y) (e':y ~1 z) :=
+  (proj2 f).(_map_comp)  e e' : map f (e' ° e) ~ map f e' ° map f e.
+>>>>>>> 75e850895a47d4c8084f3e518818383c704ed8ec
 
 (* Definition map_comp' {T U} (f:T ---> U) {x y z: [T]} (e: x ~1 y) (e':y ~1 z) := *)
 (*   (proj2 f).(_map_comp)  e e' : map f (e' ° e) ~ map f e' ° map f e. *)
