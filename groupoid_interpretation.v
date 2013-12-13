@@ -96,11 +96,7 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-<<<<<<< HEAD
 (* Add Rec LoadPath "." as Groupoid. *)
-=======
-Add Rec LoadPath "." as Groupoid.
->>>>>>> 75e850895a47d4c8084f3e518818383c704ed8ec
 Require Import groupoid.
 Require Import groupoid_utility.
 Require Import groupoid_interpretation_def.
@@ -293,17 +289,6 @@ Unset Printing All.
 Next Obligation. 
   intros. unfold LamT_1_obligation_1. intro. mysimpl. Opaque _Type.
   Transparent _Type.
-<<<<<<< HEAD
-=======
-  set(foo:= curry B x ([adjoint (map A e)] ([adjoint (map A e')] t))).
-  set(foo':= curry B x ([adjoint (map A (e' ° e))] t)).
-  simpl_id.
-  set(foo'':=(@curry Γ A B x
-                     ((proj2
-                        ((Comp).(composition) ((proj2 A).(_map) e)
-                                              ((proj2 A).(_map) e'))).(iso).(_adjoint).(proj1) t))).
-  set(bar:=@curry Γ A B) in *.
->>>>>>> 75e850895a47d4c8084f3e518818383c704ed8ec
   Time eapply inverse. 
   Time simpl_id. Time simpl_id.
   eapply composition; [apply equiv_comp|idtac].
@@ -514,11 +499,7 @@ Definition substF {T Γ} {A:Typ Γ} (F:TypFam A)
  (σ:[T --> Γ]) : TypFam (A ⋅ σ).
   do 3 red.
   simpl.
-<<<<<<< HEAD
   exists [F °° σ]. exact (substF_1 F σ). Defined.
-=======
-  exists [F °° σ]. apply _. Defined.
->>>>>>> 75e850895a47d4c8084f3e518818383c704ed8ec
 
 Notation  "F '°°°' σ " := (substF F σ) (at level 50).
 
