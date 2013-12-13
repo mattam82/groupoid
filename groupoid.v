@@ -272,8 +272,8 @@ Definition WeakGroupoidType := sigma WeakGroupoid.
 
 Hint Extern 1 (WeakGroupoid [?T]) => exact (Π2 T) : typeclass_instances.
 
-Axiom Trunc_2 : forall (T:WeakGroupoidType) (x y : [T])
-  (e e' : x ~1 y) (E E' : e ~2 e'), E = E'.
+(* Axiom Trunc_2 : forall (T:WeakGroupoidType) (x y : [T]) *)
+(*   (e e' : x ~1 y) (E E' : e ~2 e'), E = E'. *)
 
 (* Definition Trunc_2 (T:WeakGroupoidType) (x y : [T]) *)
 (*   (e e' : x ~1 y) (E E' : e ~2 e') : E = E' := *)
@@ -1373,8 +1373,6 @@ Program Instance EquivHom : HomT1 WeakGroupoidType := {eq1 := Equiv}.
 
 Program Instance Equiv_eqHom' : HomT2 Equiv := {eq2 := Equiv_eq}.
 
-Print Hom2.
-
 Definition Equiv_adjoint_assoc (X Y Z W : WeakGroupoidType)
         (f : X <~> Y) (g : Y <~> Z) (h : Z <~> W) (w:[W]) 
         (H := (nat_assoc [f] [g] [h] : [(h ° g) °f] ~1 [h ° (g ° f)])) :
@@ -1688,30 +1686,34 @@ Defined.
 
 (* begin hide *)
 
-Ltac trunc_eq := match goal with                    
-                     | [ |- eq2 ?e ?e'] => 
-                       rewrite (Trunc_2 (T := _Type) _ _ _ _ e e'); 
-                         apply identity
-                   end.
+(* Ltac trunc_eq := match goal with                     *)
+(*                      | [ |- eq2 ?e ?e'] =>  *)
+(*                        rewrite (Trunc_2 (T := _Type) _ _ _ _ e e');  *)
+(*                          apply identity *)
+(*                    end. *)
        
 Lemma map2_id : forall T (f : [T --> _Type]) {x y:[T]} (e: x ~1 y), 
                   map2 f (identity e) ~2 identity (map f e).
-Proof. intros. trunc_eq. Defined.
+Admitted.
+(* Proof. intros. trunc_eq. Defined. *)
 
 Lemma map2_comp : forall T (f : [T --> _Type]) {x y:[T]} (e e' e'':x ~1 y) 
                        (E:e ~2 e') (E':e'~2 e''),
                     map2 f (E' ° E) ~2 map2 f E' ° map2 f E.
-Proof. intros. trunc_eq. Defined.
+Admitted.
+(* Proof. intros. trunc_eq. Defined. *)
 
 Lemma map2_id_L : ∀ T (f : [T --> _Type]) {x y : [T]} (e:x ~1 y),
   map2 f (id_L' e) ~2 
   id_L' (map f e) ° (identity (map f e) ** map_id f) ° map_comp f _ _. 
-Proof. intros. trunc_eq. Defined.
+Admitted.
+(* Proof. intros. trunc_eq. Defined. *)
 
 Lemma map2_id_R : ∀ T (f : [T --> _Type]) {x y : [T]} (e:x ~1 y),
   map2 f (id_R' e) ~2 
   id_R' (map f e) ° (map_id f ** identity (map f e)) ° map_comp f _ _.
-Proof. intros. trunc_eq. Defined.
+Admitted.
+(* Proof. intros. trunc_eq. Defined. *)
 
 Definition assoc'' {T} {Hom1 : HomT1 T} {Hom2: HomT2 eq1} {Category} 
            {x y z w : T} {e e' e''} := 
@@ -1721,18 +1723,29 @@ Lemma map2_assoc : ∀ T (f : [T --> _Type]) {x y z w : [T]}
                      (e:x ~1 y) (e':y ~1 z) (e'':z ~1 w),
   assoc'' ° (identity _ ** map_comp f e' e'')  ° map_comp f e (e'' ° e')  ~
   (map_comp f _ _ ** identity _) ° map_comp f (e' ° e) e'' ° map2 f assoc''.
-Proof. intros. trunc_eq. Defined.
+Admitted.
+(* Proof. intros. trunc_eq. Defined. *)
 
 Lemma map2_comp' : ∀ T (f : [T --> _Type]) {x y z : [T]} 
                      (e e':x ~1 y) (g g':y ~1 z) 
                      (E : e ~2 e') (E' : g ~2 g'),
   map_comp f _ _ ° map2 f (comp _ _ _ _ _ _ _ E E') ~ 
   comp _ _ _ _ _ _ _ (map2 f E) (map2 f E') ° map_comp f _ _.
-Proof. intros. trunc_eq. Defined.
+Admitted.
+(* Proof. intros. trunc_eq. Defined. *)
 
-Lemma map3 : ∀ T (f : [T --> _Type]) {x y : [T]} (e e' : x ~1 y) (E E' : e ~2 e'),
-               map2 f E ~2 map2 f E'.
-Proof. intros. trunc_eq. Defined.
+Lemma map_inv2 {T} (f : [T --> _Type]) :
+  ∀ x y (e e' : x ~1 y) (E : e ~2 e') , 
+    map2 f (inverse E) ~2 inverse (map2 f E).
+Proof.
+Admitted.
+(*   intros. trunc_eq. *)
+(* Defined. *)
+
+
+(* Lemma map3 : ∀ T (f : [T --> _Type]) {x y : [T]} (e e' : x ~1 y) (E E' : e ~2 e'), *)
+(*                map2 f E ~2 map2 f E'. *)
+(* Proof. intros. trunc_eq. Defined. *)
 
 (* end hide *)
 
@@ -1763,8 +1776,6 @@ Definition Prod_Type (T:[_Type]) (U:[T --> _Type]) :=
 (* begin hide *)
 
 Hint Extern 0 (WeakDependentFunctor _ [?f]) => exact (proj2 f) : typeclass_instances.
-
-Print _Dmap_comp.
 
 Notation "'Dmap' f" := (@_Dmap _ _ _ (proj2 f) _ _) (at level 0, f at level 0).
 Notation "'Dmap_comp' f" := (@_Dmap_comp _ _ _ (proj2 f) _ _ _) (at level 0, f at level 0).
@@ -2014,12 +2025,6 @@ Next Obligation.
   apply identity. apply id_R.
 Defined.
 
-Lemma map_inv2 {T} (f : [T --> _Type]) :
-  ∀ x y (e e' : x ~1 y) (E : e ~2 e') , 
-    map2 f (inverse E) ~2 inverse (map2 f E).
-Proof.
-  intros. trunc_eq.
-Defined.
 
 Program Instance sum_eq2_inv T U (M N : sum_type (T:=T) U) :
   Inverse (sum_eq2 (M:=M) (N:=N)).

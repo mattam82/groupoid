@@ -96,7 +96,7 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Require Import Setoid.
+(* Require Import Setoid. *)
 Add Rec LoadPath ".".
 Require Import groupoid.
 Require Import groupoid_utility.
@@ -106,6 +106,7 @@ Require Import groupoid_utility2.
 Set Implicit Arguments.
 Set Universe Polymorphism.
 Set Program Mode.
+Set Primitive Projections.
 
 (** These are indexed for type class resolution *)
 Typeclasses Opaque Hom_irr sum_eq sum_eq2 nat_trans modification 
@@ -289,18 +290,6 @@ Unset Printing All.
 Next Obligation. 
   intros. unfold LamT_1_obligation_1. intro. mysimpl. Opaque _Type.
   Transparent _Type.
-  set(foo:= curry B x ([adjoint (map A e)] ([adjoint (map A e')] t))).
-  set(foo':= curry B x ([adjoint (map A (e' ° e))] t)).
-  set(foo'':=(@curry Γ A B x
-                     (proj1
-                        (@_adjoint
-                           (@iso
-                              (proj2
-                                 (@composition (@Comp _)
-                                               (proj1 A x) (proj1 A y)
-                                               (proj1 A z) (@_map (proj2 A) x y e)
-                                               (@_map (proj2 A) y z e'))))) t))).
-  set(bar:=@curry Γ A B) in *.
   Time eapply inverse. 
   Time simpl_id. Time simpl_id.
   eapply composition; [apply equiv_comp|idtac].

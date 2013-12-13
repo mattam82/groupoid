@@ -1,12 +1,14 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Require Import Setoid.
+(* Require Import Setoid. *)
 Set Universe Polymorphism.
 Require Import groupoid.
 
 Set Implicit Arguments.
 Set Universe Polymorphism.
 Set Program Mode.
+
+Set Primitive Projections.
 
 Opaque map_id map_inv Dmap_id.
  
@@ -139,18 +141,21 @@ Lemma nat_trans_comp (A: [_Type]) (T U : [A --> _Type]) (α : T ~1 U)
      inverse (assoc'') ° (α_map α e ** identity _ ) ° assoc'' °
      (identity _ ** α_map α e') ° inverse (assoc'') °
      (map_comp T e e' ** identity _).
-  trunc_eq. Qed. 
+Admitted.
+  (* trunc_eq. Qed.  *)
 
 Lemma nat_trans_id (A: [_Type]) (T U : [A --> _Type]) (α : T ~1 U)
   (x : [A]) :
        (identity _ ** map_id U) ° α_map α (identity _) ~2 
        inverse (id_L' _) ° id_R' _ ° (map_id T (x:=x) ** identity _).
-trunc_eq. Defined.
+Admitted.
+(* trunc_eq. Defined. *)
 
 Lemma nat_trans2 (A: [_Type]) (T U : [A --> _Type]) (α : T ~1 U)
   (x y : [A]) (e e' : x ~1 y) (H : e ~e') :
   (identity _ ** (map2 U H)) ° (α_map α e) ~ (α_map α e') ° ((map2 T H) ** identity _).
-trunc_eq. Defined.
+Admitted.
+(* trunc_eq. Defined. *)
 
 Program Instance prod_eq1 (A: [_Type]) (T U : [A --> _Type]) (eqTU : T ~1 U)
         (t : [_Prod T]) :
