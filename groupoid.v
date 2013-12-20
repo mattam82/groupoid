@@ -84,19 +84,28 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 (* Require Import Setoid. *)
+
 Set Universe Polymorphism.
+Set Program Mode.
 Set Primitive Projections.
-Definition id {A : Type} (a : A) := a.
-
-Arguments id /.
-
-Record sigma {A : Type} (P : A -> Type) :=
-  { proj1 : A ; proj2 : P proj1 }.
-Notation " { x : T & P } " := (sigma (fun x : T => P)).
-Notation Π1 := proj1.
-Notation Π2 := proj2.
 
 Set Implicit Arguments.
+
+Record sigma {A : Type} (P : A -> Type) := Build_sigma
+  { proj1 : A ; proj2 : P proj1 }.
+
+Notation " { x : T & P } " := (sigma (fun x : T => P)).
+
+Notation "x .1" := (proj1 x) (at level 3).
+Notation "x .2" := (proj2 x) (at level 3).
+
+Notation " ( x ; p ) " := (@Build_sigma _ _ x p).
+
+Notation Π1 := proj1.
+Notation Π2 := proj2.
+Notation "[ T ]" := (Π1 T).
+
+Notation "M @ N" := ([M] N) (at level 55). 
 
 (* end hide *)
 
@@ -153,6 +162,7 @@ Infix "~2" := ((_).(eq2)) (at level 80).
 Infix "~" := (_.(eq2)) (at level 80). 
 (* end hide *)
 
+
 (** Given a [Hom], we define type classes that represent that the
   [Hom]-set of morphisms is reflexive (named [Identity], which
   corresponds to the identity morphism), symmetric (named [Inverse],
@@ -175,7 +185,7 @@ Class Composition {A} (Hom : HomT A) :=
 Notation  "g ° f" := (composition f g) (at level 50). 
 Notation  "f ^-1" := (inverse f) (at level 45). 
 Notation "[ T ]" := (proj1 T).
-Notation " ( x ; p ) " := (@Build_sigma _ _ x p).
+
 (* end hide *)
 
 (* begin hide *)
@@ -1011,7 +1021,7 @@ Proof.
   simpl. simpl_id_bi'.
   apply inverse. eapply composition.
   apply comp. apply identity. apply (triangle g).
-  eapply composition. eapply inverse. apply _map_comp. apply (map2 [g]).
+  eapply composition. eapply inverse. apply (map_comp [g]). apply (map2 [g]).
   eapply composition. eapply inverse. apply (α_map (section f)).
   eapply composition. apply comp. apply identity. apply (triangle f). 
   eapply inverse. apply (map_comp [f]). 
