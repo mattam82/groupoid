@@ -2161,18 +2161,48 @@ Next Obligation. apply (map2 f). auto. Defined.
 Definition Type0_Type T : [T --> Type0] -> [T --> _Type] := 
   fun f => (fun X => |(|f @ X|s)|g ; Type0_Type_ _ f).
 
-Program Instance prod_Groupoid0 T (U:[T --> Type0]) : 
+
+Definition DNaturalTransformationEq T (U:[T --> _Type]) 
+ {f g: Prod_Type U} (α : ∀ t : [T], f @ t ~1 g @ t) 
+  (H H': ∀ t t' e, α t' ° Dmap f e ~
+                         Dmap g e ° eq_rect_map U e (α t)) (e:H = H'):
+  {|_α_Dmap := H|} = {|_α_Dmap := H'|}.
+  destruct e. reflexivity. Defined.
+
+ 
+Definition DNaturalTransformationEq2 T (U:[T --> Type0]) 
+ {f g: Prod_Type (Type0_Type U)} (α : ∀ t : [T], f @ t ~1 g @ t)
+  (H H' : DNaturalTransformation (T:=T) (U:=Type0_Type U) α):
+  H = H'.
+  destruct H, H'. apply DNaturalTransformationEq.
+  apply path_forall. intros t. apply path_forall. intros t'.
+  apply path_forall. intros E.
+  apply is_Trunc_2.
+Defined.
+
+Program Instance prod_Groupoid1 T (U:[T --> Type0]) : 
   Groupoid (Prod_Type (Type0_Type U)).
 Next Obligation.
 Proof.
   apply path_forall. intro. apply is_Trunc_2.
 Defined.
-  
+
+Program Instance prod_Groupoid0 T (U:[T --> Type0]) : 
+  Setoid (Prod_Type (Type0_Type U)).
+Next Obligation.
+Proof. intros. simpl in *. 
+       assert (e.1 = e'.1).
+       apply path_forall. intro. apply is_Trunc_1.
+       apply (path_sigma H). destruct e, e'. simpl in *. destruct H. 
+       simpl. apply DNaturalTransformationEq2.
+Defined.
+
 (* end hide *)
 
 Definition _Prod T (U:[T --> _Type]) := (Prod_Type U ; prod_Ugroupoid U).
 
 Definition Prod0 T (U:[T --> Type0]) := (Prod_Type (Type0_Type U); prod_Groupoid0 T U). 
+
 (**
 
   ** Dependent sums

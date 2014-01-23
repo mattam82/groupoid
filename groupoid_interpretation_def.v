@@ -180,7 +180,67 @@ Class Action {T} (homAc : T -> Type) :=
 
 Notation  "f '⋅' σ" := (action σ f) (at level 50).
 
-Instance ActionType : Action (T:=UGroupoidType) (fun T => T ---> _Type) :=
+Definition Fun_Type_Groupoid (T U : GroupoidType) := |T|g ---> |U|g.
+
+Infix "-G->" := Fun_Type_Groupoid (at level 55). 
+
+Instance _Fun_Groupoid (T U : GroupoidType) : Groupoid (T -G-> U).
+Next Obligation. apply path_forall. intros z.
+                 apply is_Trunc_2.
+Defined.
+
+Definition Fun_Groupoid (T U : GroupoidType) := (T -G-> U; _Fun_Groupoid T U) : GroupoidType.
+
+Infix "-GG->" := Fun_Groupoid (at level 55). 
+
+Instance FunTypeHomG : HomT1 GroupoidType := {eq1 := Fun_Type_Groupoid}.
+
+Instance nat_transHomG' : HomT2 Fun_Type_Groupoid := {eq2 := nat_trans}.
+
+Program Instance category_funG : CategoryP nat_transHomG'. 
+Next Obligation. econstructor. intro. apply id_fun. Defined.
+Next Obligation. econstructor. intros. eapply comp_fun; eauto. Defined.
+Next Obligation. 
+Proof. 
+  exists (λ t , identity _). econstructor. intros. simpl.
+  eapply composition. apply id_L. eapply inverse. apply id_R.
+Defined.
+Next Obligation. 
+Proof.
+  exists (λ t , identity _). econstructor. intros. 
+  eapply composition. apply id_L. eapply inverse. apply id_R. 
+Defined.
+Next Obligation.
+Proof.
+  exists (λ t , identity _).  econstructor. intros. 
+  eapply composition. apply id_L. eapply inverse. apply id_R. 
+Defined.
+Next Obligation. 
+Proof.
+  exists (λ t , map g' (X @ t) ° (X0 @ (f @ t))). econstructor. intros. 
+  eapply composition. apply assoc.
+  eapply composition. apply comp. apply (α_map X0). apply identity.
+  eapply composition. eapply inverse. apply assoc. eapply inverse.
+  eapply composition. eapply inverse. apply assoc. 
+  apply comp. apply identity. eapply composition.
+  Focus 2. eapply composition. Focus 2. apply (map_comp g').  
+  eapply (map2 g'). eapply inverse. apply (α_map X).
+  eapply inverse. simpl. apply (map_comp g'). 
+Defined.
+
+Instance Category_funG : Category GroupoidType | 2 :=
+  {| Hom1 := FunTypeHomG; Hom2 := nat_transHomG' |}.
+
+Instance ActionType : Action (T:=GroupoidType) (fun T => |T|g ---> Type0) :=
+  {| WC := Category_funG ; eqAc := λ T, nat_trans (T:=T) (U:=Type0) ;
+     action := λ T U (σ: [T -GG-> U]) (f : [U -GG-> Type0]), (λ x, f @ (σ @ x) ; arrow_comp _ _ _ _ _) |}.
+Next Obligation. exists (λ t , identity _). econstructor. intros.
+                 eapply composition. apply equiv_id_L. eapply inverse. apply equiv_id_R. Defined.
+Next Obligation. exists (λ t , identity _).  econstructor. intros.
+                 eapply composition. apply equiv_id_L. eapply inverse. apply equiv_id_R. 
+Defined.
+
+Instance ActionType2 : Action (T:=UGroupoidType) (fun T => T ---> _Type) :=
   {| WC := Category_fun ; eqAc := λ T, nat_trans (T:=T) (U:=_Type) ;
      action := λ T U (σ: [T --> U]) (f : [U --> _Type]), (λ x, f @ (σ @ x) ; arrow_comp _ _ _ _ _) |}.
 Next Obligation. exists (λ t , identity _). econstructor. intros.
