@@ -86,6 +86,7 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 Add Rec LoadPath ".".
+Require Import HoTT_light.
 Require Import groupoid.
 Require Import groupoid_utility.
 
@@ -94,7 +95,7 @@ Set Universe Polymorphism.
 Set Program Mode.
  
 Opaque Equiv_adjoint.
-Opaque map_id map_inv Dmap_id.
+Opaque map_id map_inv.
 
 (* end hide *)
 
@@ -104,7 +105,7 @@ Opaque map_id map_inv Dmap_id.
   recently generalized to dependent type theory in %\cite{barras:_gener_takeut_gandy_inter}% using 
   Kan semisimplicial sets.
   There are two main novelties in our interpretation. First, we take advantage of universe polymorphism 
-  to interpret dependent types directly as weak functors into [_Type]. This provides a uniform interpretation
+  to interpret dependent types directly as weak functors into WeakGroupoidType. This provides a uniform interpretation
   that lift to higher-dimensional weak groupoids, and ultimately to $\omega$-groupoids.
   Second, we provide an interpretation in a model where structures that are definitionally equal for
   Kan semisimplicial sets are only homotopically equal, which requires more care in the definitions
@@ -120,7 +121,7 @@ Opaque map_id map_inv Dmap_id.
 
   The judgment context $\Gamma \vdash$ of Section
   %\ref{sec:proof-assistant}% is represented in %\Coq% as a weak
-  groupoid, noted [Context := [_Type]]. The empty context is
+  groupoid, noted [Context := WeakGroupoidType]. The empty context is
   interpreted as the weak groupoid with exactly one element at each
   dimension.  Types in a context [Γ], noted [Typ Γ], are weak
   (context) functors from [Γ] to weak groupoids.  Thus, a judgment
@@ -132,58 +133,23 @@ Opaque map_id map_inv Dmap_id.
 
 (* begin hide *)
 
-Unset Implicit Arguments.
-
-Definition Hom_irr (T : Type) : HomT T := λ _ _, unit.
-
-Set Implicit Arguments.
-
-Program Definition _Hom_irr T (Hom : HomT1 T) : HomT2 eq1 := {| eq2 := fun x y => Hom_irr _ |}.
-
-Obligation Tactic := intros; try (constructor; intros; exact tt).
-
-Program Instance IrrRelEquiv T : Equivalence (Hom_irr T).
-Program Instance IrrRelCat T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1): CategoryP (_Hom_irr Hom).
-
-Program Instance IrrRelGrp T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1): GroupoidP (IrrRelCat T Hom id comp).
-
-Program Instance IrrRelId T (Hom : HomT1 T) (x y : T) : Identity (Hom_irr (x ~1 y)).
-
-Program Instance IrrRelComp T (Hom : HomT1 T) (x y : T) : Composition (Hom_irr (x ~1 y)).
-
-Program Instance IrrRelInverse T (Hom : HomT T) (x y : T) : Inverse (Hom_irr (Hom x y)).
-
-Program Instance IrrRelEq T (Hom : HomT T) (x y : T) : Equivalence (Hom_irr (Hom x y)). 
-
-Program Definition IrrRelWeakCategory T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) : WeakCategory T:=  {| Hom2 := _Hom_irr Hom; Category_1 := IrrRelCat T Hom id comp ; Equivalence_2 := IrrRelEq eq1 |}.
-
-Program Definition IrrRelWeakGroupoid T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1) : WeakGroupoid T := 
-  {| WC := IrrRelWeakCategory id comp ; G := IrrRelGrp T Hom id comp inv|}.
-
-Arguments IrrRelWeakGroupoid {T} Hom {id comp inv}.
 
 (* end hide *)
 
 Obligation Tactic := simpl; intros.
-Definition Context := [_Type].
+Definition Context := GroupoidType.
 
-Definition Empty : [_Type] := 
-  (unit; IrrRelWeakGroupoid {| eq1 := Hom_irr unit |}).
+Definition Empty : GroupoidType := 
+  (unit; @IrrRelGroupoid unit {| eq1 := Hom_irr unit |} _ _ _).
+Next Obligation. econstructor. firstorder. Defined.
+Next Obligation. econstructor. firstorder. Defined.
+Next Obligation. econstructor. firstorder. Defined.
 
-Definition Typ (Γ:Context) := [Γ --> _Type].
+Definition Typ (Γ:Context) := [|Γ|g --> Type0].
 
-Definition Elt (Γ:Context) (A:Typ Γ) := [_Prod A].
+Definition Elt (Γ:Context) (A:Typ Γ) := [_Prod (Type0_Type A)].
 
-Instance TypFam_1 {Γ : Context} (A: Typ Γ) :WeakFunctor (λ s : [Γ], A @ s --> _Type : [_Type]).
-Next Obligation. apply fun_eqT. apply (map A X). apply identity. Defined.
-Next Obligation. exists (fun_eq_map _ _ _ _ e e'). apply AllEquivEq. Defined.
-Next Obligation. unfold TypFam_1_obligation_1. 
-                 exists (fun_eq_eq (map2 A X) (identity (identity _Type))).
-                 apply AllEquivEq.
-Defined.
-
-
-Definition TypDep {Γ : Context} (A: Typ Γ) := Typ (_Sum A).
+Definition TypDep {Γ : Context} (A: Typ Γ) := Typ (_Sum0 A).
 
 (* end hide *)
 (** Elements of [A] introduced by a sequent $\Gamma \vdash x:A$ are weak
@@ -203,11 +169,8 @@ Definition TypDep {Γ : Context} (A: Typ Γ) := Typ (_Sum A).
 
 *)
 
-Definition TypFam {Γ : Context} (A: Typ Γ) := 
-  [_Prod (λ γ, A @ γ --> _Type; _)]. 
-
 Class Action {T} (homAc : T -> Type) :=
-{  WC :> WeakCategory T;
+{  WC :> Category T;
    eqAc : ∀ {x}, HomT (homAc x);
    action : ∀ {x y : T}, (x ~1 y) -> (homAc y) -> (homAc x) ;
    idAc : ∀ {x} (f : homAc x), eqAc (action (identity x) f) f ;
@@ -217,15 +180,37 @@ Class Action {T} (homAc : T -> Type) :=
 
 Notation  "f '⋅' σ" := (action σ f) (at level 50).
 
-Instance ActionType : Action (T:=[_Type]) (fun T => T ---> _Type) :=
-  {| WC := WeakCategory_fun ; eqAc := λ T, nat_trans (T:=T) (U:=_Type) ;
+Instance ActionType : Action (T:=UGroupoidType) (fun T => T ---> _Type) :=
+  {| WC := Category_fun ; eqAc := λ T, nat_trans (T:=T) (U:=_Type) ;
      action := λ T U (σ: [T --> U]) (f : [U --> _Type]), (λ x, f @ (σ @ x) ; arrow_comp _ _ _ _ _) |}.
 Next Obligation. exists (λ t , identity _). econstructor. intros.
                  eapply composition. apply equiv_id_L. eapply inverse. apply equiv_id_R. Defined.
 Next Obligation. exists (λ t , identity _).  econstructor. intros.
-                 eapply composition. apply equiv_id_L. eapply inverse. apply equiv_id_R. Defined.
+                 eapply composition. apply equiv_id_L. eapply inverse. apply equiv_id_R. 
+Defined.
 
-Definition idTypDep (Γ:Context) : Typ Γ := (λ t, Γ; _).  
+(* Definition idTypDep (Γ:Context) : Typ Γ := (λ t, Γ; _).   *)
 
-Definition idTypDep'' (Γ:Context) (σ:[Γ --> Γ]) : Typ Γ := idTypDep Γ ⋅ σ.
+(* Definition idTypDep'' (Γ:Context) (σ:[Γ --> Γ]) : Typ Γ := idTypDep Γ ⋅ σ. *)
 
+
+Program Definition fun_eq_map' {Γ : Context} (A: Typ Γ)
+        (x y z : [Γ]) (e : x ~1 y) (e' : y ~1 z) :
+  (fun_eq (map A (e' ° e)) (identity (Identity := _Type_id) Type0))
+  ~1 ((fun_eq (map A e') (identity (Identity := _Type_id) Type0)) ° (fun_eq (map A e) (identity (Identity := _Type_id) Type0))).
+eapply composition. apply fun_eq_eq. apply (map_comp A). eapply inverse.
+apply (id_R (CategoryP:=Equiv_cat)).
+apply fun_eq_eq'. Defined.
+
+
+Instance TypFam_1 {Γ : Context} (A: Typ Γ) : Functor (T := |Γ|g) (λ s : [Γ], |A @ s|s --> Type0 : [_Type]).
+Next Obligation. apply fun_eqT. apply (map A X). apply identity. Defined.
+Next Obligation. exists (fun_eq_map' _ _ _ _ e e').
+                 apply AllEquivEq. Defined.
+Next Obligation. unfold TypFam_1_obligation_1.
+                 exists (fun_eq_eq (map2 A X) (identity (identity  (|Type0|g)))).
+                 apply AllEquivEq.
+Defined.
+
+Definition TypFam {Γ : Context} (A: Typ Γ) := 
+  [_Prod (λ γ, |A @ γ|s --> Type0; TypFam_1 _)]. 

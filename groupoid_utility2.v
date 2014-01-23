@@ -1,16 +1,18 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 (* Add Rec LoadPath "." as Groupoid. *)
+Require Import HoTT_light.
 Require Import groupoid.
 Require Import groupoid_utility.
 Require Import groupoid_interpretation_def.
 
 Set Implicit Arguments.
 Set Program Mode.
+Set Universe Polymorphism.
 Set Primitive Projections.
  
 Opaque Equiv_adjoint.
-Opaque map_id map_inv Dmap_id.
+Opaque map_id map_inv.
 
 Definition equiv_adjoint {Γ:Context} {A:Typ Γ} (a:Elt A) 
         {x y : [Γ]} (e : x ~1 y) : a @ x ~1 (adjoint (map A e)) @ (a @ y) :=
@@ -21,8 +23,8 @@ Definition Equiv_adjoint_comp {Γ:Context} {A:Typ Γ} (a:Elt A) (x y z:[Γ]) (e:
    map (adjoint (map A e)) (equiv_adjoint a e') ° equiv_adjoint a e.
 unfold equiv_adjoint. simpl.
 eapply composition. apply comp. apply comp. apply identity.
-eapply composition. apply (@_map2). apply _Dmap_comp. eapply composition.
-apply _map_comp. apply comp. apply identity. apply _map_comp. apply identity.
+eapply composition. eapply (map2 (adjoint (map A (e' ° e)))). apply (Dmap_comp a). eapply composition.
+apply (map_comp (adjoint (map A (e' ° e)))). apply comp. apply identity. apply _map_comp. apply identity.
 unfold eq_rect_map, eq_rect_comp.
 (* unfold map; simpl. *)
 eapply composition. apply comp. apply identity.
@@ -33,38 +35,39 @@ Admitted.
 Definition Equiv_adjoint_eq {Γ:Context} {A:Typ Γ} (a:Elt A) (x y:[Γ]) (e e':x~1 y) (E: e ~ e'):
 [Equiv_adjoint [map2 A E]] ([a] y) ° equiv_adjoint a e ~
    equiv_adjoint a e'.
-  unfold equiv_adjoint. simpl. eapply composition. apply comp.
-  apply comp. eapply composition. eapply inv. apply (eq_retraction (map2 A E)). 
-  simpl. eapply composition. apply inverse, comp_inv. apply comp. apply identity.
-  apply inverse, comp_inv. 
-  eapply composition. apply @_map2. apply (Dmap2 a E). apply _map_comp. apply identity.
-  simpl. 
+  (* unfold equiv_adjoint. simpl. eapply composition. apply comp. *)
+  (* apply comp. eapply composition. eapply inv. apply (eq_retraction (map2 A E)).  *)
+  (* simpl. eapply composition. apply inverse, comp_inv. apply comp. apply identity. *)
+  (* apply inverse, comp_inv.  *)
+  (* eapply composition. apply @_map2. apply (Dmap2 a E). apply _map_comp. apply identity. *)
+  (* simpl.  *)
 Admitted.
 
+Definition map_id_Typ0 (Γ:Context) (A:Typ Γ) (γ:[Γ]) (x : [A @ γ]) : [map_id (Type0_Type A)] @ x = [map_id A] @ x.
+  Admitted.
+Opaque map_id.
 Definition Equiv_adjoint_identity {Γ:Context} {A:Typ Γ} (a:Elt A) (x:[Γ]) : 
   [Equiv_adjoint [map_id A]] (a @ x) ° equiv_adjoint a (identity x) ~
    identity ([a] x).
   unfold equiv_adjoint. simpl. eapply composition. apply comp.
   apply comp. eapply composition. apply inv. apply (eq_retraction (map_id A)). 
-  simpl. simpl_id. apply @_map2. apply Dmap_id.  apply identity.
+  simpl. simpl_id. eapply (map2 (adjoint (map A (identity x)))). apply (Dmap_id a).  apply identity.
   unfold eq_rect_id. eapply composition. apply comp.
-  eapply composition. eapply comp. apply inverse, comp_inv. apply identity. 
+  eapply composition. eapply comp. eapply inverse. apply (comp_inv (T:=|A @ x|s)). apply identity. 
   eapply composition. eapply inverse. apply assoc. eapply composition. apply comp. apply identity. 
   eapply inverse.
-  exact (α_map (inverse (Equiv_adjoint [map_id A])) ([[map_id A]] ([a] x))). 
-  eapply composition. apply assoc. apply comp. apply inv_R. apply identity. apply identity. 
+  exact (α_map (inverse (Equiv_adjoint [map_id A])) ([[map_id (Type0_Type A)]] ([a] x))). 
+  eapply composition. apply assoc. apply comp. rewrite map_id_Typ0. apply inv_R. apply identity. apply identity. 
   simpl_id. apply inv_R.
 Defined.
 
-Definition ext (Γ: Context) (T : Typ Γ) : Type := 
-  @sigma [Γ] (λ γ, [T @ γ]).
+Definition ext (Γ: Context) (T : Typ Γ) : Type := sigma (fun γ => [T @ γ]).
 
 Definition cons {Γ: Context} {T : Typ Γ} (γ : [Γ]) (x : [T @ γ]) : ext T := (γ;x).
 
 Definition sum_id_left {Γ: Context} {T : Typ Γ} 
-        {γ : [Γ]} {x y : [T @ γ]}  (e : x ~1 y) : (cons γ x) ~1 (cons γ y) :=
-   (identity _ ; e ° ([map_id T] @ x)).
-
+        {γ : [Γ]} {x y : [T @ γ]}  (e : x ~1 y) : (cons γ x) ~1 (cons γ y)
+ := (identity _ ; e ° ([map_id T] @ x)).
 
 Definition sum_id_left_map {Γ: Context} {T : Typ Γ}
         (γ : [Γ])   (x y : [T @ γ])  (e e': x ~1 y) (H : e ~2 e') : 
@@ -99,7 +102,7 @@ Definition sum_id_left_id {Γ: Context} {T : Typ Γ}
   sum_id_left (identity x) ~2 identity _.
 exists (identity _). simpl. unfold eq_rect_id, eq_rect_eq.
 eapply composition. apply id_L. eapply inverse. eapply composition; try apply id_R.
-apply comp; try apply identity. apply (map2_id T _ x).
+apply comp; try apply identity. apply (map2_id T _ x). rewrite map_id_Typ0. apply identity.
 Defined.
 
 
@@ -158,9 +161,14 @@ Instance equiveq_pi T U (f g : T <~> U) (α:Equiv_eq f g) : EquivEq [α] := Π2 
 
 (* begin hide *)
 
-Instance comp_fun_depfun_1 (T T': [_Type]) (U : [T' --> _Type])
-        (F : [T --> T']) (G : [_Prod U]) : WeakDependentFunctor (U ⋅ F) (λ x : [T], G @ (F @ x)).
+Instance comp_fun_depfun_1 (T T': GroupoidType) (U : [T' --> _Type])
+        (F : [T --> T']) (G : [_Prod U]) : DependentFunctor (U ⋅ F) (λ x : [T], G @ (F @ x)).
 Next Obligation. apply (Dmap G (map F e)). Defined.
+Next Obligation. unfold comp_fun_depfun_1_obligation_1. 
+                 eapply composition. apply (Dmap2 G (map_id F)). 
+                 eapply composition. apply comp. apply identity. 
+                 apply (Dmap_id G). admit.
+Defined.
 Next Obligation. unfold comp_fun_depfun_1_obligation_1. 
                  eapply composition. apply (Dmap2 G (map_comp F e e')).
                  eapply composition. apply comp. apply identity. 
@@ -169,7 +177,7 @@ Next Obligation. unfold comp_fun_depfun_1_obligation_1.
                  Defined.
 Next Obligation. apply (Dmap2 G (map2 F H)). Defined. 
 
-Definition comp_fun_depfun {T T': [_Type]} {U : [T' --> _Type]}
+Definition comp_fun_depfun {T T': GroupoidType} {U : [T' --> _Type]}
         (F : [T --> T']) (G : [_Prod U]) : [_Prod (U ⋅ F)] :=
 (λ x : [T], G @ (F @ x); comp_fun_depfun_1 _ _ _ _ _).
 
@@ -187,104 +195,115 @@ Admitted.
 
 (* An other version of prod_eq *)
 
-Program Definition Prod_eq_ {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y) : 
-  [F] x ° adjoint (map A e) ~ [F] y 
-  := Dmap F e ° inverse (nat_id_L ([F] x ° adjoint (map A e))).
+(* Definition PropToType : _Prop.1 -> _Type.1 := fun X => (X.1; prop_setoid X). *)
 
-Program Definition Prod_eq_1 {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y)
-(X: Prod_Type ([F] x)) (a : [[A] y]) : [[[F] y] a] :=
- [Prod_eq_ F e @ a] @ ((X °° adjoint (map A e)) @ a).
+(* Instance SStoArrow_ (S : SetoidType) (f: [S -SS-> _Prop]) : *)
+(*   Functor (fun x => PropToType (f @ x)). *)
+(* Next Obligation. admit. Defined.  *)
+(* Next Obligation. admit. Defined.  *)
+(* Next Obligation. admit. Defined.  *)
 
-Program Instance Prod_eq_2 {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y)
-(X: Prod_Type ([F] x)) : WeakDependentFunctor ([F] y) (Prod_eq_1 F e X) :=
-  prod_eq1 (A @ y) _ (F @ y) (Prod_eq_ F e) (X °° adjoint (map A e)).
+(* Definition SStoArrow (S : SetoidType) : [S -SS-> _Prop] -> [|S| --> _Type] := *)
+(*   fun f => (fun x => PropToType (f @ x); _). *)
+  
+(* Program Definition Prod_eq_ {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y) :  *)
+(*   [F] x ° adjoint (map A e) ~ [F] y  *)
+(*   := Dmap F e ° inverse (nat_id_L ([F] x ° adjoint (map A e))). *)
 
-Program Instance Prod_eq_3 {Γ} (A:Typ Γ) (F:TypFam A) {x y : [Γ]} (e:x~1 y) :
- WeakFunctor   (λ X : [_Prod (F @ x)],
-         (λ a, Prod_eq_1 F e X a; Prod_eq_2 A F e X) : [_Prod (F @ y)]).
-Obligation Tactic := intros.
-Next Obligation. exists (fun a => map [Prod_eq_ F e @ a] 
-                                      (X @ ([adjoint (map A e)] a))).
-                 econstructor; intros.
-                 unfold groupoid_utility.prod_eq1_obligation_1.
-                 eapply composition. eapply inverse. apply assoc.
-                 eapply composition. apply comp. apply identity.
-                 eapply composition. eapply inverse.
-                 apply (map_comp [Prod_eq_ F e @ t']).
-                 eapply composition. eapply (map2 [Prod_eq_ F e @ t']). 
-                 apply (Π2 X).
-                 apply (map_comp [Prod_eq_ F e @ t']).
-                 unfold eq_rect_map. eapply composition. apply assoc.
-                 apply inverse. eapply composition. apply assoc.
-                 apply comp; [idtac | apply identity].
-                 eapply inverse. eapply composition. eapply inverse.
-                 apply (α_map ((inverse [α_map (Prod_eq_ F e) e0]) : nat_trans _ _)).
-                 apply comp; [idtac | apply identity].
-                 apply identity.
-Defined.
+(* Program Definition Prod_eq_1 {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y) *)
+(* (X: Prod_Type (SStoArrow (F @ x))) (a : [[A] y]) : [[[F] y] a] := *)
+(*  [Prod_eq_ F e @ a] @ ((X °° adjoint (map A e)) @ a). *)
 
-Program Instance fun_pi (T U : WeakGroupoidType) (f : T ---> U) : WeakFunctor [f] := Π2 f.
+(* Program Instance Prod_eq_2 {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y) *)
+(* (X: Prod_Type ([F] x)) : DependentFunctor ([F] y) (Prod_eq_1 F e X) := *)
+(*   prod_eq1 (A @ y) _ (F @ y) (Prod_eq_ F e) (X °° adjoint (map A e)). *)
+
+(* Program Instance Prod_eq_3 {Γ} (A:Typ Γ) (F:TypFam A) {x y : [Γ]} (e:x~1 y) : *)
+(*  Functor   (λ X : [_Prod (F @ x)], *)
+(*          (λ a, Prod_eq_1 F e X a; Prod_eq_2 A F e X) : [_Prod (F @ y)]). *)
+(* Obligation Tactic := intros. *)
+(* Next Obligation. exists (fun a => map [Prod_eq_ F e @ a]  *)
+(*                                       (X @ ([adjoint (map A e)] a))). *)
+(*                  econstructor; intros. *)
+(*                  unfold groupoid_utility.prod_eq1_obligation_1. *)
+(*                  eapply composition. eapply inverse. apply assoc. *)
+(*                  eapply composition. apply comp. apply identity. *)
+(*                  eapply composition. eapply inverse. *)
+(*                  apply (map_comp [Prod_eq_ F e @ t']). *)
+(*                  eapply composition. eapply (map2 [Prod_eq_ F e @ t']).  *)
+(*                  apply (Π2 X). *)
+(*                  apply (map_comp [Prod_eq_ F e @ t']). *)
+(*                  unfold eq_rect_map. eapply composition. apply assoc. *)
+(*                  apply inverse. eapply composition. apply assoc. *)
+(*                  apply comp; [idtac | apply identity]. *)
+(*                  eapply inverse. eapply composition. eapply inverse. *)
+(*                  apply (α_map ((inverse [α_map (Prod_eq_ F e) e0]) : nat_trans _ _)). *)
+(*                  apply comp; [idtac | apply identity]. *)
+(*                  apply identity. *)
+(* Defined. *)
+
+Program Instance fun_pi (T U : GroupoidType) (f : T ---> U) : Functor [f] := Π2 f.
 
 (* Definition map_comp' {T U} (f:T ---> U) {x y z: [T]} (e: x ~1 y) (e':y ~1 z) := *)
 (*   (proj2 f).(_map_comp)  e e' : map f (e' ° e) ~ map f e' ° map f e. *)
 
 Definition map_comp' {T U} (f:T ---> U) {x y z: [T]} (e: x ~1 y) (e':y ~1 z) :=
-  _map_comp (WeakFunctor := proj2 f) e e' : map f (e' ° e) ~ map f e' ° map f e.
+  _map_comp (Functor := proj2 f) e e' : map f (e' ° e) ~ map f e' ° map f e.
 
-Next Obligation. intro. intros. simpl. refine (map_comp' _ _ _). Defined.
+(* Next Obligation. intro. intros. simpl. refine (map_comp' _ _ _). Defined. *)
 
-Next Obligation. simpl; red; intros; simpl. apply (_map2 (X _)). Defined.
+(* Next Obligation. simpl; red; intros; simpl. apply (_map2 (X _)). Defined. *)
 
-Program Definition Prod_eq {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y): 
- _Prod ([F] x) ---> _Prod ([F] y) := (_; Prod_eq_3 A F e).
+(* Program Definition Prod_eq {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y):  *)
+(*  _Prod ([F] x) ---> _Prod ([F] y) := (_; Prod_eq_3 A F e). *)
 
-Program Definition Prod_eq_comp'' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
-        (e:x~1 y) (e' : y ~1 z):
-  ∀ t a , [Prod_eq F e' ° Prod_eq F e] t @ a ~1 [Prod_eq F (e' ° e)] t @ a.
-intros. simpl. unfold Prod_eq_1. simpl. unfold id.
-apply inverse. eapply composition. apply ([Dmap_comp F e e' a]). simpl.
-refine (map _ _). refine (map _ _). apply (Dmap t).
-Defined.
+(* Program Definition Prod_eq_comp'' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]} *)
+(*         (e:x~1 y) (e' : y ~1 z): *)
+(*   ∀ t a , [Prod_eq F e' ° Prod_eq F e] t @ a ~1 [Prod_eq F (e' ° e)] t @ a. *)
+(* intros. simpl. unfold Prod_eq_1. simpl. unfold id. *)
+(* apply inverse. eapply composition. apply ([Dmap_comp F e e' a]). simpl. *)
+(* refine (map _ _). refine (map _ _). apply (Dmap t). *)
+(* Defined. *)
 
-Program Definition Prod_eq_comp' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
-        (e:x~1 y) (e' : y ~1 z):
-  ∀ t , [Prod_eq F e' ° Prod_eq F e] t ~1 [Prod_eq F (e' ° e)] t .
-intro. exists (Prod_eq_comp'' F e e' t). intros; simpl. unfold Prod_eq_comp''.
-admit. Defined.
+(* Program Definition Prod_eq_comp' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]} *)
+(*         (e:x~1 y) (e' : y ~1 z): *)
+(*   ∀ t , [Prod_eq F e' ° Prod_eq F e] t ~1 [Prod_eq F (e' ° e)] t . *)
+(* intro. exists (Prod_eq_comp'' F e e' t). intros; simpl. unfold Prod_eq_comp''. *)
+(* admit. Defined. *)
 
-Program Definition Prod_eq_comp {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
-        (e:x~1 y) (e' : y ~1 z): Prod_eq F e' ° Prod_eq F e ~ Prod_eq F (e' °e).
-exists (Prod_eq_comp' F e e'). econstructor. intros. simpl. red. intros. simpl.
-simpl_id_bi. unfold Prod_eq_comp'', id. simpl. (* simpl_id_bi. *) admit. Defined.
+(* Program Definition Prod_eq_comp {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]} *)
+(*         (e:x~1 y) (e' : y ~1 z): Prod_eq F e' ° Prod_eq F e ~ Prod_eq F (e' °e). *)
+(* exists (Prod_eq_comp' F e e'). econstructor. intros. simpl. red. intros. simpl. *)
+(* simpl_id_bi. unfold Prod_eq_comp'', id. simpl. (* simpl_id_bi. *) admit. Defined. *)
 
-Program Definition Prod_eq_map' {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]}
-        (e e':x ~1 y) (H : e ~ e') t :  
-  [Prod_eq F e] t ~1 [Prod_eq F e'] t.
-Admitted.
+(* Program Definition Prod_eq_map' {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]} *)
+(*         (e e':x ~1 y) (H : e ~ e') t :   *)
+(*   [Prod_eq F e] t ~1 [Prod_eq F e'] t. *)
+(* Admitted. *)
 
-Program Definition Prod_eq_map {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]}
-        (e e':x ~1 y) (H : e ~ e') :  Prod_eq F e ~1 Prod_eq F e'.
-Admitted.
+(* Program Definition Prod_eq_map {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]} *)
+(*         (e e':x ~1 y) (H : e ~ e') :  Prod_eq F e ~1 Prod_eq F e'. *)
+(* Admitted. *)
 
-Program Definition Prod_eq_id {Γ} (A:Typ Γ) (F:TypFam A) {x: [Γ]}
-  :  Prod_eq F (identity x) ~1 identity _.
-Admitted.
+(* Program Definition Prod_eq_id {Γ} (A:Typ Γ) (F:TypFam A) {x: [Γ]} *)
+(*   :  Prod_eq F (identity x) ~1 identity _. *)
+(* Admitted. *)
 
-Program Instance Prod_eq_iso {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y) : 
-  Iso_struct (Prod_eq F e).
-Next Obligation. exact (Prod_eq F (inverse e)). Defined.
-Obligation Tactic := idtac.
-Next Obligation. intros. unfold Prod_eq_iso_obligation_1.
-                 eapply composition. apply Prod_eq_comp. 
-                 eapply composition; [idtac | apply Prod_eq_id]. 
-                 apply Prod_eq_map. apply inv_R. 
-Defined.
-Next Obligation. intros. eapply composition. apply Prod_eq_comp. 
-                 eapply composition; [idtac | apply Prod_eq_id]. 
-                 apply Prod_eq_map. apply inv_L. 
-Defined.
+(* Program Instance Prod_eq_iso {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y) :  *)
+(*   Iso_struct (Prod_eq F e). *)
+(* Next Obligation. exact (Prod_eq F (inverse e)). Defined. *)
+(* Obligation Tactic := idtac. *)
+(* Next Obligation. intros. unfold Prod_eq_iso_obligation_1. *)
+(*                  eapply composition. apply Prod_eq_comp.  *)
+(*                  eapply composition; [idtac | apply Prod_eq_id].  *)
+(*                  apply Prod_eq_map. apply inv_R.  *)
+(* Defined. *)
+(* Next Obligation. intros. eapply composition. apply Prod_eq_comp.  *)
+(*                  eapply composition; [idtac | apply Prod_eq_id].  *)
+(*                  apply Prod_eq_map. apply inv_L.  *)
+(* Defined. *)
 
-Definition Prod_eqT {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y): 
-  _Prod (F @ x) <~> _Prod (F @ y) := IsoToEquiv (Prod_eq F e; Prod_eq_iso _ F e).
+(* Definition Prod_eqT {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y):  *)
+(*   _Prod (F @ x) <~> _Prod (F @ y) := IsoToEquiv (Prod_eq F e; Prod_eq_iso _ F e). *)
 
 

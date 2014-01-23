@@ -47,6 +47,8 @@ Definition apD10 {A} {B:A->Type} {f g : forall x, B x} (h:f=g)
 Class Funext :=
   { isequiv_apD10 :> forall (A : Type) (P : A -> Type) f g, IsEquiv (@apD10 A P f g) }.
 
+Axiom funext : Funext.
+
 Definition path_forall `{Funext} {A : Type} {P : A -> Type} (f g : forall x : A, P x) :
   f == g -> f = g
   :=
@@ -62,3 +64,12 @@ Definition path_sigma {A : Type} (P : A -> Type) (u v : sigma P)
 : u = v. 
   destruct u, v. simpl in *. destruct p. destruct q. reflexivity. 
 Defined.
+
+Definition path_prod_uncurried {A B : Type} (z z' : A * B)
+  (pq : (fst z = fst z') * (snd z = snd z')): (z = z').
+  destruct pq. destruct z, z'. simpl in *. destruct e, e0. reflexivity.
+Defined.
+
+Definition path_prod {A B : Type} (z z' : A * B) :
+  (fst z = fst z') -> (snd z = snd z') -> (z = z')
+  := fun p q => path_prod_uncurried z z' (p,q).

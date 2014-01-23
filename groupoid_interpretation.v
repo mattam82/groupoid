@@ -125,7 +125,7 @@ Definition curry {Γ: Context} {T : Typ Γ} (U : TypDep T) (γ : [Γ]) :=
   λ t : [T @ γ], U @ (γ; t).
 
 Instance Curry1 {Γ: Context} {T : Typ Γ}
-        (U : TypDep T) (γ : [Γ]) : WeakFunctor (curry U γ).
+        (U : TypDep T) (γ : [Γ]) : Functor (T:=|T @ γ|s) (curry U γ).
 Next Obligation. exact (map U (sum_id_left X)). Defined.
 Next Obligation. 
   eapply composition. apply (map2 U (inverse (sum_id_left_comp _ _ _ _ e e'))).
@@ -136,14 +136,14 @@ Next Obligation.
 Defined.
 
 Definition Curry {Γ: Context} {T : Typ Γ}
-        (U : TypDep T) (γ : [Γ]) : [T @ γ --> _Type] :=
-  (curry U γ ; _). 
+        (U : TypDep T) (γ : [Γ]) : [|T @ γ|s --> Type0] :=
+  (curry U γ ; Curry1 U γ). 
 
-Definition Family {Γ: Context} (A : Typ Γ) :=
-  (λ s : [Γ], [A] s --> _Type; TypFam_1 A).
+Definition Family {Γ: Context} (A : Typ Γ) : [|Γ|g --> _Type] :=
+  (λ s : [Γ], |A @ s|s --> Type0; TypFam_1 A). 
 
-Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: Typ (_Sum A)) :
-  WeakDependentFunctor (Family A) (Curry B).
+Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: TypDep A) : 
+  DependentFunctor (Family A) (Curry B).
 
 Obligation Tactic := idtac.
 Next Obligation. intros. exists (fun a => map B (sum_id_right e a)).
@@ -152,17 +152,17 @@ Next Obligation. intros. exists (fun a => map B (sum_id_right e a)).
                  eapply composition. Focus 2. apply (map_comp B).
                  apply (map2 B). apply inverse, sum_id_left_right. Defined.
 
-Opaque _Type.
+Opaque Type0 _Type.
 
-Lemma all_id_R (W : WeakGroupoidType) (x : [W]) (f g : x ~1 x) : 
+Lemma all_id_R (W : GroupoidType) (x : [W]) (f g : x ~1 x) : 
   (f ~ identity x) -> (g ~ identity x) -> (f ° g ~ identity x).
 Proof.
-  intros. eapply composition. apply comp. apply X0. apply X. apply comp_id. 
+  intros. eapply composition. apply comp. apply X0. apply X. apply (comp_id (T:=W)). 
 Qed.
-Lemma all_id_inv (W : WeakGroupoidType) (x : [W]) (f : x ~1 x) : 
+Lemma all_id_inv (W : GroupoidType) (x : [W]) (f : x ~1 x) : 
   (f ~ identity x) -> (f ^-1 ~ identity x).
 Proof.
-  intros. eapply composition. apply inv. apply X. apply inv_id. 
+  intros. eapply composition. apply inv. apply X. apply (inv_id (T:=W)). 
 Qed.
 
 (* Ltac all_id := try apply (@all_id_R _); repeat *)
@@ -280,19 +280,18 @@ Ltac simpl_id_bi ::= simpl_id; eapply inverse; simpl_id.
 (*      | [ |- Equiv_eq ((identity _) ^-1) _] => apply (@inv_id _Type) *)
 (*    end |idtac ..]. *)
 
-Transparent _Type.
+Transparent _Type Type0.
   
 Ltac mysimpl := 
-  cbn beta iota zeta delta -[_Type curry]. 
+  cbn beta iota zeta delta -[Type0 _Type curry]. 
 Unset Printing All.
 
 Next Obligation. 
-  intros. unfold LamT_1_obligation_1. intro. mysimpl. Opaque _Type.
-  Transparent _Type.
-  Time eapply inverse. 
-  Time simpl_id. Time simpl_id.
+  intros. unfold LamT_1_obligation_1. intro. (* mysimpl. *)
+  eapply inverse. 
+  (* Time simpl_id. Time simpl_id. *)
   eapply composition; [apply equiv_comp|idtac].
-  mysimpl.
+  (* mysimpl. *)
   Time apply identity.
   Time eapply inverse.
   apply (map_comp B).
@@ -348,7 +347,7 @@ Next Obligation. exact (LamT_1 B). Defined.
 (* begin hide *)
 
 Instance SubstT_1 {Γ:Context} {A:Typ Γ} (F:TypFam A) (a:Elt A) :
- WeakFunctor (λ s, (F @ s) @ (a @ s)).
+ Functor (λ s, (F @ s) @ (a @ s)).
 
 Next Obligation. eapply composition; try apply ([Dmap F X] (a @ y)).
                  simpl. unfold id. apply (map (F @ x)).
@@ -426,7 +425,7 @@ Defined.
 (* begin hide *)
 
 Instance SubExt_1 {Γ Δ : Context} {A : Typ Δ} (f: [Γ --> Δ]) (t: Elt (A ⋅ f)) : 
-  WeakFunctor (λ s, (f @ s; t @ s) : [_Sum A]).
+  Functor (λ s, (f @ s; t @ s) : [_Sum A]).
 Next Obligation. exact (map f X; Dmap t X). Defined.
 Next Obligation. exists (map_comp f e e'). simpl. 
                  eapply composition. exact (Dmap_comp t e e'). 
@@ -447,7 +446,7 @@ Definition SubExt {Γ Δ : Context} {A : Typ Δ} (σ: [Γ --> Δ])
 Arguments SubExt {Γ Δ A} σ a.
 
 Instance SubExtId_1 {Γ : Context} {A : Typ Γ} (t: Elt (A)) : 
-  WeakFunctor (λ s, (s; t @ s) : [_Sum A]).
+  Functor (λ s, (s; t @ s) : [_Sum A]).
 Next Obligation. exact (X ; Dmap t X). Defined.
 Next Obligation. exists (identity _). eapply composition.
                  exact (Dmap_comp t e e'). simpl. unfold eq_rect_eq.
@@ -461,7 +460,7 @@ Definition SubExtId {Γ : Context} {A : Typ Γ}
  (t: Elt A) : [Γ --> (_Sum A)] := (λ γ, (γ; t @ γ) ; _).
 
 Instance substF_1 {T Γ} {A:Typ Γ} (F:TypFam A) (f:[T --> Γ]) :
-  WeakDependentFunctor (λ t : [T], (A ⋅ f) @ t --> _Type; TypFam_1 (A ⋅ f)) 
+  DependentFunctor (λ t : [T], (A ⋅ f) @ t --> _Type; TypFam_1 (A ⋅ f)) 
                        ([F °° f] : ∀ t : [T], (A ⋅ f) @ t ---> _Type).
 Next Obligation. exact (Dmap F (map f e)). Defined.
 Next Obligation. 
@@ -517,24 +516,24 @@ Notation  "F '°°°' σ " := (substF F σ) (at level 50).
 
 (* begin hide *)
 
-Instance SubWeak_1 (Γ: [_Type]) (T : [Γ --> _Type])
-         : WeakFunctor (λ γt : [_Sum T], [γt]).
+Instance Sub_1 (Γ: [_Type]) (T : [Γ --> _Type])
+         : Functor (λ γt : [_Sum T], [γt]).
 Next Obligation. apply [X]. Defined.
 Next Obligation. apply comp; apply identity. Defined.
 Next Obligation. apply [X]. Defined.
 
 (* end hide *)
 
-Definition SubWeak {Γ: Context} {T : Typ Γ} : [_Sum T --> Γ] 
+Definition Sub {Γ: Context} {T : Typ Γ} : [_Sum T --> Γ] 
   :=  (λ γt:[_Sum T], [γt] ; _).
 
 
 (** 
 %\noindent%
   This substitution allows to interpret a type A in a weakened context 
-  as [A ⋅ SubWeak]. This is noted  [⇑ A]. *)
+  as [A ⋅ Sub]. This is noted  [⇑ A]. *)
 (* begin hide *)
-Notation "⇑ A" := (A ⋅ SubWeak) (at level 9, t at level 9).
+Notation "⇑ A" := (A ⋅ Sub) (at level 9, t at level 9).
 (* end hide *)
 
 (**
@@ -603,7 +602,7 @@ Defined.
 (* begin hide *)
 
 Instance Var_1 {Γ:Context} (A:Typ Γ) :  
-  WeakDependentFunctor ⇑ A (λ t : sigma (λ t : [Γ], [A @ t]), Π2 t).
+  DependentFunctor ⇑ A (λ t : sigma (λ t : [Γ], [A @ t]), Π2 t).
 Next Obligation. intros. apply (Π2 e). Defined.
 Next Obligation. intros. unfold Var_1_obligation_1. simpl. 
                  apply comp; try apply identity. unfold eq_rect_comp.
@@ -647,7 +646,7 @@ Next Obligation. intros. exact (Var_1 A). Defined.
 (* begin hide *)
 
 Instance Prod_1 {Γ} (A:Typ Γ) (F:TypFam A) :
-  WeakFunctor (λ s : [Γ], _Prod ([F] s) : [_Type]).
+  Functor (λ s : [Γ], _Prod ([F] s) : [_Type]).
 Next Obligation. intros. apply (Prod_eqT F X). Defined.
 Next Obligation. intros. simpl. red. simpl. exists (inverse (Prod_eq_comp F e e')).
                  apply AllEquivEq.
@@ -675,7 +674,7 @@ Definition Prod {Γ} (A:Typ Γ) (F:TypFam A) : Typ Γ :=
 (* begin hide *)
 
 Instance App_1 {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)) (a:Elt A) :
-  WeakDependentFunctor (F {{a}}) (λ s : [Γ], [[c] s] ([a] s)).
+  DependentFunctor (F {{a}}) (λ s : [Γ], [[c] s] ([a] s)).
 
 Next Obligation. intros. eapply composition; try apply (Dmap (c @ y) (Dmap a e)).
                  unfold eq_rect.
@@ -716,7 +715,7 @@ Notation "M '@@' N" := (App M N) (at level 50).
 
 Instance Lam_1 {Γ} {A:Typ Γ} {F:TypDep A}
   (b:Elt F) (γ:[Γ]) :
-  WeakDependentFunctor ([LamT F] γ) (fun t => b @ (γ ; t)).
+  DependentFunctor ([LamT F] γ) (fun t => b @ (γ ; t)).
 Next Obligation. intros. apply (Dmap b (sum_id_left e)).
 Defined.
 Next Obligation. intros. eapply composition. eapply (Dmap2 b (inverse (sum_id_left_comp _ _ _ _ _ _))).
@@ -732,7 +731,7 @@ Definition Lam_partial {Γ} {A:Typ Γ} {F:TypDep A}
 Next Obligation. intros. exact (Lam_1 _ _). Defined.
 
 Instance Lam_2 {Γ} {A:Typ Γ} {B:TypDep A} (b:Elt B) :
- WeakDependentFunctor (Prod (LamT B)) (Lam_partial b).
+ DependentFunctor (Prod (LamT B)) (Lam_partial b).
 Next Obligation. intros. simpl. red; simpl. unfold Prod_eq_1, id. simpl. unfold id.
                  exists (fun t => Dmap b (sum_id_right e t)). 
                  econstructor. intros; simpl. 
@@ -811,7 +810,7 @@ Definition non_dep_type {Γ} T : Typ Γ := (λ γ, T; _).
 
    Equality on proofs is irrelevant, i.e., the set of (iso-)Homs between
    any two proofs of the same proposition is a singleton.
-   We define an instance [IrrRelWeakGroupoid] that constructs a weak
+   We define an instance [IrrRelGroupoid] that constructs a weak
     groupoid from an equivalence by assuming that the second equality
     is irrelevant. We use this instance to define weak groupoids
     degenerated at level 2, as for instance for [Prop].
@@ -843,8 +842,8 @@ Program Instance Prop_comp : Composition (λ P Q : Propositions, [P] <-> [Q]).
 Next Obligation. firstorder. Defined.
 (* end hide *)
 
-Definition _Prop : WeakGroupoidType := 
-  (Propositions; IrrRelWeakGroupoid {| eq1 := (λ P Q, [P] <-> [Q]) |}).
+Definition _Prop : GroupoidType := 
+  (Propositions; IrrRelGroupoid {| eq1 := (λ P Q, [P] <-> [Q]) |}).
 
 (** %\noindent% As for [Type], we interpret [Prop] as [Ω := non_dep_type _Prop].
 
@@ -861,7 +860,7 @@ Definition Ω {Γ} : Typ Γ := non_dep_type _Prop.
 Definition type {Γ} : Typ Γ := non_dep_type _Type.
 
 Definition PropToTypeT (P:[_Prop]) : [_Type] := 
-  ([P]; IrrRelWeakGroupoid {| eq1 := Hom_irr [P] |}).
+  ([P]; IrrRelGroupoid {| eq1 := Hom_irr [P] |}).
 
 Definition PropToType_eq' (P Q:[_Prop]) (e : P ~1 Q) : 
   PropToTypeT P ---> PropToTypeT Q.
@@ -894,7 +893,7 @@ Next Obligation. intros. exact (PropToType_equiv _ _ _). Defined.
 Definition Props (Γ:Context) := [Γ --> _Prop].
 
 Instance PropsToTyp_1 (Γ:Context) (A:Props Γ) : 
-WeakFunctor (λ s : [Γ], PropToTypeT ([A] s)).
+Functor (λ s : [Γ], PropToTypeT ([A] s)).
 Next Obligation. intros. apply PropToType_eq. exact (map A X). Defined.
 Next Obligation. intros. simpl. red. simpl. 
                  exists (PropToType_comp _ _  ° 
@@ -924,7 +923,7 @@ apply (map Q X). apply H1. Defined.
 Notation  "P '<-T->' Q" := (EquPropT P Q) (at level 50). 
 
 Program Instance TypeToType_1 {Γ:Context} (A : Elt (Γ:=Γ) type) : 
-  WeakFunctor ([A] : [Γ] -> [_Type]).
+  Functor ([A] : [Γ] -> [_Type]).
 Next Obligation. intros. apply (Dmap A X). Defined. 
 Next Obligation. intros. eapply composition. apply (Dmap_comp A e e'). 
                  eapply composition. apply equiv_comp.
@@ -996,7 +995,7 @@ Lemma eq_Prod_ctxt {T Γ} (A:Typ Γ) (F:TypFam A) (f: [T --> Γ]) :
   red. simpl. admit.
 Defined.
 
-Notation "↑ t" := (t °° SubWeak with eq_Prod_ctxt _ _) (at level 9, t at level 9).
+Notation "↑ t" := (t °° Sub with eq_Prod_ctxt _ _) (at level 9, t at level 9).
  
 Definition Dmap_id_adjoint {Γ} {A:Typ Γ} (F:TypFam A) {γ : [Γ]}
   {x y : [A @ γ]} (e : x ~1 y) : [Dmap F (identity γ)] y °
@@ -1010,9 +1009,9 @@ Definition FunExt_1_aux (Γ: Context) (A : Typ Γ)
         (t t' : [A @ γ]) (e : t ~1 t') :
   Dmap (M @ γ) e ° ([Dmap_id_adjoint (LamT F) e] @ ([[M] γ] t)) ~
 App_1_obligation_1 
-    (F := substF (LamT F) SubWeak)
+    (F := substF (LamT F) Sub)
     (λ a : [_Sum A], M @ [a];
-     prod_eq1 (_Sum A) (Prod (LamT F) ⋅ SubWeak) (Prod (LamT F °°° SubWeak)) (eq_Prod_ctxt (LamT F) SubWeak) (M °° SubWeak)) (Var A)
+     prod_eq1 (_Sum A) (Prod (LamT F) ⋅ Sub) (Prod (LamT F °°° Sub)) (eq_Prod_ctxt (LamT F) Sub) (M °° Sub)) (Var A)
     (γ; t) (γ; t') (sum_id_left e). 
 admit. Defined.
 
@@ -1071,10 +1070,10 @@ Qed.
 (* assert (foo : forall M: Elt (Prod (LamT F)),  *)
 (*                 [Dmap M e] t0 ° ([X] @ ([[M] t] ([adjoint (map A e)] t0))) ~ *)
 
-(*                 App_1_obligation_1 (F := substF (LamT F) SubWeak) *)
+(*                 App_1_obligation_1 (F := substF (LamT F) Sub) *)
 (*           (λ a : [_Sum A], [M] [a]; *)
-(*           prod_eq1 (_Sum A) (Prod (LamT F) ⋅ SubWeak) (Prod (LamT F °°° SubWeak)) *)
-(*             (eq_Prod_ctxt (LamT F) SubWeak) (M °° SubWeak)) (Var A) *)
+(*           prod_eq1 (_Sum A) (Prod (LamT F) ⋅ Sub) (Prod (LamT F °°° Sub)) *)
+(*             (eq_Prod_ctxt (LamT F) Sub) (M °° Sub)) (Var A) *)
 (*           (t; [adjoint (map A e)] t0) (t'; t0) (sum_id_right e t0)  *)
 (*        ). *)
 (* mysimpl. *)
