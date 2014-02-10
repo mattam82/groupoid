@@ -122,23 +122,11 @@ eapply composition. eapply inverse. apply nat_assoc. eapply inverse.
 eapply composition. eapply inverse. apply nat_assoc. apply nat_comp'; try apply identity.
 apply right_left_comp. Defined.
 
-Definition id_R_groupoid : ∀ (x y : UGroupoidType) (f : x <~> y), Equiv_eq (f ° identity x) f.
-  intros. set (H := nat_id_R [f]). exists H. 
-  red. intro.
-  eapply composition. apply section_comp.
-  eapply composition. apply comp. apply (map_id [f]). apply identity.
-  eapply inverse. eapply composition. apply comp.
-  eapply composition. apply id_R. apply identity. apply identity.
-  eapply composition. apply comp. eapply composition. eapply (map2 [f]).
-  apply Equiv_adjoint_idR. simpl. apply (map_id [f]). apply identity. 
-  apply identity.
-Defined.
-
 Program Definition fun_eq_map {Γ : UGroupoidType} (A: [Γ --> _Type]) (x y z : [Γ]) (e : x ~1 y) (e' : y ~1 z) : 
   fun_eq (map A (e' ° e)) (identity _Type) ~1
   fun_eq (map A e') (identity _Type) ° fun_eq (map A e) (identity _Type).
 eapply composition. apply fun_eq_eq. apply (map_comp A). eapply inverse.
-apply (id_R_groupoid).  (* (CategoryP:=Equiv_cat)). *)
+apply (@id_R _ Equiv_cat). 
 apply fun_eq_eq'. Defined.
 
 Program Definition fun_eq_id {Γ : UGroupoidType} (A: [Γ --> _Type]) (x : [Γ]) :
@@ -148,106 +136,26 @@ eapply composition. apply fun_eq_eq. apply (map_id A). apply identity.
 unfold fun_eq. eapply composition. apply nat_comp'. apply left_comp_id. 
 apply right_comp_id. apply nat_id_L. Defined.
 
-Lemma nat_trans_comp (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U)
-  (x y z  : [A]) (e : x ~1 y) (e' : y ~1 z) :
-  (identity _ ** map_comp U e e') ° α_map α (e' ° e) ~2
-     inverse (assoc'') ° (α_map α e ** identity _ ) ° assoc'' °
-     (identity _ ** α_map α e') ° inverse (assoc'') °
-     (map_comp T e e' ** identity _).
-Proof. (* TODO : nico ? *) admit. Defined.
+(* This part is not needed for the moment *)
 
-Lemma nat_trans_id (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U)
-  (x : [A]) :
-       (identity _ ** map_id U) ° α_map α (identity _) ~2 
-       inverse (id_L' _) ° id_R' _ ° (map_id T (x:=x) ** identity _).
-Admitted.
-(* trunc_eq. Defined. *)
+(* Lemma nat_trans_comp (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U) *)
+(*   (x y z  : [A]) (e : x ~1 y) (e' : y ~1 z) : *)
+(*   (identity _ ** map_comp U e e') ° α_map α (e' ° e) ~2 *)
+(*      inverse (assoc'') ° (α_map α e ** identity _ ) ° assoc'' ° *)
+(*      (identity _ ** α_map α e') ° inverse (assoc'') ° *)
+(*      (map_comp T e e' ** identity _). *)
+(* Proof. intro. simpl. simpl_id_bi.  *)
+(*  (* TODO : nico ? *) admit. Defined. *)
 
-Lemma nat_trans2 (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U)
-  (x y : [A]) (e e' : x ~1 y) (H : e ~e') :
-  (identity _ ** (map2 U H)) ° (α_map α e) ~ (α_map α e') ° ((map2 T H) ** identity _).
-Admitted.
-(* trunc_eq. Defined. *)
+(* Lemma nat_trans_id (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U) *)
+(*   (x : [A]) : *)
+(*        (identity _ ** map_id U) ° α_map α (identity _) ~2  *)
+(*        inverse (id_L' _) ° id_R' _ ° (map_id T (x:=x) ** identity _). *)
+(* Admitted. *)
+(* (* trunc_eq. Defined. *) *)
 
-Ltac simpl_id_end := 
-  match goal with
-    | [ |- eq2 (?P ^-1 ° ?P) _] => compose;
-       [first [apply inv_L | apply equiv_inv_L]|idtac]
-    | [ |- eq2 (?P ° ?P ^-1) _] => compose;
-       [first [apply inv_R | apply equiv_inv_R]|idtac]
-    | [ |- eq2 (?P ° identity ?x) _] => compose;
-       [first [apply id_R | apply equiv_id_R]|idtac]
-    | [ |- eq2 (identity ?x ° ?P) _] => compose;
-       [first [apply id_L | apply equiv_id_L]|idtac]
-    | [ |- eq2 ((?P ^-1) ^-1) _] => compose;
-       [first [apply inv_inv | apply (@inv_inv _Type)]|idtac]
-    | [ |- eq2 ((identity ?T) ^-1) _] => compose;
-       [first [apply (inv_id T) | apply (@inv_id _Type)]|idtac]
-    | [ |- Equiv_eq (?P ^-1 ° ?P) _] => compose; [apply equiv_inv_L|idtac]
-    | [ |- Equiv_eq (?P ° ?P ^-1) _] => compose; [apply equiv_inv_R|idtac]
-    | [ |- Equiv_eq (?P ° identity ?x) _] => compose; [apply equiv_id_R|idtac]
-    | [ |- Equiv_eq (identity ?x ° ?P) _] => compose; [apply equiv_id_L|idtac]
-    | [ |- Equiv_eq ((?P ^-1) ^-1) _] => compose; [apply (@inv_inv _Type)|idtac]
-    | [ |- Equiv_eq ((identity _) ^-1) _] => compose; [apply (@inv_id _Type)|idtac]
-  end.
-
-Ltac simpl_id_end_extended := first [ simpl_id_end |
-                                      match goal with
-                   | [ |- Equiv_eq ?e _ ] => apply (identity e)
-                   | [ |- eq2 ?e _ ] => apply (identity e)
-                   | [ |- _ ] => idtac
-                 end].
-
-Ltac simpl_id := first [simpl_id_end ; simpl_id |
-  lazymatch goal with
-    | |- context [identity _] => fail
-    | |- _ => apply identity
-  end|
-  match goal with
-    | [ |- eq2 (?P ^-1) _] =>
-      eapply composition;
-        [first [apply equiv_inv | apply inv] ; simpl_id | idtac]; 
-        try apply identity
-    | [ |- eq2 (map ?F (identity _)) _] => 
-      eapply composition;
-        [eapply (map_id F); simpl_id | idtac]; 
-        simpl_id
-    | [ |- Equiv_eq (map ?F (identity _)) _] => 
-      eapply composition;
-        [eapply (map_id F); simpl_id | idtac]; 
-        simpl_id
-    | [ |- eq2 (map ?F ?P) _] => 
-      first [eapply composition;
-              [eapply (map2 F); simpl_id | idtac]; 
-              [apply identity | idtac] | 
-             (progress_evars (eapply composition;
-                              [eapply (map2 F); simpl_id | idtac];instantiate));
-               simpl_id |idtac]
-    | [ |- Equiv_eq (map ?F ?P) _] => 
-      first [eapply composition;
-              [eapply (map2 F); simpl_id | idtac]; 
-              [apply identity | idtac] | 
-             (progress_evars (eapply composition;
-                              [eapply (map2 F); simpl_id | idtac];instantiate));
-               simpl_id |idtac]
-    | [ |- Equiv_eq (?P ^-1) _] =>
-      eapply composition;
-        [apply equiv_inv; simpl_id | idtac]; 
-        try apply identity
-    | [ |- Equiv_eq (?Q ° ?P) _] =>
-      eapply composition;
-        [apply equiv_comp ; simpl_id | idtac];
-        simpl_id_end_extended
-    | [ |- Equiv_eq ?e _ ] => apply (identity e)
-    | [ |- eq2 (?Q ° ?P) _] =>
-      eapply composition;
-        [first [apply comp |
-                apply equiv_comp] ; simpl_id | idtac];
-        simpl_id_end_extended
-    | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply (identity e)]
-    | [ |- _ ] => idtac
-  end].
-
-
-Ltac simpl_id_bi := simpl_id; eapply inverse; simpl_id.
-
+(* Lemma nat_trans2 (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U) *)
+(*   (x y : [A]) (e e' : x ~1 y) (H : e ~e') : *)
+(*   (identity _ ** (map2 U H)) ° (α_map α e) ~ (α_map α e') ° ((map2 T H) ** identity _). *)
+(* Admitted. *)
+(* (* trunc_eq. Defined. *) *)
