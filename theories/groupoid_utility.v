@@ -1,6 +1,6 @@
 Require Export Unicode.Utf8_core.
-Require Import Coq.Program.Tactics.
-Require Import groupoid.
+Require Coq.Program.Tactics.
+Require Import HoTT_light groupoid.
 
 Set Universe Polymorphism.
 Set Implicit Arguments.
@@ -9,11 +9,14 @@ Set Program Mode.
 Set Primitive Projections.
 
 Opaque map_id map_inv.
- 
+Notation α_map f := ((proj2 f) _ _).
+
 (******* Groupoud_utility **********)
 
+Infix "--->" := Fun_Type (at level 55). 
+
 Program Instance left_comp_1 A B C (f: [A --> B]) : Functor (λ g : [B --> C], g ° f : [A-->C]).
-Next Obligation. exists (fun t => X @ (f @ t)). econstructor. 
+Next Obligation. exists (fun t => X @ (f @ t)). red. 
                  intros. apply (α_map X). Defined.
 Next Obligation. unfold left_comp_1_obligation_1. simpl.
                  exact (fun t => identity _). Defined.
@@ -24,7 +27,7 @@ Program Definition left_comp A B C (f: [A --> B]) : (B --> C) ---> (A --> C) :=
   (fun g => g ° f; left_comp_1 _ _ _ _).
 
 Program Instance right_comp_1 A B C (g: [B --> C]) : Functor (λ f : [A --> B], g ° f : [A-->C]).
-Next Obligation. exists (fun t => map g (X @ t)). econstructor. 
+Next Obligation. exists (fun t => map g (X @ t)). red.
                  intros. simpl. unfold groupoid.arrow_comp_obligation_1. 
                  eapply composition. eapply inverse. apply (map_comp g).
                  eapply inverse. eapply composition. eapply inverse. apply (map_comp g).
@@ -42,18 +45,18 @@ Definition fun_eq {T T' U U': UGroupoidType} (e:T <~> T') (e': U <~> U') :
 
 Definition right_comp_eq (T T' U : UGroupoidType) (f f':[T --> T'])
            (H : f ~2 f')  : right_comp U f ~2 right_comp U f'.
-exists (fun g => nat_comp' (identity g) H). econstructor.
+exists (fun g => nat_comp' (identity g) H). red.
 intros; simpl. red. simpl. intro. simpl_id_bi. eapply inverse. apply (α_map H). 
 Defined.
 
 Definition right_comp_eq' (T T' T'' U : UGroupoidType) (f:[T --> T']) (f' :[T' --> T''])
            : right_comp U (f' ° f) ~2 right_comp U f' ° right_comp U f.
-exists (fun g => nat_assoc g f f'). econstructor.
+exists (fun g => nat_assoc g f f'). red.
 intros; simpl. red. intro. simpl. simpl_id_bi. Defined.
 
 Definition left_comp_eq (T U U' : UGroupoidType) (g g':[U --> U'])
            (H : g ~2 g')  : left_comp T g ~2 left_comp T g'.
-exists (fun f => nat_comp' H (identity f)). econstructor.
+exists (fun f => nat_comp' H (identity f)). red.
 intros; simpl. red. simpl. intro. simpl_id_bi. apply (α_map e).
 Defined.
 
@@ -63,20 +66,20 @@ Definition nat_assoc_inv (T U U' U'' : UGroupoidType) (g:[U --> U']) (g' :[U' --
 
 Definition left_comp_eq' (T U U' U'' : UGroupoidType) (g:[U --> U']) (g' :[U' --> U'']) 
            : left_comp T (g' ° g) ~2 left_comp T g ° left_comp T g'.
-  exists (nat_assoc_inv g g'). econstructor. intros.
+  exists (nat_assoc_inv g g'). red. intros.
   simpl. intro. simpl. simpl_id_bi. apply identity. Defined.
 
 Definition right_left_comp (T T' U U' : UGroupoidType) (g :[T --> T']) (f: [U --> U'])
            : right_comp T f ° left_comp U g ~1 left_comp U' g ° right_comp T' f.
-simpl. red. simpl. exists (fun t => nat_assoc_inv g t f).  econstructor. intros.
+simpl. red. simpl. exists (fun t => nat_assoc_inv g t f). red. intros.
   simpl. intro. simpl. simpl_id_bi. apply identity. Defined.
 
 Definition left_comp_id (T U : UGroupoidType) : left_comp T (identity U) ~2 identity _.
-  exists (fun t => nat_id_R t). econstructor. intros. simpl. 
+  exists (fun t => nat_id_R t). red. intros. simpl. 
   intro. simpl. simpl_id_bi. Defined.
 
 Definition right_comp_id (T U : UGroupoidType) : right_comp U (identity T) ~2 identity _.
-  exists (fun t => nat_id_L t). econstructor. intros. simpl. 
+  exists (fun t => nat_id_L t). red. intros. simpl. 
   intro. simpl. simpl_id_bi. Defined.
 
 Program Instance fun_eq2 (T T' U U' : UGroupoidType) (e:T <~> T') (e': U <~> U') : Iso_struct (fun_eq e e').
@@ -121,7 +124,7 @@ apply right_left_comp. Defined.
 
 Definition id_R_groupoid : ∀ (x y : UGroupoidType) (f : x <~> y), Equiv_eq (f ° identity x) f.
   intros. set (H := nat_id_R [f]). exists H. 
-  econstructor. intro.
+  red. intro.
   eapply composition. apply section_comp.
   eapply composition. apply comp. apply (map_id [f]). apply identity.
   eapply inverse. eapply composition. apply comp.
@@ -151,8 +154,7 @@ Lemma nat_trans_comp (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U)
      inverse (assoc'') ° (α_map α e ** identity _ ) ° assoc'' °
      (identity _ ** α_map α e') ° inverse (assoc'') °
      (map_comp T e e' ** identity _).
-Admitted.
-  (* trunc_eq. Qed.  *)
+Proof. (* TODO : nico ? *) admit. Defined.
 
 Lemma nat_trans_id (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U)
   (x : [A]) :
@@ -166,6 +168,7 @@ Lemma nat_trans2 (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U)
   (identity _ ** (map2 U H)) ° (α_map α e) ~ (α_map α e') ° ((map2 T H) ** identity _).
 Admitted.
 (* trunc_eq. Defined. *)
+
 Ltac simpl_id_end := 
   match goal with
     | [ |- eq2 (?P ^-1 ° ?P) _] => compose;
@@ -247,215 +250,4 @@ Ltac simpl_id := first [simpl_id_end ; simpl_id |
 
 
 Ltac simpl_id_bi := simpl_id; eapply inverse; simpl_id.
-
-
-Program Instance prod_eq1 (A: UGroupoidType) (T U : [A --> _Type]) (eqTU : T ~1 U)
-        (t : [_Prod T]) :
-        DependentFunctor U (λ a : [A], [eqTU @ a] @ (t @ a)).
-Next Obligation.
-  eapply composition.
-  exact ((inverse [α_map eqTU e]) @ (t @ x)).
-  exact (map [eqTU @ y] (Dmap t e)).
-Defined.
-Next Obligation. Admitted.
-Next Obligation.
-  unfold prod_eq1_obligation_1. simpl. 
-  (* apply setoid_irr2. *)
-  unfold eq_rect_comp, eq_rect, eq_rect_map.
-  assert (foo := nat_trans_comp eqTU x y z e e' (t @ x)).
-  simpl in foo. unfold groupoid.arrow_comp_obligation_1, id in foo.
-  eapply composition in foo. Focus 2.
-  simpl_id_bi.
-  eapply inverse in foo. eapply composition in foo. Focus 2.
-  simpl_id_bi.
-  eapply (right_simplify' (T:=U @ z)).
-  eapply composition. apply assoc.
-  eapply composition. apply comp. apply inv_L. apply identity.
-  eapply composition. apply id_R.
-  eapply composition. eapply (map2 [eqTU @ z]). apply (Dmap_comp t).
-  eapply composition. apply (map_comp [eqTU @ z]).
-  eapply inverse. eapply composition. apply assoc.
-  eapply composition. apply comp. eapply inverse. apply foo.
-  apply identity. clear foo.
-  unfold eq_rect_comp, eq_rect, eq_rect_map. simpl.
-  eapply composition. apply assoc.
-  eapply composition. apply comp. eapply composition.
-  apply comp. apply assoc.
-  apply (map_comp [map U e']).
-  eapply composition. apply assoc.
-  eapply composition. apply comp.
-  eapply composition. eapply inverse. apply assoc.
-  eapply composition. apply comp.  apply identity.
-  eapply composition. eapply inverse.
-  apply (map_comp [map U e']).
-  eapply composition. eapply (map2 [map U e']).
-  apply inv_L. apply (map_id [map U e']).
-  apply id_L. apply identity. apply identity. apply identity.
-  eapply inverse. eapply composition.  apply comp. apply identity.
-  apply (map_comp [eqTU @ z]). eapply composition. apply assoc.
-  eapply inverse. eapply composition. apply assoc.
-  apply comp; try apply identity.
-  eapply composition. eapply inverse. apply assoc.
-  eapply composition. eapply inverse. apply assoc.
-  apply comp; try apply identity.
-  eapply (left_simplify' (T:=(U @ z))).
-  eapply composition. eapply inverse. apply assoc.
-  eapply composition. apply comp. apply identity.
-  eapply composition. eapply inverse. apply assoc.
-  eapply composition. apply comp. apply identity.
-  apply inv_R. apply id_L.
-  eapply inverse. apply (α_map [α_map eqTU e']).
-Defined.
-Next Obligation.
-  (* apply setoid_irr2. *)
-  unfold prod_eq1_obligation_1. unfold eq_rect_eq, eq_rect.
-  eapply composition. apply comp. apply identity.
-  eapply composition. eapply (map2 [[eqTU] y]).
-  apply (Dmap2 t H).
-  eapply (map_comp [[eqTU] y]).
-  unfold eq_rect_eq, eq_rect.
-  eapply composition. apply assoc. eapply inverse. eapply composition. apply assoc.
-  apply comp; try apply identity.
-  eapply left_simplify'. eapply composition. eapply inverse. apply assoc.
-  eapply composition. apply comp. apply identity. apply inv_R.
-  simpl_id_bi.
-  eapply right_simplify'. eapply composition. apply assoc.
-  eapply composition. apply comp. eapply composition. apply assoc.
-  eapply composition. apply comp. apply inv_L. apply identity. apply id_R.
-  apply identity.
-  assert (foo := nat_trans2 eqTU x y e e' H (t @ x)).
-  simpl in foo. eapply composition in foo. Focus 2.
-  simpl_id_bi. eapply inverse in foo. eapply composition in foo. Focus 2.
-  simpl_id_bi. apply foo.
-Defined.
-
-Program Instance prod_eq2 (A: UGroupoidType) (T U : [A --> _Type]) (eqTU : T ~1 U) :
-        Functor (λ (t : [_Prod T]), (λ a : [A], [eqTU @ a] @ (t @ a)  ; prod_eq1 A T U eqTU t) : [_Prod U]).
-Next Obligation. exists (fun t => map [[eqTU] t] (X @ t)). intros; simpl.
-                 unfold _Dmap. simpl. unfold prod_eq1_obligation_1.
-                 econstructor; intros. (* apply setoid_irr2. *)
-                 eapply composition. eapply inverse. apply assoc.
-                 eapply composition. apply comp. apply identity.
-                 eapply composition. eapply inverse. apply (map_comp [eqTU @ t']).
-                 eapply composition. eapply (map2 [eqTU @ t']). apply (Π2 X).
-                 apply (map_comp [eqTU @ t']).
-                 unfold eq_rect_map. eapply composition. apply assoc.
-                 apply inverse. eapply composition. apply assoc.
-                 apply comp; [idtac | apply identity].
-                 apply (α_map ((inverse [α_map eqTU e]) : nat_trans _ _)).
-Defined.
-Next Obligation. intro. (* apply setoid_irr2. *) 
- simpl. apply (map_comp [eqTU @ t]). Defined.
-Next Obligation. intro. (* apply setoid_irr2. *) simpl. apply (map2 [eqTU @ t]). apply (X _). Defined.
-  
-Program Definition prod_eq (A: UGroupoidType) (T U : [A --> _Type]) (e:T ~1 U) : [_Prod T --> _Prod U] := (_; prod_eq2 A T U e).
-
-Definition fun_comp T U V (f : T ---> U) (g : U ---> V) := composition (Composition := comp_fun) f g.
-
-Program Definition prod_eq_comp' (A: UGroupoidType) (T U V: [A --> _Type]) 
-        (e:T ~1 U) (e' : U ~1 V) : 
-  ∀ t : [_Prod T], [fun_comp (prod_eq e) (prod_eq e')] t ~1 [prod_eq (e' ° e)] t.
-(**** Matthieu : Why the definition does not work anymore ??? *****)
-(* [prod_eq e' ° prod_eq e] t ~1 [prod_eq (e' ° e)] t. *)
-intro; simpl. red; simpl. exists (fun t => identity _). intros. econstructor; intros.
-(* apply setoid_irr2. *)
-unfold eq_rect_map. simpl_id_bi. simpl. unfold  prod_eq1_obligation_1. simpl. simpl_id_bi.
-unfold groupoid.arrow_comp_obligation_1, eq_rect.
-simpl. unfold prod_eq1_obligation_1.
-eapply composition. apply comp. apply identity. apply (map_comp [e'@t']).
-eapply composition. apply assoc. apply comp; [idtac | apply identity].
-apply inverse. eapply composition. eapply inverse. eapply comp_inv.
-apply comp. apply identity. eapply inverse, map_inv.
-Defined.
-
-Program Definition prod_eq_comp (A: UGroupoidType) (T U V: [A --> _Type]) 
-        (e:T ~1 U) (e' : U ~1 V) : 
-  nat_trans (fun_comp (prod_eq e) (prod_eq e')) 
-            (prod_eq (e' °e)).
-(**** Matthieu : Why the definition does not work anymore ??? *****)
-(* prod_eq e' ° prod_eq e ~ prod_eq (e' °e). *)
-exists (prod_eq_comp' e e'). econstructor. intros. simpl. red. intros. simpl.
-(* apply setoid_irr2. *)
-simpl_id_bi. Defined.
-
-Program Definition prod_eq_map' (A: UGroupoidType) (T U: [A --> _Type]) 
-        (e e':T ~1 U) (H : e ~ e') (t:[_Prod T]) :  
-  [prod_eq e] t ~1 [prod_eq e'] t.
-simpl; red; simpl. exists (fun t0 => [H t0] @ (t @ t0)). econstructor; intros; simpl.
-(* apply setoid_irr2. *)
-unfold eq_rect_map. simpl. unfold prod_eq1_obligation_1.
-simpl. eapply composition. eapply inverse. apply assoc.
-eapply composition. apply comp. apply identity. apply (α_map [H t']).
-eapply composition. apply assoc. apply inverse.
-eapply composition. apply assoc. apply comp; [idtac | apply identity].
-admit.
-Defined.
-
-Program Definition prod_eq_map (A: UGroupoidType) (T U: [A --> _Type]) 
-        (e:T ~1 U) (e' : T ~1 U) (H : e ~ e') : nat_trans (prod_eq e) (prod_eq e').
-simpl; red. exists (prod_eq_map' H). econstructor. intros. simpl. red. intros. simpl.
-(* apply setoid_irr2. *)
- apply (α_map [H t0]). Defined.
-
-Definition fun_id T := identity (Identity := id_fun) T.
-
-Program Definition prod_eq_id' (A: UGroupoidType) (T: [A --> _Type]) :
-∀ t : [_Prod T], [prod_eq (identity T)] t ~1 [fun_id (_Prod T)] t.
-(**** Matthieu : Why the definition does not work anymore ??? *****)
-(* [prod_eq (identity T)] t ~1 [identity (_Prod T)] t. *)
-intro; exists (fun _ => identity _). econstructor; intros; simpl. 
-(* apply setoid_irr2. *)
-unfold id; simpl_id_bi.
-unfold prod_eq1_obligation_1, id, eq_rect_map. simpl.
-simpl_id_bi. simpl_id. apply identity.
-Defined.
-
-Program Definition prod_eq_id (A: UGroupoidType) (T: [A --> _Type]) 
-: nat_trans (prod_eq (identity T)) (fun_id _).
-(* : prod_eq (identity T) ~ identity _. *)
-exists (prod_eq_id' (T:=T)). econstructor. intros. simpl. red. intros. simpl.
-simpl_id_bi. (* apply setoid_irr2. *) Defined.
-
-Program Instance prod_eq_iso (A: UGroupoidType) (T U : [A --> _Type]) (e:T ~1 U) : 
-  Iso_struct (prod_eq e).
-Next Obligation. exact (prod_eq (inverse e)). Defined.
-Next Obligation. eapply composition. apply prod_eq_comp. 
-                 eapply composition; [idtac | apply prod_eq_id]. 
-                 apply prod_eq_map. 
-                 intro. simpl. apply (equiv_inv_R _ _ (e @ t)). 
-Defined.
-Next Obligation. eapply composition. apply prod_eq_comp. 
-                 eapply composition; [idtac | apply prod_eq_id]. 
-                 apply prod_eq_map. 
-                 intro. simpl. apply (equiv_inv_L _ _ (e @ t)). 
-Defined.
-
-Program Definition prod_eqT (A: UGroupoidType) (T U : [A --> _Type]) (e:T ~1 U) : 
-  _Prod T <~> _Prod U := IsoToEquiv (prod_eq e; prod_eq_iso _ _ _ e).
-
-Program Instance fun_todep_fun_2 (T: UGroupoidType) (U:[_Type]): Functor (λ _ : [T], U).
-Next Obligation. apply identity. Defined.
-Next Obligation. unfold fun_todep_fun_2_obligation_1. eapply inverse.
-                 assert (foo := id_L U U (identity U)). apply foo. Defined.
-Next Obligation. unfold fun_todep_fun_2_obligation_1. apply identity. Defined.
-
-Program Definition fun_todep_fun_1 T U : [T --> _Type] :=
-  (λ _ : [T], U; fun_todep_fun_2  _ _).
-
-Program Instance fun_todep_fun1 T (U:[_Type]) (M : [T --> U]) : DependentFunctor (fun_todep_fun_1 T U) [M].
-Next Obligation. unfold id; apply (map M e). Defined.
-Next Obligation. admit. Defined.
-Next Obligation. unfold fun_todep_fun1_obligation_1, fun_todep_fun_1, fun_todep_fun_2.
-                 eapply composition. apply (map_comp M e e').
-                 eapply inverse. eapply composition. apply assoc. apply comp; try apply identity.
-                 unfold id. unfold eq_rect_map. simpl. unfold groupoid.arrow_id_obligation_1.
-                 eapply composition; try apply id_R.  apply comp; try apply identity.
-                 apply (inv_id (M @ x)). Defined.
-Next Obligation. unfold fun_todep_fun1_obligation_1, fun_todep_fun_1, fun_todep_fun_2.
-                 eapply composition. apply (map2 M H). eapply inverse. apply id_R. Defined.
-
-Program Definition fun_todep_fun T U (M : [T --> U]) :
-  [_Prod (fun_todep_fun_1 T U)] := ([M]; fun_todep_fun1 _ _ M).
-
-
 

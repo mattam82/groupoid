@@ -1,0 +1,5 @@
+-R theories Groupoid
+theories/HoTT_light.v
+theories/groupoid.v
+theories/groupoid_utility.v
+theories/groupoid_interpretation.v
