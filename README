@@ -1,0 +1,10 @@
+Internalization of the Groupoid Interpretation of HoTT - Coq development
+========================================================================
+Copyright 2013-2014 Matthieu Sozeau & Nicolas Tabareau <first.last@inria.fr>
+Distributed under the terms of the LGPL.
+
+To compile the development, simply run [coq_makefile -f Make -o Makefile; make]
+in the toplevel directory, with coqc in your path. You need to use 
+the polyproj branch of Coq available at github.com/mattam82/coq.git 
+(commit 79a33d893c, compile with -no-native-compiler) to compile this code, 
+as it makes use of universe polymorphism and fast projections.
