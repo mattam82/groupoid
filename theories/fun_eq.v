@@ -136,6 +136,15 @@ eapply composition. apply fun_eq_eq. apply (map_id A). apply identity.
 unfold fun_eq. eapply composition. apply nat_comp'. apply left_comp_id. 
 apply right_comp_id. apply nat_id_L. Defined.
 
+
+Definition fun_eq_map' {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ])
+        (x y z : [Γ]) (e : x ~1 y) (e' : y ~1 z) :
+  (fun_eq (map A (e' ° e)) (identity (Identity := _Type_id) Type0))
+  ~1 ((fun_eq (map A e') (identity (Identity := _Type_id) Type0)) ° (fun_eq (map A e) (identity (Identity := _Type_id) Type0))).
+eapply composition. apply fun_eq_eq. apply (map_comp A). eapply inverse.
+apply (id_R (CategoryP:=Equiv_cat)).
+apply fun_eq_eq'. Defined.
+
 (* This part is not needed for the moment *)
 
 (* Lemma nat_trans_comp (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U) *)
