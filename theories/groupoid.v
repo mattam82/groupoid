@@ -114,8 +114,6 @@
 (** printing nat_trans_grp $\mathsf{fun_{grp}}$*)
 (* begin hide *)
 
-(* Require Export Utf8_core. *)
-(* Require Import HoTT. *)
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 Require Import HoTT_light.
@@ -339,94 +337,6 @@ Definition SetoidType := {T: Type & Setoid T}.
 
 Definition PropoidType := {T: Type & Propoid T}.
 
-Unset Implicit Arguments.
-
-Definition Hom_irr (T : Type) : HomT T := λ _ _, unit.
-
-Set Implicit Arguments.
-
-Definition _Hom_irr T (Hom : HomT1 T) : HomT2 eq1 := {| eq2 := fun x y => Hom_irr _ |}.
-
-Obligation Tactic := intros; try (constructor; intros; exact tt).
-
-Definition IrrRelEquiv T : Equivalence (Hom_irr T).
-  econstructor; econstructor; firstorder. Defined.
-
-Definition IrrRelCat T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1): CategoryP (_Hom_irr Hom).
-  econstructor; econstructor; firstorder. Defined.
-  
-Definition IrrRelGrp T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1): GroupoidP (IrrRelCat id comp).
-  econstructor; econstructor; firstorder. Defined.
-
-Definition IrrRelId T (Hom : HomT1 T) (x y : T) : Identity (Hom_irr (x ~1 y)).
-  econstructor; econstructor; firstorder. Defined.
-
-Definition IrrRelComp T (Hom : HomT1 T) (x y : T) : Composition (Hom_irr (x ~1 y)).
-  econstructor; econstructor; firstorder. Defined.
-
-Definition IrrRelInverse T (Hom : HomT T) (x y : T) : Inverse (Hom_irr (Hom x y)).
-  econstructor; econstructor; firstorder. Defined.
-
-Definition IrrRelEq T (Hom : HomT T) (x y : T) : Equivalence (Hom_irr (Hom x y)). 
-  econstructor; econstructor; firstorder. Defined.
-
-Definition IrrRelCategory T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) : Category T:=  {| Hom2 := _Hom_irr Hom; Category_1 := IrrRelCat id comp ; Equivalence_2 := IrrRelEq eq1 |}.
-
-Definition IrrRelUGroupoid T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1) : UGroupoid T := 
-  {| WC := IrrRelCategory id comp ; GP := IrrRelGrp id comp inv|}.
-
-Definition IrrRelGroupoid T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1) : Groupoid T := 
-  {| G := IrrRelUGroupoid id comp inv|}.
-Next Obligation. destruct E, E'. reflexivity. Defined.
-
-Arguments IrrRelGroupoid {T} Hom {id comp inv}.
-
-Class Proposition T := {
-  P_WG :> Groupoid T ; 
-  is_Trunc_0 : ∀ (x y : T), x = y}.
-
-Definition PropositionType := {T: Type & Proposition T}.
-
-Instance eq_pi_prop (T : PropositionType) : Proposition [T] := T.2.
-
-Instance prop_WG (T : PropositionType) : Groupoid [T] := 
-  @IrrRelGroupoid T.1 {| eq1 := Hom_irr T.1|} _ _ _.
-
-Definition eq_Prop (P Q : PropositionType) := prod (P.1 -> Q.1) (Q.1 -> P.1).
-
-Infix "<->" := eq_Prop.
-
-(** Equality between propositions of type [Propositions] is given by
-logical equivalence on the underlying propositions, i.e., propositional
-extensionality. This is a degenerate case of univalence, where the
-proofs that the two maps form an isomorphism is trivial due to
-the above definition of equality of witnesses: they are all equal.  *)
-  
-(* begin hide *)
-Instance Prop_id : Identity (λ P Q : PropositionType, P <-> Q).
-Next Obligation. firstorder. Defined.
-
-Instance Prop_inv : Inverse (λ P Q : PropositionType, P <-> Q).
-Next Obligation. firstorder. Defined.
-
-Instance Prop_comp : Composition (λ P Q : PropositionType, P <-> Q).
-Next Obligation. firstorder. Defined.
-(* end hide *)
-
-Instance Prop_equiv : Equivalence (λ P Q : PropositionType, P <-> Q).
-
-Definition _Prop : SetoidType := 
-  (PropositionType; {| S_WG := IrrRelGroupoid {| eq1 := (λ P Q, P <-> Q) |} |}).
-Next Obligation. apply path_prod.
-                 apply path_forall. intro. apply is_Trunc_0.
-                 apply path_forall. intro. apply is_Trunc_0.
-Defined.
-
-Instance prop_setoid (T : PropositionType) : Setoid [T].
-Next Obligation. destruct e, e'. reflexivity. Defined.
-
-Instance eq_SWG (T : SetoidType) : Groupoid [T] := S_WG.
-Instance eq_PWG (T : PropositionType) : Groupoid [T] := P_WG.
 
 Hint Extern 0 (Setoid [?T]) => apply T.2 : typeclass_instances.
 Hint Extern 0 (Groupoid [?T]) => apply T.2 : typeclass_instances.
@@ -687,7 +597,6 @@ Opaque map_id map_inv.
 Instance arrow_id (T:UGroupoidType) : Functor (id (A := [T])) :=
   { _map x y e := e ;
     _map_comp x y z e e' := identity _ }.
-Next Obligation. exact X. Defined.
 
 Instance id_fun : Identity Fun_Type :=
   { identity x := (id (A:=[x]) ; arrow_id _) }.
@@ -1002,22 +911,6 @@ Definition Fun_Setoid (T U : SetoidType) := (T -S-> U; _Fun_Setoid T U) : Setoid
 Infix "-|->" := Fun_Setoid (at level 55). 
 
 (* end hide *)
-
-Definition Fun_Type_Setoid (T U : SetoidType) := |T|s ---> |U|s.
-
-Infix "-S->" := Fun_Type_Setoid (at level 55). 
-
-Instance _Fun_Setoid (T U : SetoidType) : Setoid (T -S-> U).
-Next Obligation. assert (e.1 = e'.1).
-                 apply path_forall. intros z.
-                 apply is_Trunc_1.
-                 apply (path_sigma H). 
-                 apply NaturalTransformationEq2.
-Defined.
-
-Definition Fun_Setoid (T U : SetoidType) := (T -S-> U; _Fun_Setoid T U) : SetoidType.
-
-Infix "-SS->" := Fun_Setoid (at level 55). 
 
 Class Iso_struct T U (f : [T --> U]) := 
 { _adjoint :    [U --> T] ;
@@ -1677,7 +1570,8 @@ Defined.
 (* The fellowing admitted proof is not difficult in essence, and are
                  similar to the previous one. *) 
 Next Obligation. 
-  exists (nat_comp' [X] [X0]). apply AllEquivEq.
+  exists (nat_comp' [X] [X0]). 
+  apply AllEquivEq.
 Defined.
 
 Program Instance Equiv_grp : GroupoidP UGroupoidType.
