@@ -145,26 +145,3 @@ eapply composition. apply fun_eq_eq. apply (map_comp A). eapply inverse.
 apply (id_R (CategoryP:=Equiv_cat)).
 apply fun_eq_eq'. Defined.
 
-(* This part is not needed for the moment *)
-
-(* Lemma nat_trans_comp (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U) *)
-(*   (x y z  : [A]) (e : x ~1 y) (e' : y ~1 z) : *)
-(*   (identity _ ** map_comp U e e') ° α_map α (e' ° e) ~2 *)
-(*      inverse (assoc'') ° (α_map α e ** identity _ ) ° assoc'' ° *)
-(*      (identity _ ** α_map α e') ° inverse (assoc'') ° *)
-(*      (map_comp T e e' ** identity _). *)
-(* Proof. intro. simpl. simpl_id_bi.  *)
-(*  (* TODO : nico ? *) admit. Defined. *)
-
-(* Lemma nat_trans_id (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U) *)
-(*   (x : [A]) : *)
-(*        (identity _ ** map_id U) ° α_map α (identity _) ~2  *)
-(*        inverse (id_L' _) ° id_R' _ ° (map_id T (x:=x) ** identity _). *)
-(* Admitted. *)
-(* (* trunc_eq. Defined. *) *)
-
-(* Lemma nat_trans2 (A: UGroupoidType) (T U : [A --> _Type]) (α : T ~1 U) *)
-(*   (x y : [A]) (e e' : x ~1 y) (H : e ~e') : *)
-(*   (identity _ ** (map2 U H)) ° (α_map α e) ~ (α_map α e') ° ((map2 T H) ** identity _). *)
-(* Admitted. *)
-(* (* trunc_eq. Defined. *) *)

@@ -155,6 +155,11 @@ Require Import HoTT_light.
 Require Import groupoid.
 Require Import fun_eq.
 Require Import groupoid_interpretation_def.
+Require Import Equiv_adjoint.
+Require Import fun_depfun.
+Require Import sum_id.
+(* this one does not comile yet *)
+(* Require Import prod_eq. *)
 
 Set Implicit Arguments.
 Set Universe Polymorphism.
