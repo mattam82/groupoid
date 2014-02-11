@@ -151,15 +151,15 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Require Import HoTT_light.
-Require Import groupoid.
-Require Import fun_eq.
-Require Import groupoid_interpretation_def.
-Require Import Equiv_adjoint.
-Require Import fun_depfun.
-Require Import sum_id.
-(* this one does not comile yet *)
-(* Require Import prod_eq. *)
+Add LoadPath "." as Groupoid.
+Require Import Groupoid.HoTT_light.
+Require Import Groupoid.groupoid.
+Require Import Groupoid.fun_eq.
+Require Import Groupoid.groupoid_interpretation_def.
+Require Import Groupoid.Equiv_adjoint.
+Require Import Groupoid.fun_depfun.
+Require Import Groupoid.sum_id.
+Require Import Groupoid.prod_eq.
 
 Set Implicit Arguments.
 Set Universe Polymorphism.
@@ -169,79 +169,21 @@ Opaque Equiv_adjoint.
 Opaque map_id map_inv.
 
 
-(* Program Instance UTypFam_1 {Γ : Context} (A: UTyp Γ) : Functor (T := |Γ|g) (U:=_Type) (λ s : [Γ], |A @ s|g --> Type1). *)
-(* Next Obligation. intros. apply fun_eqT. apply (map A X). apply identity. Defined. *)
-(* Next Obligation. admit. Defined. *)
-(* Next Obligation. admit. Defined. *)
-(* (* Next Obligation. exists (fun_eq_map' A x y z e e'). *) *)
-(* (*                  apply AllEquivEq. Defined. *) *)
-(* (* Next Obligation. unfold TypFam_1_obligation_1. *) *)
-(* (*                  exists (fun_eq_eq (map2 A X) (identity (identity  (|Type0|g)))). *) *)
-(* (*                  apply AllEquivEq. *) *)
-(* (* Defined. *) *)
-
-(* Definition UTypFam {Γ : Context} (A: UTyp Γ) :=  *)
-(*   [_Prod (λ γ, |A @ γ|g --> Type1; UTypFam_1 _)].  *)
-
-
-Definition ext (Γ: Context) (T : Typ Γ) : Type := sigma (fun γ => [T @ γ]).
-
-Definition cons {Γ: Context} {T : Typ Γ} (γ : [Γ]) (x : [T @ γ]) : ext T := (γ;x).
-
-Definition sum_id_right {Γ} {A:Typ Γ} {γ γ' : [Γ]}
-  (e : γ ~1 γ') (a' : [A @ γ']) : (cons γ (adjoint (map A e) @ a')) ~1 (cons γ' a').
-exists e. apply ((section (map A e)) @ a'). 
-Defined.
-
-Definition sum_id_left {Γ: Context} {T : Typ Γ} 
-        {γ : [Γ]} {x y : [T @ γ]}  (e : x ~1 y) : (cons γ x) ~1 (cons γ y)
- := (identity _ ; e ° ([map_id T] @ x)).
-
-Definition sum_id_left_comp {Γ: Context} {T : Typ Γ}
-        (γ : [Γ]) (x y z: [T @ γ])  (e: x ~1 y) (e' : y ~1 z) : 
-  sum_id_left e' ° sum_id_left e ~2 sum_id_left (e' ° e).
-exists (id_R _ _ _). simpl. eapply composition.  apply assoc.
-eapply composition.  apply assoc. eapply inverse.
-eapply composition.  apply assoc. eapply composition.  apply assoc. eapply inverse.
-apply comp; try apply identity. eapply composition. apply comp. apply comp.
-apply identity. apply (map_comp [map T (identity γ)]).
-apply identity. eapply composition. eapply inverse. apply assoc. eapply composition.
-apply comp. apply identity. eapply composition. eapply inverse. apply assoc.
-apply comp. apply identity. unfold eq_rect,id. 
-apply (α_map [map_id T]).
-eapply composition. apply assoc. eapply composition. apply assoc. apply comp; try apply identity.
-apply comp; try apply identity. 
-eapply inverse. eapply composition. apply (map2_id_R _ _ x). simpl. 
-eapply composition. apply comp. apply identity. eapply composition. apply id_L.  apply id_R.
-apply identity.
-Defined.
-
-
-
-Definition sum_id_left_map {Γ: Context} {T : Typ Γ}
-        (γ : [Γ])   (x y : [T @ γ])  (e e': x ~1 y) (H : e ~2 e') : 
-  sum_id_left e ~2 sum_id_left e'.
-exists (identity _). simpl. eapply inverse. eapply composition. 
-apply assoc. apply comp; try apply (inverse H). 
-eapply composition; try apply id_R. apply comp; try apply identity.
-apply (map2_id T _ x). 
-Defined.
-
-Definition sum_id_left_right {Γ: Context} {A : Typ Γ}
- (x y : [Γ]) (e : x ~1 y) (t t' : [A @ y]) (e' : t ~1 t'):
-  sum_id_left e' ° sum_id_right e t ~
-  sum_id_right e t' ° sum_id_left (map (adjoint (map A e)) e').
-  exists (inverse  (id_R _ _ _) ° id_L _ y e). simpl. 
-  admit.
-Defined.
-
 Definition curry {Γ: Context} {T : Typ Γ} (U : TypDep T) (γ : [Γ]) :=
   λ t : [T @ γ], U @ (γ; t).
 
+(* Definition ext (Γ: Context) (T : Typ Γ) : Type := sigma (fun γ => [T @ γ]). *)
+
+(* Definition cons {Γ: Context} {T : Typ Γ} (γ : [Γ]) (x : [T @ γ]) : ext T := (γ;x). *)
+
+(* Definition sum_id_left {Γ: Context} {T : Typ Γ}  *)
+(*         {γ : [Γ]} {x y : [T @ γ]}  (e : x ~1 y) : (cons γ x) ~1 (cons γ y) *)
+(*  := (identity _ ; e ° ([map_id T] @ x)). *)
+
 Program Instance Curry1 {Γ: Context} {T : Typ Γ}
         (U : TypDep T) (γ : [Γ]) : Functor (T:=[[T @ γ]]) (curry U γ).
-Next Obligation. exact (map U (sum_id_left X)). Defined.
-Next Obligation. 
+Next Obligation. intros. exact (map U (sum_id_left X)). Defined.
+Next Obligation. intros. unfold Curry1_obligation_1.                 
   eapply composition. apply (map2 U (inverse (sum_id_left_comp _ _ _ _ e e'))).
   apply (map_comp U).
 Defined.

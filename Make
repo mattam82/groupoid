@@ -5,6 +5,6 @@ theories/fun_eq.v
 theories/groupoid_interpretation_def.v
 theories/Equiv_adjoint.v
 theories/fun_depfun.v
-#theories/sum_id.v
-#theories/prod_eq.v
+theories/sum_id.v
+theories/prod_eq.v
 theories/groupoid_interpretation.v

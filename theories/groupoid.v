@@ -116,7 +116,8 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Require Import HoTT_light.
+Add LoadPath "." as Groupoid.
+Require Import Groupoid.HoTT_light.
 
 Set Universe Polymorphism.
 Set Program Mode.
@@ -1955,11 +1956,6 @@ Definition Prod_Type T (U:[T --> _Type]) := {f : ∀ t, [U @ t] & DependentFunct
 
 Hint Extern 0 (DependentFunctor _ [?f]) => exact (proj2 f) : typeclass_instances.
 
-(* Notation "'Dmap' f" := (@_Dmap _ _ _ (proj2 f) _ _) (at level 0, f at level 0). *)
-(* Notation "'Dmap_id' f" := (@_Dmap_id _ _ _ (proj2 f) _) (at level 0, f at level 0). *)
-(* Notation "'Dmap_comp' f" := (@_Dmap_comp _ _ _ (proj2 f) _ _ _) (at level 0, f at level 0). *)
-(* Notation "'Dmap2' f" := (@_Dmap2 _ _ _ (proj2 f) _ _ _ _) (at level 0, f at level 0). *)
-
 Notation "'Dmap' f" := ((proj2 f).(_Dmap)) (at level 0, f at level 0).
 Notation "'Dmap_id' f" := ((proj2 f).(_Dmap_id) _) (at level 0, f at level 0).
 Notation "'Dmap_comp' f" := ((proj2 f).(_Dmap_comp) _ _ _) (at level 0, f at level 0).
@@ -2117,6 +2113,49 @@ Definition Type0_Type T : [T --> Type0] -> [T --> _Type] :=
   fun f => (fun X => [[f @ X]] ; Type0_Type_ f).
 
 Notation "'[[[' x ']]]'" := (Type0_Type x) (at level 50).
+
+Transparent map_id.
+Definition map_id_Typ0 Γ (A:[Γ-->Type0]) (γ:[Γ]) (x : [A @ γ]) : [map_id (Type0_Type A)] @ x = [map_id A] @ x.
+  simpl. apply eq_refl.
+Defined.
+Opaque map_id.
+
+Class DependentFunctor0 T (U : [T --> Type0]) (f : ∀ t, [U @ t]) : Type := {
+  _Dmap0      : ∀ {x y} (e: x ~1 y), transport ([[[U]]]) e @ (f x) ~1 f y ;
+  _Dmap_comp0 : ∀ x y z (e : x ~1 y) (e' : y ~1 z),
+   _Dmap0 (e' ° e) ~2 _Dmap0 e' ° transport_map ([[[U]]]) _ (_Dmap0 e) ° 
+                     (transport_comp ([[[U]]]) e e' @ _);
+  _Dmap20  : ∀ x y (e e': x ~1 y) (H: e ~ e'),
+    _Dmap0 e ~ _Dmap0 e' ° (transport_eq ([[[U]]]) H @ (f x))}.
+
+Definition Prod_Type0 T (U:[T --> Type0]) := {f : ∀ t, [U @ t] & DependentFunctor0 U f}.
+
+Hint Extern 0 (DependentFunctor0 _ [?f]) => exact (proj2 f) : typeclass_instances.
+
+Notation "'Dmap0' f" := ((proj2 f).(_Dmap0)) (at level 0, f at level 0).
+Notation "'Dmap_comp0' f" := ((proj2 f).(_Dmap_comp0) _ _ _) (at level 0, f at level 0).
+Notation "'Dmap20' f" := ((proj2 f).(_Dmap20) _ _ _ _) (at level 0, f at level 0).
+
+Definition Dmap_id0 {T} {U:[T --> Type0]} (f: Prod_Type0 U) {x: [T]} :
+  Dmap0 f (identity x) ~ transport_id ([[[U]]]) @ (f @ x).
+Proof.
+  eapply right_simplify'. eapply right_simplify'.
+  eapply composition. eapply inverse. eapply (Dmap_comp0 f).
+  eapply composition. eapply (Dmap20 f (id_L _ _ (identity x))).
+  unfold transport_eq, transport_map, transport_comp, transport_id.
+  apply inverse. eapply composition. apply comp. apply identity.
+  apply (α_map [map_id ([[[U]]])]). eapply composition. apply assoc.
+  apply comp; [idtac | apply identity]. apply inverse.
+  eapply composition. apply (map2_id_L U).
+  simpl. unfold id. simpl_id_bi'. unfold transport. simpl.
+  Transparent map_id. simpl. apply identity. Opaque map_id.
+Defined.
+
+Instance DepFun0DepFun T (U : [T --> Type0]) (f : Prod_Type0 U) : DependentFunctor ([[[U]]]) f.1. 
+Next Obligation. apply (Dmap0 f). Defined.
+Next Obligation. apply (Dmap_id0 f). Defined.
+Next Obligation. apply (Dmap_comp0 f). Defined.
+Next Obligation. apply (Dmap20 f). Defined.
 
 Definition DNaturalTransformationEq2 T (U:[T --> Type0]) 
  {f g: Prod_Type (Type0_Type U)} (α : ∀ t : [T], f @ t ~1 g @ t)

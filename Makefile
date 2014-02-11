@@ -89,6 +89,8 @@ endif
 ######################
 
 VFILES:=theories/groupoid_interpretation.v\
+  theories/prod_eq.v\
+  theories/sum_id.v\
   theories/fun_depfun.v\
   theories/Equiv_adjoint.v\
   theories/groupoid_interpretation_def.v\
