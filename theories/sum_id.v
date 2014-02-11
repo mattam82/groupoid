@@ -1,11 +1,11 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-(* Add Rec LoadPath "." as Groupoid. *)
-Require Import HoTT_light.
-Require Import groupoid.
-Require Import fun_eq.
-Require Import groupoid_interpretation_def.
-Require Import Equiv_adjoint.
+Add LoadPath "." as Groupoid.
+Require Import Groupoid.HoTT_light.
+Require Import Groupoid.groupoid.
+Require Import Groupoid.fun_eq.
+Require Import Groupoid.groupoid_interpretation_def.
+Require Import Groupoid.Equiv_adjoint.
 
 Set Implicit Arguments.
 Set Program Mode.
@@ -43,7 +43,7 @@ Program Definition Prod_eq_ {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y)
   := Dmap F e ° inverse (nat_id_L ([F] x ° adjoint (map A e))).
 
 Program Definition Prod_eq_1 {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y)
-(X: Prod_Type ([F] x)) (a : [[A] y]) : [[[F] y] a] :=
+(X: Prod_Type [(F @ x)]) (a : [ [A] y]) : [ [ [F] y] a] :=
  [Prod_eq_ F e @ a] @ ((X °° adjoint (map A e)) @ a).
 
 Program Instance Prod_eq_2 {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y)

@@ -89,7 +89,10 @@ endif
 ######################
 
 VFILES:=theories/groupoid_interpretation.v\
-  theories/groupoid_utility.v\
+  theories/fun_depfun.v\
+  theories/Equiv_adjoint.v\
+  theories/groupoid_interpretation_def.v\
+  theories/fun_eq.v\
   theories/groupoid.v\
   theories/HoTT_light.v
 

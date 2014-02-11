@@ -154,7 +154,7 @@ Require Import Coq.Program.Tactics.
 Require Import HoTT_light.
 Require Import groupoid.
 Require Import fun_eq.
-Require Import groupoid_interpetation_def.
+Require Import groupoid_interpretation_def.
 
 Set Implicit Arguments.
 Set Universe Polymorphism.
