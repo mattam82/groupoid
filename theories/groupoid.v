@@ -347,10 +347,6 @@ Hint Extern 0 (Propoid [?T]) => apply T.2 : typeclass_instances.
 Hint Extern 1 (Groupoid [?T]) => apply T.(proj2).(S) : typeclass_instances.
 Hint Extern 1 (Setoid [?T]) => apply T.(proj2).(P) : typeclass_instances.
 
-Definition Trunc_2 (T:GroupoidType) (x y : [T])
-  (e e' : x ~1 y) (E E' : e ~2 e') : Contr (E = E') :=
-  is_Trunc_2 x y e e' E E'.
-
 (* Instance eq_pi1 (T : SetoidType) : Setoid [T] := T.2. *)
 (* Instance eq_pi1' (T : GroupoidType) : Groupoid [T] := T.2. *)
 (* Instance eq_pi1'' (T : CatType) : CategoryP [T] := T.2. *)
@@ -1673,7 +1669,7 @@ Defined.
 (* Definition _Type : UGroupoidType := (UGroupoidType ; Equiv_grp). *)
 Definition Type1 : UGroupoidType := (GroupoidType ; Equiv_Groupoid_G).
 
-Definition _Type := Type1.
+Notation _Type := Type1.
 (*end hide *)
 
 (** We can define the pre-groupoid [_Type] of groupoids and homotopy
@@ -1696,7 +1692,7 @@ polymorphic universe is crucial here to avoid an inconsistency. *)
 (* Notation equiv_comp  := (@comp  Equiv_cat). *)
 (* Notation equiv_id_R  := (@id_R  Equiv_cat).  *)
 (* Notation equiv_id_L  := (@id_L  Equiv_cat). *)
-Notation equiv_assoc := (@assoc Equiv_cat).
+Notation equiv_assoc := Equiv_cat.(assoc).
 Notation equiv_comp  := Equiv_cat.(comp).
 Notation equiv_id_R  := Equiv_cat.(id_R).
 Notation equiv_id_L  := Equiv_cat.(id_L).
@@ -1875,6 +1871,10 @@ Proof.
   apply transport_id. 
 Defined.
 
+Definition Trunc_2 (T:GroupoidType) (x y : [T])
+  (e e' : x ~1 y) (E E' : e ~2 e') : Contr (E = E') :=
+  is_Trunc_2 x y e e' E E'.
+
 Ltac trunc_eq := match goal with
                      | [ |- ?e ~ ?e'] =>
                        let H := fresh in
@@ -1886,6 +1886,23 @@ Ltac trunc_eq := match goal with
 
                    end.
        
+Definition Trunc_1 (T:[Type0]) (x y : [T])
+  (e e' : x ~1 y)  : HoTT_light.Contr (e = e') :=
+  is_Trunc_1 x y e e' .
+
+Ltac trunc1_eq :=   match goal with
+    | [ |- ?e ~ ?e'] =>
+      let X := fresh in
+      let X':=fresh in 
+      set(X:=e) in *; 
+      set(X':=e') in *; 
+      let H := fresh in
+      assert (H:=@HoTT_light.center _ (Trunc_1 _ _ X X'));
+      try ((destruct H; apply identity)
+             || (simpl in *; destruct H; apply identity))          
+  end.
+
+
 Lemma map2_id : forall T (f : [T --> Type0]) {x y:[T]} (e: x ~1 y), 
                   map2 f (identity e) ~2 identity (map f e).
 Proof. intros. trunc_eq. Defined.

@@ -6,9 +6,10 @@ Require Import fun_eq.
 Require Import groupoid_interpretation_def.
 
 Set Implicit Arguments.
+Set Universe Polymorphism.
 Set Program Mode.
 Set Primitive Projections.
- 
+
 Opaque Equiv_adjoint.
 Opaque map_id map_inv.
 

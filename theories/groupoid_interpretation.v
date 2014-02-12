@@ -172,14 +172,6 @@ Opaque map_id map_inv.
 Definition curry {Γ: Context} {T : Typ Γ} (U : TypDep T) (γ : [Γ]) :=
   λ t : [T @ γ], U @ (γ; t).
 
-(* Definition ext (Γ: Context) (T : Typ Γ) : Type := sigma (fun γ => [T @ γ]). *)
-
-(* Definition cons {Γ: Context} {T : Typ Γ} (γ : [Γ]) (x : [T @ γ]) : ext T := (γ;x). *)
-
-(* Definition sum_id_left {Γ: Context} {T : Typ Γ}  *)
-(*         {γ : [Γ]} {x y : [T @ γ]}  (e : x ~1 y) : (cons γ x) ~1 (cons γ y) *)
-(*  := (identity _ ; e ° ([map_id T] @ x)). *)
-
 Program Instance Curry1 {Γ: Context} {T : Typ Γ}
         (U : TypDep T) (γ : [Γ]) : Functor (T:=[[T @ γ]]) (curry U γ).
 Next Obligation. intros. exact (map U (sum_id_left X)). Defined.
@@ -187,21 +179,21 @@ Next Obligation. intros. unfold Curry1_obligation_1.
   eapply composition. apply (map2 U (inverse (sum_id_left_comp _ _ _ _ e e'))).
   apply (map_comp U).
 Defined.
-Next Obligation.
+Next Obligation. intros.
   apply (map2 U). apply sum_id_left_map. exact X.
 Defined.
-
-(* Notation "[[ x ']]'" := (SetoidTypeToGroupoidType x) (at level 50). *)
 
 Definition Curry {Γ: Context} {T : Typ Γ}
         (U : TypDep T) (γ : [Γ]) : Typ (T @ γ) :=
   (curry U γ ; Curry1 U γ). 
 
-
 Definition UFamily {Γ: Context} (A : Typ Γ) : [ [[Γ]] --> _Type] :=
   (λ s : [Γ], [[ (A @ s) ]] -||-> Type0; TypFam_1 A).
 
+Ltac mysimpl ::=
+     cbn beta iota zeta delta -[_Type _Type_comp curry Equiv_cat _Equiv_Id _Dmap transport_comp].
 
+Obligation Tactic := intros.
 
 Program Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: TypDep A) : 
   DependentFunctor (UFamily A) (Curry B).
@@ -209,10 +201,37 @@ Next Obligation. exists (fun a => map B (sum_id_right e a)).
                  intros t t' X. unfold id.
                  eapply composition. eapply inverse. apply (map_comp B).
                  eapply composition. Focus 2. apply (map_comp B).
-                 apply (map2 B). apply inverse, sum_id_left_right. Defined.
+                 apply (map2 B). apply inverse. apply sum_id_left_right. Defined.
 Next Obligation. Admitted.
+Next Obligation. 
+  (* unfold LamT_1_obligation_1. intro. mysimpl. unfold Curry1_obligation_1. *)
+  (* apply inverse. simpl_id. *)
+  (* eapply composition. eapply inverse. *)
+  (* apply (map_comp B). apply (map2 B). *)
+  (* exists (inverse H ° id_R _ _ _). simpl. *)
+  (* unfold eq_rect_eq, eq_rect_comp. simpl_id_bi. *)
+  (* eapply composition. apply comp. apply identity. *)
+  (* apply (eq_section (map2 A H)). simpl. *)
+  (* eapply composition. apply assoc. *)
+  (* eapply inverse. *)
+  (* eapply composition. apply assoc. *)
+  (* apply comp; [idtac | apply identity]. *)
+  (* eapply composition. apply comp. apply identity. *)
+  (* apply _map_comp. eapply composition. apply assoc. *)
+  (* eapply inverse. *)
+  (* eapply composition. apply assoc. *)
+  (* apply comp; [idtac | apply identity]. *)
+  (* assert (map2 A H ° map2 A (inverse H ° id_R x y e') ~ *)
+  (*              id_R _ _ _ ° (map_id A ** identity _) °  map_comp A (identity x) e'). *)
+  (* (* trunc_eq. *) *)
+  (* admit. *)
+  (* eapply composition. apply X. *)
+  (* unfold HorComp. simpl. Transparent _Type. mysimpl. *)
+  (* simpl_id. *)
+Admitted.
 Next Obligation. Admitted.
-Next Obligation. Admitted.
+
+
 (* end hide *)
 (** 
   Terms of [TypDep A] and [TypFam A] can be related using a dependent closure
@@ -241,8 +260,6 @@ Definition LamT {Γ: Context} {A : Typ Γ} (B: TypDep A)
 
 *)
 (* begin hide *)
-
-Notation  "f '⋅⋅' σ" := (@action _ _ ActionType _ _  σ f) (at level 50).
 
 (* Eval compute in 2. *)
 
@@ -282,20 +299,47 @@ Next Obligation. exact (X; Dmap2 t X). Defined.
 Definition SubExtId {Γ : Context} {A : Typ Γ} 
  (t: Elt A) : [Γ -|-> (_Sum0 A)] := (λ γ, (γ; t @ γ) ; SubExtId_1 _ ).
 
-Program Definition comp_fun_depfun {T T': Context} {U : [ [[T']] --> _Type]}
-        (F : [ T -|-> T' ]) (G : [_Prod U]) : [_Prod (U ⋅ F)] :=
-(λ x : [T], G @ (F @ x); _).
-Next Obligation. Admitted. 
-
-Notation  "g '°°' f" := (comp_fun_depfun f g) (at level 50). 
-
 Program Instance substF_1 {T Γ : Context} {A:Typ Γ} (F:TypFam A) (f:[T -|-> Γ]) :
   DependentFunctor (λ t : [_], ([[[A ⋅⋅ f]]] @ t) -||-> Type0; TypFam_1 (A ⋅⋅ f)) 
                        ([F °° f] : ∀ t : [T], [[(A ⋅⋅ f) @ t]] ---> Type0).
 Next Obligation. exact (Dmap F (map f e)). Defined.
 Next Obligation. Admitted.
-Next Obligation. Admitted.
-Next Obligation. Admitted.
+Next Obligation. 
+  (* intro. unfold substF_1_obligation_1. (* mysimpl. *) *)
+  (* eapply inverse. unfold transport_comp, transport_map. *)
+  (* (* simpl_id. simpl_id. *) *)
+  (* apply inverse. *)
+  (* eapply composition. apply (Dmap2 F (map_comp f e e') t). *)
+  (* eapply composition. apply equiv_comp. apply identity. *)
+  (* apply (Dmap_comp F (map f e) (map f e') t). *)
+  (* (* mysimpl. *) *)
+  (* (* Opaque _Type. simpl @proj1. cbn beta. Transparent _Type. *) *)
+  (* unfold transport_comp, transport_map, transport_eq. *)
+  (* (* simpl_id. simpl_id. *) *)
+  (* eapply composition. apply equiv_assoc. *)
+  (* eapply composition. apply equiv_assoc. apply inverse. *)
+  (* eapply composition. apply equiv_assoc. *)
+  (* apply equiv_comp; [idtac | apply identity]. *)
+  (* apply equiv_comp; [idtac | apply identity]. *)
+  (* apply inverse. *)
+  (* eapply composition. *)
+  (* eapply inverse. *)
+  (* apply (map_comp ([F] ([f] x))). *)
+  (* apply (map2 ([F] ([f] x))). *)
+  (* apply inverse. *)
+  (* apply (groupoid.Equiv_adjoint_comp [map2 A (map_comp f e e')]  [map_comp A (map f e) (map f e')] t). *)
+Admitted.
+Next Obligation. 
+ (* unfold SubstT_1_obligation_1. *)
+  (* eapply composition. apply equiv_comp. apply identity. *)
+  (* apply (Dmap2 F X (a @ y)). *)
+  (* mysimpl.  *)
+  (* simpl_id. *)
+  (* eapply composition. apply equiv_assoc. *)
+  (* apply equiv_comp; [idtac | apply identity]. *)
+  (* eapply composition. eapply inverse. apply (map_comp (F @ x)). *)
+  (* apply (map2 (F @ x)). apply Equiv_adjoint_eq. *)
+Admitted.
 
 Infix "--->" := Fun_Type_Groupoid (at level 55).
 
@@ -349,63 +393,73 @@ Notation "⇑ A" := (A ⋅⋅ Sub) (at level 9, t at level 9).
 
 (* Eval compute in 3. *)
 
-Instance SubstT_1 {Γ:Context} {A:Typ Γ} (F:TypFam A) (a:Elt A) :
+Program Instance SubstT_1 {Γ:Context} {A:Typ Γ} (F:TypFam A) (a:Elt A) :
  Functor (λ s, (F @ s) @ (a @ s)).
-Admitted.
+Next Obligation. eapply composition; try apply ([Dmap F X] (a @ y)).
+                 simpl. unfold id. apply (map (F @ x)).
+                 apply equiv_adjoint.
+Defined. 
+ Next Obligation.
+Proof. 
+  (* unfold SubstT_1_obligation_1. *)
+  (* eapply composition. apply equiv_comp. apply identity. *)
+  (* apply (Dmap_comp F e e' (a @ z)). *)
+  (* eapply composition. mysimpl. *)
+  (* eapply equiv_assoc. eapply composition. eapply equiv_assoc. *)
+  (* eapply inverse. eapply composition. apply equiv_assoc. *)
+  (* apply equiv_comp; try apply identity. *)
 
+  (* unfold eq_rect_comp. unfold _map_comp. Opaque _Type. simpl _map_comp. *)
+  (* simpl @proj1. cbn beta. Transparent _Type. *)
+  (* unfold equiv_adjoint. *)
+  (* apply inverse. simpl_id. simpl_id. *)
+  
+  (* eapply inverse. eapply composition. eapply inverse. apply equiv_assoc. *)
+  (* eapply composition. apply equiv_comp. apply identity. eapply inverse. *)
+  (* apply (α_map (Dmap F e)). *)
+  (* Time eapply composition. *)
+  (* Time eapply equiv_assoc. *)
+  (* apply equiv_comp; [idtac | apply identity].  *)
+  (* eapply composition. eapply inverse. apply (map_comp (F @ x)). *)
+  (* eapply inverse. eapply composition. *)
+  (* eapply inverse. *)
+  (* apply (map_comp (F @ x)). *)
+  (* apply (map2 (F @ x)). apply Equiv_adjoint_comp. *)
+  admit.
+Defined.
+Next Obligation. 
+Proof. 
+  (* unfold SubstT_1_obligation_1. *)
+  (* eapply composition. apply equiv_comp. apply identity. *)
+  (* apply (Dmap2 F X (a @ y)). *)
+  (* mysimpl.  *)
+  (* simpl_id. *)
+  (* eapply composition. apply equiv_assoc. *)
+  (* apply equiv_comp; [idtac | apply identity]. *)
+  (* eapply composition. eapply inverse. apply (map_comp (F @ x)). *)
+  (* apply (map2 (F @ x)). apply Equiv_adjoint_eq. *)
+  admit.
+Defined.
+ 
 
 Definition SubstT {Γ:Context} {A:Typ Γ} (F:TypFam A) (a:Elt A) : Typ Γ :=
   (λ γ, (F @ γ) @ (a @ γ) ; SubstT_1 _ _).
-Obligation Tactic := idtac.
-
-
-(* Instance USubstT_1 {Γ:Context} {A:UTyp Γ} (F:UTypFam A) (a:UElt A) : *)
-(*  Functor (λ s, (F @ s) @ (a @ s)). *)
-(* Admitted.  *)
-
-
-(* Definition USubstT {Γ:Context} {A:UTyp Γ} (F:UTypFam A) (a:UElt A) : UTyp Γ := *)
-(*   (λ γ, (F @ γ) @ (a @ γ) ; USubstT_1 _ _). *)
+Obligation Tactic := intros.
 
 Notation  "F '{{' a '}}'" := (SubstT F a) (at level 50).
-
-(* Notation  "F '{{{' a '}}}'" := (USubstT F a) (at level 50). *)
 
 Instance BetaT_1 {Δ Γ : Context} {A:Typ Γ} (B:TypDep A) (σ:[Δ -|-> Γ]) (a:Elt (A ⋅⋅ σ)):
    @NaturalTransformation _ _  ((@LamT Γ A B °°° σ) {{a}})
     (B ⋅⋅ @SubExt Δ Γ A σ a) (λ t : [Δ], identity (((LamT B °°° σ) {{a}}) @ t)).
-Admitted.
-  (* econstructor. intros; mysimpl. eapply composition. apply equiv_id_L. *)
-  (* apply inverse. eapply composition. apply equiv_id_R. *)
-  (* unfold _map; simpl. unfold SubstT_1_obligation_1,groupoid.arrow_comp_obligation_1. *)
-  (* unfold _map; simpl. unfold SubExt_1_obligation_1, Curry1_obligation_1. *)
-  (* unfold groupoid.arrow_comp_obligation_1. *)
-  (* apply inverse. eapply composition. eapply inverse. apply (map_comp B). *)
-  (* apply (map2 B).   Transparent _Type _Type_comp. *)
-  (* simpl; red; simpl. *)
-  (* exists (id_R _ _ _). unfold transport_eq, transport_comp. mysimpl. simpl_id_bi. *)
-  (* eapply composition. apply comp. apply map2_id_R. apply identity. simpl. *)
-  (* simpl_id. *)
-  (* unfold equiv_adjoint. simpl. apply inverse. *)
-  (* eapply composition. apply assoc. eapply composition. *)
-  (* apply comp. apply comp. apply identity. apply _map_comp. apply identity. *)
-  (* eapply composition. eapply inverse. apply assoc. apply inverse. *)
-  (* eapply composition. eapply inverse. apply assoc. *)
-  (* apply comp; [apply identity | idtac]. apply inverse. *)
-  (* eapply composition. eapply inverse. apply assoc. *)
-  (* apply comp; [apply identity | idtac]. *)
-  (* eapply composition. apply comp. *)
-  (* eapply composition. apply _map_comp. apply comp.  apply map_inv. apply identity. *)
-  (* apply identity. *)
-  (* eapply composition. eapply inverse. apply assoc. *)
-  (* eapply composition. eapply comp. apply identity. *)
-  (* apply (α_map (section (map A (map σ e)))). *)
-  (* eapply composition. eapply assoc. eapply composition; try apply id_R. *)
-  (* apply comp; [idtac | apply identity]. *)
-  (* eapply right_simplify'.   eapply composition. eapply assoc. *)
-  (* eapply composition. apply comp. apply inv_L. apply identity. simpl_id_bi. *)
-  (* apply inverse. apply (triangle (map A (map σ e))). *)
-(* Defined. *)
+  red. intros. eapply composition. apply equiv_id_L.
+  apply inverse. eapply composition. apply equiv_id_R.
+  unfold _map; simpl. unfold SubstT_1_obligation_1,groupoid.arrow_comp_obligation_1.
+  unfold _map; simpl. unfold SubExt_1_obligation_1, Curry1_obligation_1.
+  unfold groupoid.arrow_comp_obligation_1.
+  apply inverse. eapply composition. eapply inverse. apply (map_comp B).
+  apply (map2 B).   
+  trunc1_eq.
+  Defined.
 (* end hide *)
 
 Definition BetaT Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]) (a:Elt (A ⋅⋅ σ)) 
@@ -413,23 +467,26 @@ Definition BetaT Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]) (a:Elt (A ⋅�
 
 (* begin hide *)
 
-Program Instance Var_1 {Γ:Context} (A:Typ Γ) :  
-  DependentFunctor (Type0_Type ⇑ A) (λ t : [ [[_Sum0 A]] ] , Π2 t).
+Program Instance Var_0 {Γ:Context} (A:Typ Γ) :  
+  DependentFunctor0 (⇑ A) (λ t : [ [[_Sum0 A]] ] , Π2 t).
 Next Obligation. intros. apply (Π2 e). Defined.
-Next Obligation. admit. Defined.
-Next Obligation. (* intros. unfold Var_1_obligation_1. simpl.  *)
-                 (* apply comp; try apply identity. unfold transport_comp. *)
-                 (* eapply composition. eapply inverse. apply id_R. *)
-                 (* apply comp; try apply identity. eapply inverse.  *)
-                 (* unfold transport. simpl. unfold groupoid.arrow_comp_obligation_1. *)
-                 (* simpl.  *)
-                 (* assert (map2 A (comp _ _ _ _ _ _ _ (identity [e]) (identity [e'])) ~ identity (map A ([e'] °[e]))).  *)
-                 (* (* trunc_eq. *) *)
-                 (* admit. *)
-                 (* apply X. *)
-  admit.
+Next Obligation. intros. unfold Var_0_obligation_1. simpl.
+                 apply comp; try apply identity. unfold transport_comp.
+                 eapply composition. eapply inverse. apply id_R.
+                 apply comp; try apply identity. eapply inverse.
+                 unfold transport. simpl. unfold groupoid.arrow_comp_obligation_1.
+                 simpl.
+                 assert (map2 A (comp _ _ _ _ _ _ _ (identity [e]) (identity [e'])) ~ identity (map A ([e'] °[e]))).
+                 trunc_eq.
+                 apply X.
 Defined.
 Next Obligation. intros. apply (Π2 H). Defined.
+
+Definition Var0 {Γ} (A:Typ Γ) : Prod_Type0 ⇑A := (λ t, Π2 t; Var_0 A).
+
+Instance Var_1 {Γ:Context} (A:Typ Γ) : 
+  DependentFunctor ([[[⇑ A]]]) (λ t : [ [[_Sum0 A]] ] , Π2 t)
+  := DepFun0DepFun _ _ (Var0 A).
 
 (* end hide *)
 (**
@@ -456,16 +513,15 @@ Definition Var {Γ} (A:Typ Γ) : Elt ⇑A := (λ t, Π2 t; Var_1 A).
 
 (* begin hide *)
 
-Instance Prod_1 {Γ} (A:Typ Γ) (F : TypFam A) :
+Program Instance Prod_1 {Γ} (A:Typ Γ) (F : TypFam A) :
   @Functor ([[Γ]]) Type0 (λ s : [Γ], Prod0 (F @ s)).
-(* Next Obligation. admit. (* intros. apply (Prod_eqT F X). *) Defined. *)
-(* Next Obligation. admit. (* intros. simpl. red. simpl. exists (inverse (Prod_eq_comp F e e')). *) *)
-(*                  (* apply AllEquivEq. *) *)
-(* Defined. *)
-(* Next Obligation. admit. (* intros. simpl. red. simpl. exists (Prod_eq_map F e e' X). *) *)
-(*                  (* apply AllEquivEq. *) *)
-(* Defined. *)
-Admitted.
+Next Obligation. admit. (* intros. apply (Prod_eqT F X). *) Defined.
+Next Obligation. admit. (* intros. simpl. red. simpl. exists (inverse (Prod_eq_comp F e e')). *)
+                 (* apply AllEquivEq. *)
+Defined.
+Next Obligation. admit. (* intros. simpl. red. simpl. exists (Prod_eq_map F e e' X). *)
+                 (* apply AllEquivEq. *)
+Defined.
 (* end hide *)
 
 (** %\paragraph{\textsc{Prod}.}% The rule %\textsc{Prod}% is interpreted
@@ -479,8 +535,8 @@ Definition Prod {Γ} (A:Typ Γ) (F:TypFam A)
 
 (* begin hide *)
 
-Program Instance App_1 {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)) (a:Elt A) :
-  DependentFunctor (Type0_Type (F {{a}})) (λ s : [Γ], [ [c] s] ([a] s)).
+Program Instance App_0 {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)) (a:Elt A) :
+  DependentFunctor0 (F {{a}}) (λ s : [Γ], [ [c] s] ([a] s)).
 
 Next Obligation. intros. eapply composition; try apply (Dmap (c @ y) (Dmap a e)).
                  unfold transport.
@@ -495,10 +551,16 @@ Next Obligation. intros. eapply composition; try apply (Dmap (c @ y) (Dmap a e))
                  (* apply (map_comp (F @ x) _ (map (adjoint (map A e)) (Dmap a e))). simpl. *)
                  (* apply _map. apply (Dmap (c @ x)). *) admit.
 Defined.
-Next Obligation. admit. Defined.
-Next Obligation. admit. Defined.
-Next Obligation. admit. Defined.
+Next Obligation. intros; trunc1_eq. Defined.
+Next Obligation. intros; trunc1_eq. Defined.
+
+Definition App0 {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)) (a:Elt A) 
+  : Prod_Type0 (F {{a}}) := (λ s, (c @ s) @ (a @ s); App_0 c a).
  
+Program Instance App_1 {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)) (a:Elt A) :
+  DependentFunctor (Type0_Type (F {{a}})) (λ s : [Γ], [ [c] s] ([a] s)) :=
+   DepFun0DepFun _ _ (App0 _ _).
+
 (* end hide *)
 (**
   %\paragraph{\textsc{App}.}%
@@ -515,18 +577,47 @@ Definition App {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)) (a:Elt A)
 
 Notation "M '@@' N" := (App M N) (at level 50).
 
+Program Instance Lam_0 {Γ} {A:Typ Γ} {F:TypDep A}
+  (b:Elt F) (γ:[Γ]) :
+  DependentFunctor0 ((LamT F) @ γ) (fun t => b @ (γ ; t)).
+Next Obligation. intros. apply (Dmap b (sum_id_left e)). Defined.
+Next Obligation. intros. trunc1_eq. Defined.
+Next Obligation. intros. trunc1_eq. Defined.
+
+Definition Lam_partial0 {Γ} {A:Typ Γ} {F:TypDep A}
+  (b:Elt F) (γ:[Γ]) : Prod_Type0 ((LamT F) @ γ) :=
+ (λ t, b @ (γ ; t) ; Lam_0 _ _). 
+
+
 Instance Lam_1 {Γ} {A:Typ Γ} {F:TypDep A}
   (b:Elt F) (γ:[Γ]) :
-  DependentFunctor (Type0_Type ((LamT F) @ γ)) (fun t => b @ (γ ; t)).
-Admitted.
+  DependentFunctor (Type0_Type ((LamT F) @ γ)) (fun t => b @ (γ ; t)) :=
+  DepFun0DepFun _ _ (Lam_partial0 _ _).
+
 
 Definition Lam_partial {Γ} {A:Typ Γ} {F:TypDep A}
   (b:Elt F) (γ:[Γ]) : [Prod (LamT F) @ γ] :=
  (λ t, b @ (γ ; t) ; Lam_1 _ _). 
 
-Instance Lam_2 {Γ} {A:Typ Γ} {B:TypDep A} (b:Elt B) :
- DependentFunctor (Type0_Type (Prod (LamT B))) (Lam_partial b).
-Admitted.
+Program Instance Lam_20 {Γ} {A:Typ Γ} {B:TypDep A} (b:Elt B) :
+ DependentFunctor0 (Prod (LamT B)) (Lam_partial b).
+Next Obligation. (* intros. simpl. red; simpl. unfold Prod_eq_1, id. simpl. unfold id. *)
+                 (* pose (fun t => Dmap b (sum_id_right e t)). *)
+                 (* simpl in *. *)
+                 (* exists (fun t => Dmap b (sum_id_right e t)). *)
+                 (* econstructor. intros; simpl. *)
+                 admit.
+Defined.
+Next Obligation. intros. trunc1_eq. Defined.
+Next Obligation. intros. trunc1_eq. Defined.
+
+Definition Lam0 {Γ} {A:Typ Γ} {B:TypDep A} (b:Elt B)
+  : Prod_Type0 (Prod (LamT B)) := (λ γ, (λ t, b @ (γ ; t) ; _); Lam_20 b).
+
+Program Instance Lam_2 {Γ} {A:Typ Γ} {B:TypDep A} (b:Elt B) :
+ DependentFunctor (Type0_Type (Prod (LamT B))) (Lam_partial b) :=
+  DepFun0DepFun _ _ (Lam0 _).
+
 
 (* end hide *)
 (**
@@ -544,6 +635,7 @@ Definition Lam {Γ} {A:Typ Γ} {B:TypDep A} (b:Elt B)
 
 (* begin hide *)
 
+(* same proof as for Prod *)
 Instance Sigma_1 {Γ} (A:Typ Γ) (F : TypFam A) :
   @Functor ([[Γ]]) Type0 (λ s : [Γ], _Sum0 (F @ s)).
 Admitted.
@@ -636,12 +728,35 @@ Next Obligation. intros. exact tt. Defined.
 
 Definition Id_functor {Γ} (A: Typ Γ) (a b : Elt A) (x y:[Γ]) (X : x ~1 y) : [Id_ a b y -|-> Id_ a b x] := (_; _Id_functor _ a b x y X). 
 
+(* Definition all_nat_trans_set (A B : Type) (f g : A -S-> B) : f ~ g. *)
+(*   red. red. assert (∀ t : [A], f @ t ~1 g @ t). intro. *)
+(*   trunc1_eq. *)
+
 Program Instance Id_1 {Γ} (A: Typ Γ) (a b : Elt A) : Functor (T := [[Γ]]) (U := Type0) (Id_ a b).
 Next Obligation. intros. apply IsoToEquiv. exists (Id_functor a b y x (X^-1)).
                  apply (@Build_Iso_struct _ _ _ (Id_functor a b x y X)).
-                 admit.
-                 admit. Defined.
-Next Obligation. Admitted.
+                 red. red. simpl.
+                 assert (∀ t : a @ y ~1 b @ y,
+                           eq2
+            (Equiv_injective (map A X ^-1) (a @ y) 
+               (b @ y)
+               (((Dmap b X ^-1) ^-1
+                 ° Equiv_injective (map A X) (a @ x) 
+                     (b @ x) (((Dmap b X) ^-1 ° t) ° Dmap a X))
+                ° Dmap a X ^-1)) (id t)).
+                 intro. trunc1_eq. exists X0. red. intros. trunc1_eq.
+                 red. red. simpl.
+                 assert (∀ t : a @ x ~1 b @ x,
+          eq2
+            (Equiv_injective (map A X) (a @ x) (b @ x)
+               (((Dmap b X) ^-1
+                 ° Equiv_injective (map A X ^-1) (a @ y) 
+                     (b @ y) (((Dmap b X ^-1) ^-1 ° t) ° Dmap a X ^-1))
+                ° Dmap a X)) (id t)).
+                  intro. trunc1_eq. exists X0. red. intros. trunc1_eq.
+Defined.
+Next Obligation. intros. (*  unfold Id_1_obligation_1.  *)
+                 (* simpl. red. simpl. *) admit. Defined.
 Next Obligation. Admitted.
 
 (* end hide *)
@@ -679,87 +794,57 @@ Definition Refl Γ (A: Typ Γ) (a : Elt A)
 
 (* begin hide *)
 
-
-Instance prod_eq1 A (T U : [A --> _Type]) (eqTU : T ~1 U)
-        (t : [_Prod T]) :
-        DependentFunctor U (λ a : [A], [eqTU @ a] @ (t @ a)).
-Admitted.
-
-Instance prod_eq2 A (T U : [A-->_Type]) (eqTU : T ~1 U) :
-        Functor (T := _Prod T) (U:=_Prod U) (λ t, (λ a:[A], [eqTU @ a] @ (t @ a); prod_eq1 eqTU t) : [_Prod U]).
-Admitted.
-
-Definition prod_eq A (T U : [A --> _Type]) (e:T ~1 U) : [_Prod T --> _Prod U] := (_ ; prod_eq2 e).
-
-Definition prod_comp Γ (A: Typ Γ) (a b : Elt A) (P : TypFam A) (e:P{{a}} ~1 P{{b}}) :  [Prod0 (P{{a}}) -|-> Prod0 (P{{b}})] := @prod_eq _ ([[[P{{a}}]]]) ([[[P{{b}}]]]) e.
-
-Definition prod_eq' A (T U : Typ A) (e:T ~1 U) : [Prod0 T -|-> Prod0 U] := @prod_eq _ ([[[T]]]) ([[[U]]]) e.
-
-Notation "e 'with' t" := (prod_eq' t @ e) (at level 50).
-
-(* Lemma eq_Prod_ctxt {T Γ} (A:Typ Γ) (F:TypFam A) (f: [T -|-> Γ]) : *)
-(*   nat_trans ([[[ (Prod F) ]]] ⋅ f) ([[[ (Prod (F °°° f)) ]]]). *)
-(*   exists (fun t => identity (_Prod ([[[[F] ([f] t)]]]))). *)
-(*   intros t t' e. *)
-(*   (* eapply composition. apply equiv_id_L. apply inverse. *) *)
-(*   (* eapply composition. apply equiv_id_R. *) *)
-(*   (* unfold _map. simpl. unfold groupoid.arrow_comp_obligation_1; simpl. *) *)
-(*   (* unfold Prod_1_obligation_1. *) *)
-(*   (* red. simpl. *) *)
-(*   admit. *)
-(* Defined. *)
-
-(* Notation "↑ t" := (t °° Sub with eq_Prod_ctxt _ _) (at level 9, t at level 9). *)
-
-Program Definition comp_fun_depfun0 {T T': Context} {U : [ [[T']] -||-> Type0]}
-        (F : [ T -|-> T' ]) (G : [Prod0 U]) : [Prod0 (U ⋅⋅ F)] :=
-(λ x : [T], G @ (F @ x); _).
-Next Obligation. Admitted. 
-
-Notation  "g '°°°°' f" := (comp_fun_depfun0 f g) (at level 50). 
-
+(* Definition prod_eq' A (T U : Typ A) (e:T ~1 U) : [Prod0 T -|-> Prod0 U] := @prod_eq _ (T) (U) e. *)
 
 Definition depEq Γ (A:Typ Γ) (a :Elt A) : Typ Γ := Sigma (LamT (Id (a °°°° Sub) (Var A))).
 
-(* Definition BetaT2 Γ (A:Typ Γ) (a:Elt A) : LamT (Id (a °°°° Sub) (Var A)) {{a}} ~1 Id a a. *)
-(* exists (fun _ => identity _). *)
-(* admit. *)
-(* Defined. *)
-
 Definition BetaT2 Γ (A:Typ Γ) (a b:Elt A) : LamT (Id (a °°°° Sub) (Var A)) {{b}} ~1 Id a b.
-exists (fun _ => identity _).
-intros t t' e. admit. 
-(* assert (nat_trans [map (LamT (Id (a °°°° Sub) (Var A)) {{b}}) e] *)
-(*    [map (Id a b) e]). red. simpl. exists (identity _). *)
-(* mysimpl. eapply composition. apply equiv_id_L. apply inverse. *)
-(* eapply composition. apply equiv_id_R. red.  exists (identity _). simpl. *)
-(* mysimpl. simpl. simpl_id_bi. admit. *)
+simpl. red. simpl. exists (fun _ => identity _).
+intros t t' e.
+(* eapply composition. apply equiv_id_L. *)
+(* apply inverse. eapply composition. apply equiv_id_R. *)
+(* unfold _map; simpl. unfold SubstT_1_obligation_1,groupoid.arrow_comp_obligation_1. *)
+(* unfold _map; simpl. unfold SubExt_1_obligation_1, Curry1_obligation_1. *)
+(* unfold groupoid.arrow_comp_obligation_1. *)
+(* apply inverse. eapply composition. eapply inverse. apply (map_comp B). *)
+(* apply (map2 B).    *)
+(* trunc1_eq. *)
+admit. 
 Defined.
+
+(****** To Be Removed Once prod_eq.v Is OK ******)
+
+Instance prod_eq1 (A: [_Type]) (T U : [|A|g --> Type0]) (eqTU : T ~1 U)
+        (t : [Prod0 T]) :
+        DependentFunctor ([[[U]]]) (λ a : [A], [eqTU @ a] @ (t @ a)).
+Admitted.
+
+Instance prod_eq2 (A: [_Type]) (T U : [|A|g --> Type0]) (eqTU : T ~1 U) :
+        Functor (λ (t : [_Prod ([[[T]]])]), (λ a : [A], [eqTU @ a] @ (t @ a)  ; prod_eq1 eqTU t) : [_Prod ([[[U]]])]).
+Admitted.
+
+
+Definition prod_eq (A: [_Type]) (T U : [|A|g --> Type0]) (e:T ~1 U) : [_Prod ([[[T]]]) --> _Prod ([[[U]]])] := (_ ; prod_eq2 e).
+
+Definition prod_comp Γ (A: Typ Γ) (a b : Elt A) (P : TypFam A) (e:P{{a}} ~1 P{{b}}) :  [Prod0 (P{{a}}) -|-> Prod0 (P{{b}})] := @prod_eq _ (P{{a}}) (P{{b}}) e.
+
+Notation "e 'with' t" := (prod_eq t @ e) (at level 50).
+
+Notation "⇑⇑ A" := (A with (inverse (BetaT2 _ _))) (at level 9).
 
 Definition J_Pair Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam (depEq a))  
            (γ : [Γ]) : 
-  Pair (prod_eq' (BetaT2 a a) ^-1 @ Refl a) @ γ ~1
+  Pair (prod_eq (BetaT2 a a) ^-1 @ Refl a) @ γ ~1
   Pair (e with (inverse (BetaT2 _ _)))@ γ.
-  exists (e @ γ). simpl. admit. 
-  (* unfold transport, id. simpl_id. *)
-  (* eapply composition. apply comp. simpl. apply inv. *)
-  (* eapply composition. *)
-  (* apply (eq_retraction (map_id A (x:=γ) ° map2 A (inv_id _)) (a @ γ)). *)
-  (* simpl. eapply composition. apply id_L. apply identity. *)
-  (* simpl. eapply composition. apply inv. apply comp. *)
-  (* apply inv. eapply composition.  *)
-  (* apply (eq_retraction (map_id A (x:=γ) ° map2 A (inv_id _)) (b @ γ)). *)
-  (* simpl. simpl_id. eapply (map2 (adjoint (map A (identity γ) ^-1))). *)
-  (* apply inv. apply comp. unfold groupoid.sum_inv_obligation_1. *)
+  exists (e @ γ). simpl. red. trunc1_eq.
 Defined.
 
 Instance J_1 Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam (depEq a)) :
   NaturalTransformation (f:=P {{Pair (Refl a with (inverse (BetaT2 _ _)))}}) 
                         (g:=P {{Pair (e with (inverse (BetaT2 _ _)))}}) 
                         (λ γ : [Γ], map (P @ γ) (J_Pair e P γ)).
+red. intros. simpl. red. simpl.
 Admitted.
-
-Notation "⇑⇑ A" := (A with (inverse (BetaT2 _ _))) (at level 9).
 
 (* end hide *)
 
@@ -769,205 +854,15 @@ Definition J Γ (A:Typ Γ) (a b:Elt A) (P:TypFam (Sigma (LamT (Id (a °°°° Su
                (e:Elt (Id a b)) (p:Elt (P{{Pair ⇑⇑ (Refl a)}})) 
   : Elt (P{{Pair ⇑⇑e}}) := prod_comp (λ γ, (map (P @ γ) (J_Pair e P γ)); J_1 _ _) @ p. 
 
-(* Definition J Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam A) (p:Elt (P{{a}})) *)
-(*  : Elt (P{{b}}) := (prod_comp (λ γ, (map (P @ γ) (e @ γ)); J_1 _ _)) @ p.  *)
-
-
 (* begin hide *)
- 
-(* Definition equiv_adjoint {Γ:Context} {A:Typ Γ} (a:Elt A)  *)
-(*         {x y : [Γ]} (e : x ~1 y) : a @ x ~1 (adjoint (map A e)) @ (a @ y) := *)
-(*   (map (adjoint (map A e)) (Dmap a e)) ° [inverse (retraction (map A e))] (a @ x). *)
-
-
-(* Definition sum_id_left {Γ: Context} {T : Typ Γ}  *)
-(*         {γ : [Γ]} {x y : [T @ γ]}  (e : x ~1 y) : (cons γ x) ~1 (cons γ y) *)
-(*  := (identity _ ; e ° ([map_id T] @ x)). *)
-
-(* Definition Dmap_id_adjoint {Γ} {A:Typ Γ} (F:TypFam A) {γ : [Γ]} *)
-(*   {x y : [A @ γ]} (e : x ~1 y) : [Dmap F (identity γ)] y ° *)
-(*           (map ([F] γ) (equiv_adjoint (Var A) (sum_id_left e))) *)
-(*  ~ map ([F] γ) e. *)
-(* admit. *)
-(* Defined. *)
-
-(* Definition FunExt_1_aux (Γ: Context) (A : Typ Γ) *)
-(*         (F : TypDep A) (M : Elt (Prod (LamT F))) (γ : [Γ]) *)
-(*         (t t' : [A @ γ]) (e : t ~1 t') : *)
-(*   Dmap (M @ γ) e ° ([Dmap_id_adjoint (LamT F) e] @ ([ [M] γ] t)) ~ *)
-(* App_1_obligation_1 *)
-(*     (F := substF (LamT F) Sub) *)
-(*     (λ a : [_Sum A], M @ [a]; *)
-(*      @prod_eq1 (_Sum A) ([[[Prod (LamT F)]]] ⋅ Sub) ([[[Prod (LamT F °°° Sub)]]]) (eq_Prod_ctxt (LamT F) Sub) (M °° Sub)) (Var A) *)
-(*     (γ; t) (γ; t') (sum_id_left e). *)
-(* admit. Defined. *)
-
-(* Eval compute in 5. *)
-
-(* Definition FunExt_1 (Γ: Context) (A : Typ Γ) (F : TypDep A)  *)
-(*   (M N : Elt (Prod (LamT F))) (α : ↑M @@ Var A ~1 ↑N @@ Var A) :  *)
-(*   ∀ γ : [Γ], M @ γ ~1 N @ γ.  *)
-(* intro. exists (fun t => α @ (γ ; t)).  *)
-(* intros t t' e; simpl in *. *)
-(* admit. *)
-(* Defined. *)
-
-(* Time apply H. *)
-(* unfold transport_map. eapply composition. apply comp. apply identity. *)
-(* eapply inverse.  *)
-(* pose (HFun:= FunExt_1_aux N γ t t' e).  *)
-(* cbn beta iota zeta delta -[_Type_comp curry Equiv_cat _Equiv_Id _Dmap transport_comp] in HFun. *)
-(* apply  *)
-(* Transparent _Type Equiv_adjoint. *)
-(* exact HFun. apply identity. *)
-(* unfold _map; simpl. eapply composition. apply assoc. apply inverse. *)
-(* eapply composition. apply assoc. apply comp; [idtac | apply identity]. *)
-(* apply inverse. apply (α_map [Dmap_id_adjoint (LamT F) e]). *)
-(* Defined. *)
-
-(** As the whole interpretation is functorial with respect to a context,
-  the naturality condition required on equality between dependent
-  functors can be deduced from the existence of a transformation. 
-  This allows to state dependent functional extensionality. *)
-
-(* Program Definition _FunExt (Γ: Context) (A : Typ Γ) (F : TypDep A)  *)
-(*   (M N : Elt (Prod (LamT F))) (α : Id (↑M @@ Var A) (↑N @@ Var A)) : Id M N  *)
-(*   := (FunExt_1 α; _). *)
-(* Next Obligation. intros t t' e a. simpl. *)
-(* (* eapply right_simplify'. eapply composition. apply assoc. *) *)
-(* (* eapply composition. apply comp. exact (foo M). apply identity. *) *)
-(* (* destruct α as [α [H]]. eapply composition. apply (H _ _ (sum_id_right e t0)). *) *)
-(* (* unfold transport_map. eapply composition;[apply comp;[apply identity|]|]. *) *)
-(* (* eapply inverse. apply foo. mysimpl. clear foo H. eapply composition. apply assoc. *) *)
-(* (* apply inverse. eapply composition. apply assoc. apply comp; [idtac | apply identity]. *) *)
-(* (* apply inverse. apply (α_map [X] (α (t; [adjoint (map A e)] t0))). *) *)
-(* admit. *)
-(* Defined. *)
-(* (* end hide *) *)
-
-(* Definition FunExt (Γ: Context) (A : Typ Γ) (F : TypDep A)  *)
-(*   (M N : Elt (Prod (LamT F))) (α : Id (↑M @@ Var A) (↑N @@ Var A)) : Id M N := *)
-(*   _FunExt α. *)
-
-(** 
-  %\noindent% where [↑M] is the weakening for terms. This rule corresponds 
-  to the introduction of equality on dependent functions in %\cite{DBLP:conf/popl/LicataH12}%.
-*)
-
-(* begin hide *)
-(*  exact (@_FunExt _ A F M N α).*)
-
-
-(* Definition FunExt_Elim (Γ: Context) (A : Typ Γ)  *)
-(*         (F : TypDep A) (M N : Elt (Prod (LamT F))) (a : Elt A) (α : M ~1 N) *)
-(*         : M @@ a ~1 N @@ a. *)
-(* exists (fun γ => ((α @ γ) @ (a @ γ))). econstructor. intros; simpl.  *)
-(* admit. Defined. *)
-
-(* Transparent map_id. *)
-
-(* Definition map_id_Type0 Γ (A:[Γ --> |Type0|g]) (γ:[Γ]) (x : [A @ γ]) : [map_id (Type0_Type A)] @ x = [map_id A] @ x. *)
-(*  simpl. apply eq_refl. *)
-(* Defined. *)
-
-(* Opaque map_id.  *)
-
-(* Definition _Dmap_id {T} {U:[T --> |Type0|g]} (f: Prod_Type ([[[U]]])) {x: [T]} : *)
-(*   Dmap f (identity x) ~ transport_id ([[[U]]]) @ (f @ x). *)
-(* Proof. *)
-(*   eapply (right_simplify'). eapply right_simplify'. *)
-(*   eapply composition. eapply inverse. eapply (Dmap_comp f). *)
-(*   eapply composition. eapply (Dmap2 f (id_L _ _ (identity x))). *)
-(*   unfold transport_eq, transport_map, transport_comp, transport_id. *)
-(*   apply inverse. eapply composition. apply comp. apply identity. *)
-(*   apply (α_map [map_id ([[[U]]])]). eapply composition. apply assoc. *)
-(*   apply comp; [idtac | apply identity]. apply inverse. *)
-(*   eapply composition. apply (map2_id_L U).  *)
-(*   simpl. unfold id. simpl_id_bi'. pose (eq:=map_id_Type0 U). case eq. intros; apply identity. *)
-(* Defined. *)
-
-(* Program Instance fun_todep_fun_2 (T: UGroupoidType) (U:[_Type]): Functor (λ _ : [T], U). *)
-(* Next Obligation. intros. apply identity. Defined. *)
-(* Next Obligation. intros. unfold fun_todep_fun_2_obligation_1. eapply inverse. *)
-(*                  exact (@id_L _ Equiv_cat _ _ (identity U)). Defined. *)
-(* Next Obligation. unfold fun_todep_fun_2_obligation_1. intros. apply identity. Defined. *)
-
-(* Program Definition fun_todep_fun_1 T U : [T --> _Type] := *)
-(*   (λ _ : [T], U; fun_todep_fun_2  _ _). *)
-
-(* Program Instance fun_todep_fun1 T (U:[_Type]) (M : [T --> |U|g]) :  *)
-(*   DependentFunctor (fun_todep_fun_1 T U) [M]. *)
-(* Next Obligation. intros. apply (map M e). Defined. *)
-(* Next Obligation. intros. unfold fun_todep_fun1_obligation_1, fun_todep_fun_1, fun_todep_fun_2.  *)
-(*                  eapply composition. apply (map_id M). unfold transport_id.  *)
-(*                  apply inverse. Transparent map_id. simpl. unfold id. simpl_id. *)
-(*                  eapply composition. do 3 (apply inv). apply (inv_inv _ _ (identity (M @ x))). *)
-(*                  eapply composition. apply inv. apply (inv_inv _ _ (identity (M @ x))). *)
-(*                  apply (inv_id (M @x)). Opaque map_id. *)
-(* Defined. *)
-(* Next Obligation. unfold fun_todep_fun1_obligation_1, fun_todep_fun_1, fun_todep_fun_2. *)
-(*                  intros. eapply composition. apply (map_comp M e e'). *)
-(*                  eapply inverse. eapply composition. apply assoc. apply comp; try apply identity. *)
-(*                  unfold id. unfold transport_map. simpl. unfold groupoid.arrow_id_obligation_1. *)
-(*                  eapply composition; try apply id_R.  apply comp; try apply identity. *)
-(*                  apply (inv_id (M @ x)). Defined. *)
-(* Next Obligation. unfold fun_todep_fun1_obligation_1, fun_todep_fun_1, fun_todep_fun_2. *)
-(*                  intros. eapply composition. apply (map2 M H). eapply inverse. apply id_R. Defined. *)
-
-(* Definition fun_todep_fun T U (M : [T --> |U|g]) : *)
-(*   [_Prod (fun_todep_fun_1 T U)] := ([M]; fun_todep_fun1 _ _ M). *)
-
-(* Program Instance _cst_fun (A B : [Type0]) : Functor (T:=[[A]]) (U:=Type0) (fun _=> B). *)
-(* Next Obligation. intros. apply identity. Defined. *)
-(* Next Obligation. intros. eapply inverse. *)
-(*                  exact (@id_L _ Equiv_cat _ _ (identity B)). Defined. *)
-(* Next Obligation. intros. apply identity. Defined. *)
-
-(* Program Definition cst_fun (A B : [Type0]) : [[A]] ---> Type0 := *)
-(*   (λ _ , B; _cst_fun  _ _). *)
-
-(* Instance _cst_fibration (Γ: Context) (A B : Typ Γ) : DependentFunctor (T:=|Γ|g) (λ γ,  [[ (A @ γ) ]] -||-> Type0; TypFam_1 A) (fun γ : [Γ] => cst_fun (A @ γ) (B @ γ)). *)
-(* Admitted. *)
-(* (* Next Obligation. intros. unfold transport, cst_fun, _cst_fun. simpl. unfold id. *) *)
-(*                  red. simpl.  *)
-(*                  exact (cst_fun (A @ y) (B @ x ~1 B @ y))). intros a a' X.  *)
-
-(*                  exact (fun_todep_fun_1 _ (map B e)). intros a a' X.  *)
-(*                  unfold transport, cst_fun. simpl. unfold id. red.  simpl. *)
-(*                  exists (identity _). *)
-(* Admitted. *)
-
-(* Definition cst_fibration (Γ: Context) (A B : Typ Γ) : TypFam A := *)
-(*   (fun γ : [Γ] => cst_fun (A @ γ) (B @ γ); _cst_fibration _ _). *)
-
-(* Program Definition cst_fun2 (A B : [Type0]) : [[A]] --> Type0 := *)
-(*   (λ _ , B; _cst_fun  _ _). *)
-
-(* Instance prod_eq1 (T U T' U': [_Type]) (e: T ~1 T') (e' : U ~1 U') *)
-(*         (t : [_Prod T]) : *)
-(*         DependentFunctor U (λ a : [A], [eqTU @ a] @ (t @ a)). *)
-(* Admitted. *)
-
-(* Instance prod_eq2 (A: UGroupoidType) (T U : [A --> _Type]) (eqTU : T ~1 U) : *)
-(*         Functor (U:=|_Prod U|g) (λ (t : [|_Prod T|g]), (λ a : [A], [eqTU @ a] @ (t @ a)  ; prod_eq1 eqTU t) : [_Prod U]). *)
-(* Admitted. *)
-
-Require Import HoTT_light.
-
-Ltac trunc1_eq :=
-  match goal with
-    | [ |- eq2 ?e ?e'] =>
-      let H:=fresh in
-      pose (H:=@center _ (is_Trunc_1 _ _ e e'));
-        destruct H;
-        apply identity
-  end. 
-
 
 Program Instance set_fun_1 (Γ: Context) (A B : Typ Γ) : Functor (T := [[Γ]]) (U:=Type0) (fun γ => A @ γ -|-> B @ γ).
 Next Obligation. intros. simpl. apply (fun_eqT (map A X) (map B X)). Defined.
-Next Obligation. intros. unfold set_fun_1_obligation_1. (* exists (fun_eq_eq' (map _ _ _ _).  *) admit. Defined.
-Next Obligation. intros. unfold set_fun_1_obligation_1. exists (fun_eq_eq (map2 A X) (map2 B X)).
+Next Obligation. intros. unfold set_fun_1_obligation_1. 
+                 exists (fun_eq_eq' _ _ _ _ ° fun_eq_eq (map_comp A e e') (map_comp B e e')).
+                 red. red. intro. intro. trunc1_eq. Defined.
+Next Obligation. intros. unfold set_fun_1_obligation_1. 
+                 exists (fun_eq_eq (map2 A X) (map2 B X)).
                  intros f t. 
                  trunc1_eq.
 Defined.
@@ -986,39 +881,31 @@ Admitted.
 Definition AppF {Γ} {A B:Typ Γ} (f:Elt (A ----> B)) (a:Elt A)
 : Elt B := (λ s, (f @ s) @ (a @ s); AppF_1 _ _).
 
-(* Program Instance Uset_fun_1 (Γ: Context) (A B : Typ Γ) : Functor (T := |Γ|g) (U:=Type1) (fun γ => A @ γ -||-> B @ γ). *)
-(* Next Obligation. intros. simpl. apply (fun_eqT (map A X) (map B X)). Defined. *)
-(* Next Obligation. intros. unfold set_fun_1_obligation_1. (* exists (fun_eq_eq' (map _ _ _ _).  *) admit. Defined. *)
-(* Next Obligation. intros. unfold set_fun_1_obligation_1. exists (fun_eq_eq (map2 A X) (map2 B X)). *)
-(*                  intros f t. admit. *)
-(* Defined. *)
-
-(* Definition Uset_fun (Γ: Context) (A B : Typ Γ) : Typ Γ := *)
-(*   (fun γ : [Γ] => A @ γ -||-> B @ γ; Uset_fun_1 Γ A B). *)
-
-(* Definition set_fun (Γ: Context) (A B : Typ Γ) : Typ Γ := Prod (cst_fibration A B).  *)
-
-(* Infix "-U->" := Uset_fun (at level 55).  *)
-
-(* Instance AppU_1 {Γ} {A B:Typ Γ} (f: Elt (A -U-> B)) (a:Elt A) : *)
-(*   DependentFunctor (Type1_Type B) (λ s : [Γ], (f @ s) @ (a @ s)). *)
-(* Admitted. *)
-
-(* Definition AppU {Γ} {A B:Typ Γ} (f:Elt (A -U-> B)) (a:Elt A) *)
-(* : Elt B := (λ s, (f @ s) @ (a @ s); AppU_1 _ _). *)
-
 Program Definition ndep {Γ} (T:Context) : Typ Γ := (λ γ, T; _).
 Next Obligation. intros. admit. Defined.
 
-(* Definition UType {Γ} := ndep (Γ:=Γ) Type0. *)
-
 Definition eq_fun_ctxt {T Γ} (A B: Typ Γ) (f: [T -|-> Γ]) :
   nat_trans ([[[A ----> B]]] ⋅ f)  ([[[A ⋅⋅ f  ----> B ⋅⋅ f]]]).
-  red; simpl. exists (fun t => identity _). red. intros. 
+  red; simpl. exists (fun t => identity _). red. intros.
+  (* eapply composition. apply equiv_id_L. *)
+  (* apply inverse. eapply composition. apply equiv_id_R. *)
+  (* simpl. *)
   admit.
 Defined.
 
-Notation "e 'with' t" := (prod_eq t @ e) (at level 50).
+
+Instance prod_eq1' A (T U : [A --> _Type]) (eqTU : T ~1 U)
+        (t : [_Prod T]) :
+        DependentFunctor U (λ a : [A], [eqTU @ a] @ (t @ a)).
+Admitted.
+
+Instance prod_eq2' A (T U : [A-->_Type]) (eqTU : T ~1 U) :
+        Functor (T := _Prod T) (U:=_Prod U) (λ t, (λ a:[A], [eqTU @ a] @ (t @ a); prod_eq1' eqTU t) : [_Prod U]).
+Admitted.
+
+Definition prod_eq' A (T U : [A --> _Type]) (e:T ~1 U) : [_Prod T --> _Prod U] := (_ ; prod_eq2' e).
+
+Notation "e 'with' t" := (prod_eq' t @ e) (at level 50).
 
 Notation "↑ t" := (t °° Sub with eq_fun_ctxt _ _ _) (at level 9, t at level 9). 
 
@@ -1053,6 +940,7 @@ Definition UId {Γ} (A B: Typ Γ) : Typ Γ := (λ γ, (A @ γ ~11 B @ γ ; _); U
  To define the notion of isomorphism, we need to define a proper notion of function (noted [A ----> B]) that does not use the restriction of [Prod] to constant type families. This is because the definition of an isomorphism involves two functions that have to be composed in both ways, which lead to universe inconsistency if we use dependent products to encode functions. We define the notion of application (noted [g @@@ f]) for this kind of functions. 
 *)
 
+
 Class iso_struct (Γ: Context) (A B : Typ Γ) (f : Elt (A ----> B)) := 
 { iso_adjoint : Elt (B ----> A)  ;
   iso_section : Elt (Prod (LamT (Id (iso_adjoint @@@ (f @@@ Var A)) (Var A)))) ;
@@ -1062,21 +950,6 @@ Definition iso (Γ: Context) (A B : Typ Γ) := {f : Elt (A ----> B) & iso_struct
 (* begin hide *)
 
 Infix "≡" := UId (at level 55).
-
-
-(* Program Definition DF (Γ: Context) (A : Typ Γ) : (Elt Type) := ([A];_). *)
-(* Next Obligation. intros. admit. Defined. *)
-
-(* Program Definition DF_1 (Γ: Context) (A: (Elt Type)) : Typ Γ  := ([A];_). *)
-(* Next Obligation. intros. admit. Defined. *)
-
-(* Notation "P '@@' A" := (DF_1 (AppU P (DF A))) (at level 50). *)
-
-(* Definition UId {Γ} (A B: Typ Γ) : Typ Γ := Id (DF A) (DF B). *)
-
-
-
-(* Definition UId {Γ} (A B: Typ Γ)(γ : [Γ]) : Typ Γ := Id (DF A) (DF B). *)
 
 Definition Equiv_Intro_ (Γ: Context) (A B : Typ Γ) (e : iso A B) 
            : ∀ γ : [Γ], A @ γ ~11 B @ γ.
@@ -1105,13 +978,4 @@ Admitted.
 
 Definition Equiv_Intro (Γ: Context) (A B : Typ Γ) (e : iso A B) : Elt (A ≡ B).
 Proof. exact (Equiv_Intro_ e; Equiv_Intro_1 e). Defined.
-
-
-
-
-
-(* Definition Equiv_Elim Γ (A B:Typ Γ) (e:Elt (A ≡ B)) (P:TypFam UType) (p:Elt (P {{A}})) : Elt (P{{{DF B}}}) := J e p. *)
-
-
-
 

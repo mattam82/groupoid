@@ -8,9 +8,10 @@ Require Import Groupoid.groupoid_interpretation_def.
 Require Import Groupoid.Equiv_adjoint.
 
 Set Implicit Arguments.
+Set Universe Polymorphism.
 Set Program Mode.
 Set Primitive Projections.
- 
+
 Opaque Equiv_adjoint.
 Opaque map_id map_inv.
 
@@ -91,20 +92,10 @@ Defined.
 (*  (x y : [Γ]) (e : x ~1 y) :(id_L x y e) ^-1 ° id_R x y e ~ identity _. *)
 (*   map2 A ( (id_L x y e) ^-1 ° id_ x y e) ~ identity _. *)
 
-(* Definition sum_id_left_right {Γ: Context} {A : Typ Γ} *)
-(*  (x y : [Γ]) (e : x ~1 y) (t t' : [ [A] y]) (e' : t ~1 t'): *)
-(*   sum_id_left e' ° sum_id_right e t ~ *)
-(*   sum_id_right e t' ° sum_id_left (map (adjoint (map A e)) e'). *)
-(*   exists (inverse  (id_R _ _ _) ° id_L _ y e). simpl.  *)
-(*   unfold eq_rect_comp, eq_rect_eq. *)
-(*   apply inverse. eapply composition. apply comp. apply identity. *)
-(*   eapply composition. apply comp. apply identity. *)
-(*   eapply composition. apply comp. apply (map_comp [map A e]). apply identity. *)
-(*   eapply composition. eapply inverse. apply assoc. *)
-(*   eapply composition. apply comp. apply identity. apply (α_map (section (map A e))). *)
-(*   eapply composition. apply assoc. apply identity. apply identity. *)
-(*   eapply composition. apply assoc.   eapply composition. apply assoc. *)
-(*   apply inverse.  eapply composition. apply assoc.   eapply composition. apply assoc. *)
-(*   apply comp; [idtac | apply identity]. *)
-(*  admit. *)
-(* Defined. *)
+Definition sum_id_left_right {Γ: Context} {A : Typ Γ}
+ (x y : [Γ]) (e : x ~1 y) (t t' : [ [A] y]) (e' : t ~1 t'):
+  sum_id_left e' ° sum_id_right e t ~
+  sum_id_right e t' ° sum_id_left (map (adjoint (map A e)) e').
+  exists (inverse  (id_R _ _ _) ° id_L _ y e). simpl.
+  trunc1_eq.
+Defined.
