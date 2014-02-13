@@ -69,7 +69,8 @@ Definition prod_eq_map' (A: [_Type]) (T U: [|A|g --> Type0])
         (e e':T ~1 U) (H : e ~ e') (t:[_Prod ([[[T]]])]) :  
   [prod_eq e] t ~1 [prod_eq e'] t := 
 (fun t0 => [H t0] @ (t @ t0); _).
-Next Obligation. intros a a' Xa; simpl. trunc1_eq.
+Next Obligation. 
+  intros a a' Xa; simpl. trunc1_eq.
 Defined.
 
 Definition prod_eq_map (A: [_Type]) (T U: [|A|g --> Type0]) 
@@ -81,7 +82,8 @@ Hint Extern 4 (@Identity (@sigma _ GroupoidP) _) => exact id_fun : typeclass_ins
 Definition prod_eq_id' (A: [_Type]) (T: [|A|g --> Type0])  :
 ∀ t : [_Prod ([[[T]]])], [prod_eq (identity T)] t ~1 [identity (_Prod ([[[T]]]))] t :=
   fun t => (fun _ => identity _ ;  _). 
-Next Obligation. intros a a' Xa; simpl. trunc1_eq.
+Next Obligation. 
+  intros a a' Xa; simpl. trunc1_eq.
 Defined.
 
 Definition prod_eq_id (A: [_Type]) (T : [|A|g --> Type0]) 
@@ -128,9 +130,10 @@ Instance Prod_eq_2 {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y)
 Instance Prod_eq_3 {Γ} (A:Typ Γ) (F:TypFam A) {x y : [Γ]} (e:x~1 y) :
  Functor (λ X : [_Prod ([[[F @ x]]])],
          (λ a, Prod_eq_1 F e X a; Prod_eq_2 A F e X) : [_Prod ([[[F @ y]]])]).
-Next Obligation. exists (fun a => map [Prod_eq_ F e @ a] 
-                                      (X @ ([adjoint (map A e)] a))).
-                 red; intros. trunc1_eq.
+Next Obligation. 
+  exists (fun a => map [Prod_eq_ F e @ a] 
+                       (X @ ([adjoint (map A e)] a))).
+  red; intros. trunc1_eq.
 Defined.
 Next Obligation. intro. intros. simpl. apply (map_comp [Dmap F e @ t]). Defined.
 Next Obligation. simpl; red; intros; simpl. apply (map2 [Dmap F e @ t] (X _)). Defined.
@@ -141,6 +144,7 @@ Definition Prod_eq {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y):
 Definition Prod_eq_comp'' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
         (e:x~1 y) (e' : y ~1 z):
   ∀ t a , [Prod_eq F e' ° Prod_eq F e] t @ a ~1 [Prod_eq F (e' ° e)] t @ a.
+Proof.
 intros. simpl. unfold Prod_eq_1. simpl. unfold id.
 apply inverse. eapply composition. apply ([Dmap_comp F e e' a]). simpl.
 refine (map _ _). refine (map _ _). apply (Dmap t).
@@ -337,18 +341,19 @@ Defined.
 
 Instance prod_eq2' A (T U : [|A|g --> _Type]) (eqTU : T ~1 U) :
         Functor (λ (t : [_Prod T]), (λ a : [A], [eqTU @ a] @ (t @ a)  ; prod_eq1' A T U eqTU t) : [_Prod U]).
-Next Obligation. exists (fun t => map [eqTU @ t] (X @ t)). intros; simpl.
-                 unfold _Dmap. simpl. unfold prod_eq1'_obligation_1.
-                 red; intros. 
-                 eapply composition. eapply inverse. apply assoc.
-                 eapply composition. apply comp. apply identity.
-                 eapply composition. eapply inverse. apply (map_comp [eqTU @ t']).
-                 eapply composition. eapply (map2 [eqTU @ t']). apply (Π2 X).
-                 apply (map_comp [eqTU @ t']).
-                 unfold transport_map. eapply composition. apply assoc.
-                 apply inverse. eapply composition. apply assoc.
-                 apply comp; [idtac | apply identity].
-                 apply (α_map ((inverse [α_map eqTU e]) : nat_trans _ _)).
+Next Obligation. 
+  exists (fun t => map [eqTU @ t] (X @ t)). intros; simpl.
+  unfold _Dmap. simpl. unfold prod_eq1'_obligation_1.
+  red; intros. 
+  eapply composition. eapply inverse. apply assoc.
+  eapply composition. apply comp. apply identity.
+  eapply composition. eapply inverse. apply (map_comp [eqTU @ t']).
+  eapply composition. eapply (map2 [eqTU @ t']). apply (Π2 X).
+  apply (map_comp [eqTU @ t']).
+  unfold transport_map. eapply composition. apply assoc.
+  apply inverse. eapply composition. apply assoc.
+  apply comp; [idtac | apply identity].
+  apply (α_map ((inverse [α_map eqTU e]) : nat_trans _ _)).
 Defined.
 Next Obligation. intro. simpl. apply (map_comp [eqTU @ t]). Defined.
 Next Obligation. intro. simpl. apply (map2 [eqTU @ t]). apply (X _). Defined.

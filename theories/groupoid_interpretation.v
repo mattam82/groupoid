@@ -165,8 +165,8 @@ Set Implicit Arguments.
 Set Universe Polymorphism.
 (* Set Program Mode. *)
  
-Opaque Equiv_adjoint.
-Opaque map_id map_inv.
+(* Opaque Equiv_adjoint. *)
+(* Opaque map_id map_inv. *)
 
 
 Definition curry {Γ: Context} {T : Typ Γ} (U : TypDep T) (γ : [Γ]) :=
@@ -190,6 +190,9 @@ Definition Curry {Γ: Context} {T : Typ Γ}
 Definition UFamily {Γ: Context} (A : Typ Γ) : [ [[Γ]] --> _Type] :=
   (λ s : [Γ], [[ (A @ s) ]] -||-> Type0; TypFam_1 A).
 
+Lemma simpl_app {A B} {P : (A -> B) -> Type} (f : A -> B) (t : P f) x : @eq _  ((f; t) @ x) (f x).
+Proof. simpl. reflexivity. Defined.
+
 Ltac mysimpl ::=
      cbn beta iota zeta delta -[_Type _Type_comp curry Equiv_cat _Equiv_Id _Dmap transport_comp].
 
@@ -197,15 +200,17 @@ Obligation Tactic := intros.
 
 Program Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: TypDep A) : 
   DependentFunctor (UFamily A) (Curry B).
-Next Obligation. exists (fun a => map B (sum_id_right e a)).
-                 intros t t' X. unfold id.
-                 eapply composition. eapply inverse. apply (map_comp B).
-                 eapply composition. Focus 2. apply (map_comp B).
-                 apply (map2 B). apply inverse. apply sum_id_left_right. Defined.
-Next Obligation. Admitted.
 Next Obligation. 
-  (* unfold LamT_1_obligation_1. intro. mysimpl. unfold Curry1_obligation_1. *)
-  (* apply inverse. simpl_id. *)
+  exists (fun a => map B (sum_id_right e a)).
+  intros t t' X. unfold id.
+  eapply composition. eapply inverse. simpl. eapply (map_comp B).
+  eapply composition. Focus 2. simpl. apply (map_comp B).
+  apply (map2 B). apply inverse. apply sum_id_left_right. 
+Defined.
+Next Obligation. 
+Admitted.
+  (* unfold LamT_1_obligation_1. intro. simpl.  *)
+  (* apply inverse. unfold transport_id, sum_id_right. simpl. simpl_id. *)
   (* eapply composition. eapply inverse. *)
   (* apply (map_comp B). apply (map2 B). *)
   (* exists (inverse H ° id_R _ _ _). simpl. *)
@@ -228,9 +233,50 @@ Next Obligation.
   (* eapply composition. apply X. *)
   (* unfold HorComp. simpl. Transparent _Type. mysimpl. *)
   (* simpl_id. *)
-Admitted.
-Next Obligation. Admitted.
+Next Obligation. 
+Proof.
+  intros. unfold LamT_1_obligation_1. intro.
+  cbn beta iota zeta delta [ proj1 ].
+  match goal with
+    |- ?x ~ ?f @ ?y => let y' := eval hnf in [f] in change (x ~ y' y)
+  end. 
+  cbn beta iota zeta delta [ proj1 ].
+  unfold transport_map. 
 
+  repeat match goal with
+    |- context C [ ?f @ ?y ] => 
+    let y' := eval hnf in [f] in
+    match y' with
+      | [f] => fail 1
+      | _ =>
+        let rhs' := context C [ y' y ] in
+        change (rhs')
+    end
+  end. 
+
+  cbn beta iota zeta delta [ proj1 ].
+
+  repeat match goal with
+    |- context C [ ?f @ ?y ] => 
+    let y' := eval hnf in [f] in
+    match y' with
+      | [f] => fail 1
+      | _ =>
+        let rhs' := context C [ y' y ] in
+        change (rhs')
+    end
+  end. 
+
+  cbn beta iota zeta delta [ proj1 ].
+  unfold comp_fun_depfun, _map_comp, Curry, cons.
+  cbn beta iota zeta delta [ proj1 ].
+  unfold nat_comp', comp.
+  cbn beta iota zeta delta [ proj1 ].
+  unfold Type0.
+  simpl comp.
+Admitted.
+Next Obligation. 
+Admitted.
 
 (* end hide *)
 (** 
