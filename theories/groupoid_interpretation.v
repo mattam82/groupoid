@@ -514,14 +514,12 @@ Definition Var {Γ} (A:Typ Γ) : Elt ⇑A := (λ t, Π2 t; Var_1 A).
 (* begin hide *)
 
 Program Instance Prod_1 {Γ} (A:Typ Γ) (F : TypFam A) :
-  @Functor ([[Γ]]) Type0 (λ s : [Γ], Prod0 (F @ s)).
-Next Obligation. admit. (* intros. apply (Prod_eqT F X). *) Defined.
-Next Obligation. admit. (* intros. simpl. red. simpl. exists (inverse (Prod_eq_comp F e e')). *)
-                 (* apply AllEquivEq. *)
-Defined.
-Next Obligation. admit. (* intros. simpl. red. simpl. exists (Prod_eq_map F e e' X). *)
-                 (* apply AllEquivEq. *)
-Defined.
+  @Functor ([[Γ]]) Type0 (λ s : [Γ], Prod0 (F @ s)) :=
+  {| _map := fun _ _ X => Prod_eqT F X ; 
+     _map_comp := fun _ _ _ e e' => ((Prod_eq_comp F e e')^-1 ; _); 
+     _map2 := fun _ _ _ _ X => (Prod_eq_map F _ _ X ; _) |}.
+Next Obligation. apply AllEquivEq_Setoid. Defined.
+Next Obligation. apply AllEquivEq_Setoid. Defined.
 (* end hide *)
 
 (** %\paragraph{\textsc{Prod}.}% The rule %\textsc{Prod}% is interpreted
@@ -728,10 +726,6 @@ Next Obligation. intros. exact tt. Defined.
 
 Definition Id_functor {Γ} (A: Typ Γ) (a b : Elt A) (x y:[Γ]) (X : x ~1 y) : [Id_ a b y -|-> Id_ a b x] := (_; _Id_functor _ a b x y X). 
 
-(* Definition all_nat_trans_set (A B : Type) (f g : A -S-> B) : f ~ g. *)
-(*   red. red. assert (∀ t : [A], f @ t ~1 g @ t). intro. *)
-(*   trunc1_eq. *)
-
 Program Instance Id_1 {Γ} (A: Typ Γ) (a b : Elt A) : Functor (T := [[Γ]]) (U := Type0) (Id_ a b).
 Next Obligation. intros. apply IsoToEquiv. exists (Id_functor a b y x (X^-1)).
                  apply (@Build_Iso_struct _ _ _ (Id_functor a b x y X)).
@@ -775,13 +769,6 @@ Definition Id {Γ} (A: Typ Γ) (a b : Elt A)
 
 (* begin hide *)
 
-(* Proof. *)
-(*   exact ((prod_eq (T:=[[[P{{a}}]]]) (U:=[[[P{{b}}]]])  *)
-(*                  (fun γ => (map (P @ γ) (e @ γ)); J_1 e P)) @ p). *)
-(* Defined. *)
-
-(* Program Instance Id_id Γ (A: Typ Γ) : @Identity _ (@Id _ A). *)
-(* Next Obligation. unfold Id. intros. exact (identity x). Defined.  *)
 Instance Refl_1 Γ (A: Typ Γ) (a : Elt A) :
 DependentFunctor ([[[Id a a]]]) (λ γ : [Γ], identity (a @ γ)).
 Admitted.
@@ -793,8 +780,6 @@ Definition Refl Γ (A: Typ Γ) (a : Elt A)
   : Elt (Id a a) := (λ γ, identity (a @ γ); Refl_1 _).
 
 (* begin hide *)
-
-(* Definition prod_eq' A (T U : Typ A) (e:T ~1 U) : [Prod0 T -|-> Prod0 U] := @prod_eq _ (T) (U) e. *)
 
 Definition depEq Γ (A:Typ Γ) (a :Elt A) : Typ Γ := Sigma (LamT (Id (a °°°° Sub) (Var A))).
 
@@ -813,18 +798,6 @@ admit.
 Defined.
 
 (****** To Be Removed Once prod_eq.v Is OK ******)
-
-Instance prod_eq1 (A: [_Type]) (T U : [|A|g --> Type0]) (eqTU : T ~1 U)
-        (t : [Prod0 T]) :
-        DependentFunctor ([[[U]]]) (λ a : [A], [eqTU @ a] @ (t @ a)).
-Admitted.
-
-Instance prod_eq2 (A: [_Type]) (T U : [|A|g --> Type0]) (eqTU : T ~1 U) :
-        Functor (λ (t : [_Prod ([[[T]]])]), (λ a : [A], [eqTU @ a] @ (t @ a)  ; prod_eq1 eqTU t) : [_Prod ([[[U]]])]).
-Admitted.
-
-
-Definition prod_eq (A: [_Type]) (T U : [|A|g --> Type0]) (e:T ~1 U) : [_Prod ([[[T]]]) --> _Prod ([[[U]]])] := (_ ; prod_eq2 e).
 
 Definition prod_comp Γ (A: Typ Γ) (a b : Elt A) (P : TypFam A) (e:P{{a}} ~1 P{{b}}) :  [Prod0 (P{{a}}) -|-> Prod0 (P{{b}})] := @prod_eq _ (P{{a}}) (P{{b}}) e.
 
@@ -892,18 +865,6 @@ Definition eq_fun_ctxt {T Γ} (A B: Typ Γ) (f: [T -|-> Γ]) :
   (* simpl. *)
   admit.
 Defined.
-
-
-Instance prod_eq1' A (T U : [A --> _Type]) (eqTU : T ~1 U)
-        (t : [_Prod T]) :
-        DependentFunctor U (λ a : [A], [eqTU @ a] @ (t @ a)).
-Admitted.
-
-Instance prod_eq2' A (T U : [A-->_Type]) (eqTU : T ~1 U) :
-        Functor (T := _Prod T) (U:=_Prod U) (λ t, (λ a:[A], [eqTU @ a] @ (t @ a); prod_eq1' eqTU t) : [_Prod U]).
-Admitted.
-
-Definition prod_eq' A (T U : [A --> _Type]) (e:T ~1 U) : [_Prod T --> _Prod U] := (_ ; prod_eq2' e).
 
 Notation "e 'with' t" := (prod_eq' t @ e) (at level 50).
 
