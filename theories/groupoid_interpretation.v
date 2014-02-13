@@ -305,19 +305,19 @@ Program Instance substF_1 {T Γ : Context} {A:Typ Γ} (F:TypFam A) (f:[T -|-> Γ
 Next Obligation. exact (Dmap F (map f e)). Defined.
 Next Obligation. Admitted.
 Next Obligation. 
-  (* intro. unfold substF_1_obligation_1. (* mysimpl. *) *)
-  (* eapply inverse. unfold transport_comp, transport_map. *)
+  (* intro. unfold substF_1_obligation_1.  *)
+  (* unfold transport_comp, transport_map. *)
   (* (* simpl_id. simpl_id. *) *)
-  (* apply inverse. *)
   (* eapply composition. apply (Dmap2 F (map_comp f e e') t). *)
   (* eapply composition. apply equiv_comp. apply identity. *)
   (* apply (Dmap_comp F (map f e) (map f e') t). *)
   (* (* mysimpl. *) *)
-  (* (* Opaque _Type. simpl @proj1. cbn beta. Transparent _Type. *) *)
   (* unfold transport_comp, transport_map, transport_eq. *)
-  (* (* simpl_id. simpl_id. *) *)
   (* eapply composition. apply equiv_assoc. *)
-  (* eapply composition. apply equiv_assoc. apply inverse. *)
+  (* apply inverse. *)
+  (* eapply composition.  *)
+  (* Opaque Type0 composition. simpl  @proj1. Transparent Type0 composition. simpl_id. *)
+  (* apply equiv_assoc. apply inverse. *)
   (* eapply composition. apply equiv_assoc. *)
   (* apply equiv_comp; [idtac | apply identity]. *)
   (* apply equiv_comp; [idtac | apply identity]. *)
@@ -330,16 +330,9 @@ Next Obligation.
   (* apply (groupoid.Equiv_adjoint_comp [map2 A (map_comp f e e')]  [map_comp A (map f e) (map f e')] t). *)
 Admitted.
 Next Obligation. 
- (* unfold SubstT_1_obligation_1. *)
-  (* eapply composition. apply equiv_comp. apply identity. *)
-  (* apply (Dmap2 F X (a @ y)). *)
-  (* mysimpl.  *)
-  (* simpl_id. *)
-  (* eapply composition. apply equiv_assoc. *)
-  (* apply equiv_comp; [idtac | apply identity]. *)
-  (* eapply composition. eapply inverse. apply (map_comp (F @ x)). *)
-  (* apply (map2 (F @ x)). apply Equiv_adjoint_eq. *)
-Admitted.
+  intro. eapply composition. eapply (Dmap2 F (map2 f H) t).
+  unfold substF_1_obligation_1. apply identity.
+Defined.
 
 Infix "--->" := Fun_Type_Groupoid (at level 55).
 
@@ -540,14 +533,15 @@ Next Obligation. intros. eapply composition; try apply (Dmap (c @ y) (Dmap a e))
                  unfold transport.
                  eapply composition; try eapply
                    (map [map ([F] y) (Dmap a e)] (Dmap c e @ ([map A e] @ (a @ x)))).
-                 unfold transport. simpl. (* unfold _map at 2; simpl. *)
-                 (* unfold Prod_eq_1. simpl. unfold id. *)
-                 (* eapply composition; try apply (α_map (Dmap F e) (Dmap a e)). *)
-                 (* simpl. apply _map. (* unfold _map at 2; simpl. *) *)
-                 (* unfold equiv_adjoint. *)
-                 (* eapply composition. *)
-                 (* apply (map_comp (F @ x) _ (map (adjoint (map A e)) (Dmap a e))). simpl. *)
-                 (* apply _map. apply (Dmap (c @ x)). *) admit.
+                 unfold transport. simpl. 
+                 unfold Prod_eq_1, Prod_eq_. simpl. unfold id.
+                 eapply composition; try apply (α_map (Dmap F e) (Dmap a e)).
+                 simpl. 
+                 apply (map [Dmap F e @ (a @ y)]).
+                 unfold equiv_adjoint. eapply composition.
+                 apply (map_comp (F @ x) _ (map (adjoint (map A e)) (Dmap a e))). simpl.
+                 apply (map [map (F @ x) (map (adjoint (map A e)) (Dmap a e))]). 
+                 apply (Dmap (c @ x)). 
 Defined.
 Next Obligation. intros; trunc1_eq. Defined.
 Next Obligation. intros; trunc1_eq. Defined.
@@ -599,12 +593,11 @@ Definition Lam_partial {Γ} {A:Typ Γ} {F:TypDep A}
 
 Program Instance Lam_20 {Γ} {A:Typ Γ} {B:TypDep A} (b:Elt B) :
  DependentFunctor0 (Prod (LamT B)) (Lam_partial b).
-Next Obligation. (* intros. simpl. red; simpl. unfold Prod_eq_1, id. simpl. unfold id. *)
-                 (* pose (fun t => Dmap b (sum_id_right e t)). *)
-                 (* simpl in *. *)
-                 (* exists (fun t => Dmap b (sum_id_right e t)). *)
-                 (* econstructor. intros; simpl. *)
-                 admit.
+Next Obligation. intros. simpl. red; simpl. unfold Prod_eq_1, id. simpl. unfold id.
+                 pose (fun t => Dmap b (sum_id_right e t)).
+                 simpl in *.
+                 exists (fun t => Dmap b (sum_id_right e t)).
+                 red. intros; simpl. trunc1_eq.
 Defined.
 Next Obligation. intros. trunc1_eq. Defined.
 Next Obligation. intros. trunc1_eq. Defined.
