@@ -236,12 +236,60 @@ Admitted.
 Next Obligation. 
 Proof.
   intros. unfold LamT_1_obligation_1. intro.
+  Opaque _map2 Comp_Equiv_eq _Type_comp _Type_comp' nat_comp nat_comp' comp_fun _map_comp identity inverse.
+  simpl.
   cbn beta iota zeta delta [ proj1 ].
+  simpl.
+  unfold transport_map.
+  (* match goal with *)
+  (*   |- Equiv_eq ?x (?f @ ?y) => let y' := eval hnf in [f] in set(foo:=y'); try change (Equiv_eq x (y' y)) *)
+  (* end. *)
+  Transparent composition.
+  Transparent _map2 Comp_Equiv_eq _Type_comp nat_comp.
+  Ltac t := match goal with
+    |- context C [ ?f @ ?y ] => 
+    let y' := eval hnf in [f] in
+    match y' with
+      | [f] => fail 1
+      | _ =>
+        let rhs' := context C [ y' y ] in
+        change (rhs')
+    end
+  end. 
+  repeat t.
+  
+  cbn beta iota zeta delta [ proj1 SetoidTypeToGroupoidType ].
+  Transparent _map2 Comp_Equiv_eq _Type_comp nat_comp nat_comp' comp_fun _map_comp identity inverse.
+
   match goal with
-    |- ?x ~ ?f @ ?y => let y' := eval hnf in [f] in change (x ~ y' y)
+      |- Equiv_eq ?x ?y => change (x ~ y)
+  end.
+
+  eapply inverse. compose. 
+  Transparent _Type_comp'.
+  eapply equiv_comp. apply identity.
+  t.
+
+  Opaque _Type_comp _Type_comp'. 
+  match goal with
+    |- ?f @ ?y ~ ?rhs => 
+    let y' := eval hnf in ([f] y) in
+       change (y' ~ rhs)
   end. 
-  cbn beta iota zeta delta [ proj1 ].
-  unfold transport_map. 
+
+  cbn beta iota zeta delta [ proj1 SetoidTypeToGroupoidType SetoidType ].
+  
+  repeat t.
+  simpl.
+  
+  
+  Opaque composition.
+  simpl.
+  simpl.
+  unfold SetoidType.
+  simpl identity.
+  
+  simpl.
 
   repeat match goal with
     |- context C [ ?f @ ?y ] => 
@@ -255,25 +303,25 @@ Proof.
   end. 
 
   cbn beta iota zeta delta [ proj1 ].
-
-  repeat match goal with
-    |- context C [ ?f @ ?y ] => 
-    let y' := eval hnf in [f] in
-    match y' with
-      | [f] => fail 1
-      | _ =>
-        let rhs' := context C [ y' y ] in
-        change (rhs')
-    end
-  end. 
-
+  unfold left_comp, right_comp.
   cbn beta iota zeta delta [ proj1 ].
-  unfold comp_fun_depfun, _map_comp, Curry, cons.
-  cbn beta iota zeta delta [ proj1 ].
+  unfold nat_assoc.
+  simpl.
   unfold nat_comp', comp.
   cbn beta iota zeta delta [ proj1 ].
   unfold Type0.
   simpl comp.
+  unfold groupoid.category_fun_obligation_4 at 1.
+  cbn beta iota zeta delta [ proj1 ].
+  
+
+  unfold groupoid.category_fun_obligation_4 at 1.
+  cbn beta iota zeta delta [ proj1 ].
+  unfold groupoid.category_fun_obligation_4 at 1.
+  cbn beta iota zeta delta [ proj1 ].
+  cbn beta iota zeta delta [ id_R ].
+  
+
 Admitted.
 Next Obligation. 
 Admitted.
