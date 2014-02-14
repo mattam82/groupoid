@@ -283,7 +283,7 @@ Proof.
   simpl.
   
   apply identity.
-
+  
   unfold transport_comp. unfold Curry.
   Opaque _map2 Comp_Equiv_eq _Type_comp _Type_comp' nat_comp nat_comp' comp_fun identity inverse.
   simpl.
@@ -295,36 +295,7 @@ Proof.
 
   Opaque _map2 Comp_Equiv_eq _Type_comp _Type_comp' nat_comp nat_comp' comp_fun identity inverse.
   Transparent composition _Type_comp _Type_comp'.
-  simpl.
-  red.
-  simpl.
-  set (bar:= [foo]).
-  unfold foo in bar; simpl in bar.
-  hnf in bar.
-  unfold fun_eq_map' in bar. unfold fun_eq_eq' in bar.
-
-  simpl in bar.
-  Transparent composition nat_comp groupoid.nat_comp_obligation_1.
-  simpl in bar.
-  unfold id in bar.
-
-  cbn beta iota zeta delta [ proj1 SetoidTypeToGroupoidType SetoidType ] in bar.
-  
-  unfold id in foo.
-  unfold 
-  simpl.
-  unfold fun_eq_map'.
-  unfold Curry1. simpl.
-  unfold fun_eq_eq.
-  unfold id.
-  unfold left_comp_eq.
-   simpl.
-  red.
-  simpl.
-  unfold fun_eq_map'.
-  unfold fun_eq_eq'.
-  simpl_id.
-  
+    
 Admitted.
 Next Obligation. 
 Admitted.
