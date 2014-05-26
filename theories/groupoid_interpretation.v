@@ -194,9 +194,19 @@ Lemma simpl_app {A B} {P : (A -> B) -> Type} (f : A -> B) (t : P f) x : @eq _  (
 Proof. simpl. reflexivity. Defined.
 
 Ltac mysimpl ::=
-     cbn beta iota zeta delta -[_Type _Type_comp curry Equiv_cat _Equiv_Id _Dmap transport_comp].
+     cbn beta iota zeta delta -[_Type Type1 _Type_comp curry Equiv_cat _Equiv_Id _Dmap transport_comp].
 
 Obligation Tactic := intros.
+
+Ltac betared :=
+  repeat match goal with
+      |- context C [?f @ ?t] => 
+      let f' := eval hnf in f in
+                             match f with
+                               | (?f'; _) =>
+                                 let new := context C [ f' t ] in change new; cbv beta
+                             end
+         end. 
 
 Program Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: TypDep A) : 
   DependentFunctor (UFamily A) (Curry B).
@@ -207,32 +217,39 @@ Next Obligation.
   eapply composition. Focus 2. simpl. apply (map_comp B).
   apply (map2 B). apply inverse. apply sum_id_left_right. 
 Defined.
-Next Obligation. 
-Admitted.
-  (* unfold LamT_1_obligation_1. intro. simpl.  *)
-  (* apply inverse. unfold transport_id, sum_id_right. simpl. simpl_id. *)
-  (* eapply composition. eapply inverse. *)
-  (* apply (map_comp B). apply (map2 B). *)
-  (* exists (inverse H ° id_R _ _ _). simpl. *)
-  (* unfold eq_rect_eq, eq_rect_comp. simpl_id_bi. *)
-  (* eapply composition. apply comp. apply identity. *)
-  (* apply (eq_section (map2 A H)). simpl. *)
-  (* eapply composition. apply assoc. *)
-  (* eapply inverse. *)
-  (* eapply composition. apply assoc. *)
-  (* apply comp; [idtac | apply identity]. *)
-  (* eapply composition. apply comp. apply identity. *)
-  (* apply _map_comp. eapply composition. apply assoc. *)
-  (* eapply inverse. *)
-  (* eapply composition. apply assoc. *)
-  (* apply comp; [idtac | apply identity]. *)
-  (* assert (map2 A H ° map2 A (inverse H ° id_R x y e') ~ *)
-  (*              id_R _ _ _ ° (map_id A ** identity _) °  map_comp A (identity x) e'). *)
-  (* (* trunc_eq. *) *)
-  (* admit. *)
-  (* eapply composition. apply X. *)
-  (* unfold HorComp. simpl. Transparent _Type. mysimpl. *)
-  (* simpl_id. *)
+
+Next Obligation.
+  unfold LamT_1_obligation_1. intro.
+  betared. unfold transport_id. Transparent map_id. betared. 
+  unfold Curry. simpl.
+unfold map_id. simpl right_simplify'.
+  unfold right_simplify'. unfold right_simplify. unfold right_simplify_gen. 
+  betared.
+  unfold sum_id_right. Opaque Type1. simpl.
+  eapply composition. eapply inverse.
+  apply (map_comp B). apply (map2 B).
+  exists (inverse H ° id_R _ _ _). simpl.
+  unfold eq_rect_eq, eq_rect_comp. simpl_id_bi.
+  eapply composition. apply comp. apply identity.
+  apply (eq_section (map2 A H)). simpl.
+  eapply composition. apply assoc.
+  eapply inverse.
+  eapply composition. apply assoc.
+  apply comp; [idtac | apply identity].
+  eapply composition. apply comp. apply identity.
+  apply _map_comp. eapply composition. apply assoc.
+  eapply inverse.
+  eapply composition. apply assoc.
+  apply comp; [idtac | apply identity].
+  assert (map2 A H ° map2 A (inverse H ° id_R x y e') ~
+               id_R _ _ _ ° (map_id A ** identity _) °  map_comp A (identity x) e').
+  (* trunc_eq. *)
+  admit.
+  eapply composition. apply X.
+  unfold HorComp. simpl. Transparent _Type. mysimpl.
+  simpl_id.
+Qed.
+
 Next Obligation. 
 Proof.
   intros. unfold LamT_1_obligation_1. intro.
@@ -241,9 +258,9 @@ Proof.
   cbn beta iota zeta delta [ proj1 ].
   simpl.
   unfold transport_map.
-  (* match goal with *)
-  (*   |- Equiv_eq ?x (?f @ ?y) => let y' := eval hnf in [f] in set(foo:=y'); try change (Equiv_eq x (y' y)) *)
-  (* end. *)
+  match goal with
+    |- Equiv_eq ?x (?f @ ?y) => let y' := eval hnf in [f] in set(foo:=y'); try change (Equiv_eq x (y' y))
+  end.
   Transparent composition.
   Transparent _map2 Comp_Equiv_eq _Type_comp nat_comp.
   Ltac t := match goal with
@@ -295,6 +312,9 @@ Proof.
 
   Opaque _map2 Comp_Equiv_eq _Type_comp _Type_comp' nat_comp nat_comp' comp_fun identity inverse.
   Transparent composition _Type_comp _Type_comp'.
+  unfold fun_eq_map' in foo.
+  simpl in foo.
+  
     
 Admitted.
 Next Obligation. 

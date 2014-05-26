@@ -173,7 +173,7 @@ Definition HomT (T : Type) := T -> T -> Type.
 *)
 
 Class HomT1 T := {eq1 : HomT T}.
-Infix "~1" := eq1 (at level 80).
+Infix "~1" := (_.(eq1)) (at level 80).
 
 Class HomT2 {T} (Hom : HomT T) := {eq2 : ∀ {x y : T}, HomT (Hom x y)}.
 Infix "~2" := eq2 (at level 80).
@@ -221,7 +221,6 @@ categories and functors form a pre-category but not a 1-category. Thus,
 working with pre-categories and pre-groupoids allows to share more
 structure and is closer to the ω-groupoid model which is itself enriched.
 *)
-
 
 Class CategoryP T := { Hom1 :> HomT1 T; Hom2 :> HomT2 eq1;
      Id :> Identity eq1; Comp :> Composition eq1;
@@ -292,10 +291,6 @@ Infix "**" := HorComp (at level 50).
    Groupoids are then pre-groupoids where equality at
    dimension 2 is irrelevant. This irrelevance is defined using a
    notion of contractibility expressed with (relevant) identity types.  *)
-
-Class Contr (A : Type) := { 
-  center : A ;
-  contr : ∀ y : A, center = y}.
 
 (* begin hide *)
 Require Import HoTT_light.
@@ -1016,6 +1011,7 @@ Defined.
 
 Program Instance IsoToEquiv'' A B (f : Iso A B) : Iso_struct [f].
 Next Obligation. exact (adjoint' f). Defined.
+
 Next Obligation. 
   pose (F := (map_trans (adjoint' f)) ** retraction' f ** map_trans [f]).
   pose (idL := id_L _ _ (adjoint' f)).
@@ -1027,7 +1023,8 @@ Next Obligation.
   pose (ass' := assoc _ _ _ _ ([f] ° adjoint' f) (adjoint' f) [f]).
   exact (section' f ° idLf ° F ° inverse ass ° ass' ° inverse G ° idRf).
 Defined.
-Next Obligation. exact (retraction' f). Defined.
+
+Next Obligation. exact (retraction' f). Defined. 
 
 Definition IsoToEquiv' A B (f : Iso A B) := ([f] ; IsoToEquiv'' _ _ f).
 
@@ -1088,11 +1085,12 @@ Instance _Type_inv : Inverse Equiv :=
 Instance Adjoint_Functor T U (f : T <~> U) : Functor [adjoint f] :=
   Π2 (adjoint f).
   
+Obligation Tactic := intros.
+
 Program Instance __Equiv_comp {A B C} (f : A <~> B) (g : B <~> C) : 
   Iso_struct ([g] ° [f]).
 Next Obligation. exact (adjoint f ° adjoint g). Defined.
 
-Obligation Tactic := intros.
 
 Next Obligation. 
 Proof. eapply composition. apply nat_assoc. 
@@ -1887,7 +1885,7 @@ Ltac trunc_eq := match goal with
                    end.
        
 Definition Trunc_1 (T:[Type0]) (x y : [T])
-  (e e' : x ~1 y)  : HoTT_light.Contr (e = e') :=
+  (e e' : x ~1 y)  : Contr (e = e') :=
   is_Trunc_1 x y e e' .
 
 Ltac trunc1_eq :=   match goal with
@@ -2164,8 +2162,9 @@ Proof.
   apply (α_map [map_id ([[[U]]])]). eapply composition. apply assoc.
   apply comp; [idtac | apply identity]. apply inverse.
   eapply composition. apply (map2_id_L U).
-  simpl. unfold id. simpl_id_bi'. unfold transport. simpl.
-  Transparent map_id. simpl. apply identity. Opaque map_id.
+  unfold id_L'. Opaque map_id. simpl. apply comp. apply identity.
+  eapply composition. eapply id_L. eapply composition. apply id_L.
+  Transparent map_id. simpl. simpl_id_bi'. apply identity.
 Defined.
 
 Instance DepFun0DepFun T (U : [T --> Type0]) (f : Prod_Type0 U) : DependentFunctor ([[[U]]]) f.1. 
@@ -2322,7 +2321,7 @@ Defined.
 Program Instance sum_eq2_comp T U (M N : sum_type (T:=T) U) :
   Composition (sum_eq2 (M:=M) (N:=N)).
 Next Obligation.
- exists (composition [X] [X0]). apply setoid_irr2.
+  exists (composition [X] [X0]). apply (setoid_irr2 _). 
 Defined.
 
 Program Instance sum_eq2Hom T (U : [T -||-> Type0])  : HomT2 (sum_eq (U:=U)) := 
@@ -2335,24 +2334,24 @@ Program Instance sum_category2 T U : CategoryP (sum_type (T:=T) U).
 
 Next Obligation.
   exists (id_R _ _ [f]). unfold transport_eq. 
-  apply setoid_irr2.
+  refine (setoid_irr2 _ _ _ _).
 Defined.
 
 Next Obligation.
   exists (id_L _ _ [f]). unfold transport_eq. simpl.
-  apply setoid_irr2.
+  refine (setoid_irr2 _ _ _ _).
 Defined.
 
 Next Obligation.
   exists (assoc _ _ _ _ [f] [g] [h]). simpl. 
-  apply setoid_irr2.
-
+  (* apply setoid_irr2. *)
+  refine (setoid_irr2 _ _ _ _).
 Defined.
 
 Next Obligation.
   exists (comp _ _ _ _ _ _ _ [X] [X0]). simpl.
-  apply setoid_irr2.
-  
+  (* apply setoid_irr2. *)
+  refine (setoid_irr2 _ _ _ _).
 Defined.
 
 Lemma id_R'' (T : CatType) (x y : [T]) (f g : x ~1 y) : 
@@ -2361,9 +2360,9 @@ Proof. intros. eapply composition. apply id_R'. apply X. Defined.
 
 Program Instance sum_groupoidP T (U : [T -||-> Type0]) :
   GroupoidP (sum_type U).
-Next Obligation. exists (inv_R _ _ _). apply setoid_irr2. Defined.
-Next Obligation. simpl in *. exists (inv_L _ _ _). apply setoid_irr2. Defined.
-Next Obligation. simpl in *. exists (inv _ _ _ _ [X]). apply setoid_irr2. Defined.
+Next Obligation. exists (inv_R _ _ _). apply (setoid_irr2 _). Defined.
+Next Obligation. simpl in *. exists (inv_L _ _ _). apply (setoid_irr2 _). Defined.
+Next Obligation. simpl in *. exists (inv _ _ _ _ [X]). apply (setoid_irr2 _). Defined.
 
 Program Instance sum_groupoid (T : [Type1]) U : Groupoid (sum_type (T:=T) U).
 Next Obligation.

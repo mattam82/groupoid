@@ -215,27 +215,31 @@ Ltac trunc_eq' := match goal with
                     || (simpl in *; destruct H; apply identity))
        end.
 
-Lemma nat_trans_comp (A: [_Type]) (T U : [|A|g --> _Type]) (α : T ~1 U)
-  (x y z  : [A]) (e : x ~1 y) (e' : y ~1 z) :
-  (identity _ ** map_comp U e e') ° α_map α (e' ° e) ~2
-     inverse (assoc'') ° (α_map α e ** identity _ ) ° assoc'' °
-     (identity _ ** α_map α e') ° inverse (assoc'') °
-     (map_comp T e e' ** identity _).
-Proof. admit. Defined.
+Transparent Type1.
 
-Lemma nat_trans_id (A: [_Type]) (T U : [|A|g --> _Type]) (α : T ~1 U)
-  (x : [A]) :
-       (identity _ ** map_id U) ° α_map α (identity _) ~2
-       inverse (id_L' _) ° id_R' _ ° (map_id T (x:=x) ** identity _).
-Proof. admit. Defined.
+(* Lemma nat_trans_comp (A: [_Type]) (T U : [|A|g --> _Type]) (α : T ~1 U) *)
+(*   (x y z  : [A]) (e : x ~1 y) (e' : y ~1 z) : *)
+(*   (identity _ ** map_comp U e e') ° α_map α (e' ° e) = *)
+(*      inverse (assoc'') ° (α_map α e ** identity _ ) ° assoc'' ° *)
+(*      (identity _ ** α_map α e') ° inverse (assoc'') ° *)
+(*      (map_comp T e e' ** identity _). *)
+(* Proof.  *)
 
-Lemma nat_trans2 (A: [_Type]) (T U : [|A|g --> _Type]) (α : T ~1 U)
-  (x y : [A]) (e e' : x ~1 y) (H : e ~e') :
-  (identity _ ** (map2 U H)) ° (α_map α e) ~ (α_map α e') ° ((map2 T H) ** identity _).
-Proof. admit. Defined.
+(* Lemma nat_trans_id (A: [_Type]) (T U : [|A|g --> _Type]) (α : T ~1 U) *)
+(*   (x : [A]) : *)
+(*   ((identity _ ** map_id U) ° α_map α (identity _))  *)
+(*     ~ *)
+(*   inverse (id_L' _) ° id_R' _ ° (map_id T (x:=x) ** identity _). *)
+(* Proof. admit. Defined. *)
+
+(* Lemma nat_trans2 (A: [_Type]) (T U : [|A|g --> _Type]) (α : T ~1 U) *)
+(*   (x y : [A]) (e e' : x ~1 y) (H : e ~e') : *)
+(*   (identity _ ** (map2 U H)) ° (α_map α e) ~ (α_map α e') ° ((map2 T H) ** identity _). *)
+(* Proof. admit. Defined. *)
 
 Definition inv_left_right (A:[_Type]) (x y z :[A]) (f : y ~1 z) (g: y ~1 x) (h:x ~1 z) :
   f ~2 h ° g -> f ° inverse g ~2 h.
+Proof.
   intro. eapply (@right_simplify' (|A|g)). 
   eapply composition; try exact X.
   eapply composition. apply assoc. eapply composition.
@@ -262,61 +266,66 @@ Next Obligation.
   simpl. unfold prod_eq1'_obligation_1.
   eapply composition. apply comp. apply identity. eapply (map2 [eqTU @ x]). apply (Dmap_id t).
   unfold transport_id in *.
-  pose (eq:= @nat_trans_id A T U eqTU x (t @ x)).
-  simpl in eq.  
-  eapply composition in eq. Focus 2.
-  simpl_id_bi.
-  eapply inverse in eq. eapply composition in eq. Focus 2.
-  eapply inverse. eapply composition. simpl_id.
-  eapply composition.
-  apply comp. apply identity. unfold id. apply (inv_id ([eqTU @ x] @ (t @ x))).
-  simpl_id. apply identity. 
-  apply inv_left_right. exact eq.
+  admit.
+
+  (* pose (eq:= @nat_trans_id A T U eqTU x (t @ x)). *)
+  (* simpl in eq.   *)
+  (* eapply composition in eq. Focus 2. *)
+  (* simpl_id_bi. *)
+  (* eapply inverse in eq. eapply composition in eq. Focus 2. *)
+  (* eapply inverse. eapply composition. simpl_id. *)
+  (* eapply composition. *)
+  (* apply comp. apply identity. unfold id. apply (inv_id ([eqTU @ x] @ (t @ x))). *)
+  (* simpl_id. apply identity.  *)
+  (* apply inv_left_right. exact eq. *)
 Defined.
+
 Next Obligation.
   simpl. unfold prod_eq1'_obligation_1.
   unfold transport_map, transport_comp.
-  assert (eq:= nat_trans_comp eqTU x y z e e' (t @ x)).
-  simpl in eq.
-  eapply composition in eq. Focus 2.
-  simpl_id_bi. 
-  eapply inverse in eq. eapply composition in eq. Focus 2.
-  simpl_id_bi.
-  apply inv_left_right. 
-  eapply composition. eapply (map2 [eqTU @ z]). apply (Dmap_comp t).
-  eapply composition. apply (map_comp [eqTU @ z]).
-  eapply inverse. eapply composition. apply assoc.
-  eapply composition. apply comp. eapply inverse. apply eq.
-  apply identity. clear eq.
-  unfold transport_comp, transport, transport_map.
-  eapply composition. apply assoc.
-  eapply composition. apply comp. eapply composition.
-  apply comp. apply assoc.
-  apply (map_comp [map U e']).
-  eapply composition. apply assoc.
-  eapply composition. apply comp.
-  eapply composition. eapply inverse. apply assoc.
-  eapply composition. apply comp.  apply identity.
-  eapply composition. eapply inverse.
-  apply (map_comp [map U e']).
-  eapply composition. eapply (map2 [map U e']).
-  apply inv_L. apply (map_id [map U e']).
-  apply id_L. apply identity. apply identity. apply identity.
-  eapply inverse. eapply composition.  apply comp. apply identity.
-  apply (map_comp [eqTU @ z]). eapply composition. apply assoc.
-  eapply inverse. eapply composition. apply assoc.
-  apply comp; try apply identity.
-  eapply composition. eapply inverse. apply assoc.
-  eapply composition. eapply inverse. apply assoc.
-  apply comp; try apply identity.
-  eapply (left_simplify' (T:=(|U @ z|g))).
-  eapply composition. eapply inverse. apply assoc.
-  eapply composition. apply comp. apply identity.
-  eapply composition. eapply inverse. apply assoc.
-  eapply composition. apply comp. apply identity.
-  apply inv_R. apply id_L.
-  eapply inverse. apply (α_map [α_map eqTU e']).
+  admit.
+  (* assert (eq:= nat_trans_comp eqTU x y z e e' (t @ x)). *)
+  (* simpl in eq. *)
+  (* eapply composition in eq. Focus 2. *)
+  (* simpl_id_bi.  *)
+  (* eapply inverse in eq. eapply composition in eq. Focus 2. *)
+  (* simpl_id_bi. *)
+  (* apply inv_left_right.  *)
+  (* eapply composition. eapply (map2 [eqTU @ z]). apply (Dmap_comp t). *)
+  (* eapply composition. apply (map_comp [eqTU @ z]). *)
+  (* eapply inverse. eapply composition. apply assoc. *)
+  (* eapply composition. apply comp. eapply inverse. apply eq. *)
+  (* apply identity. clear eq. *)
+  (* unfold transport_comp, transport, transport_map. *)
+  (* eapply composition. apply assoc. *)
+  (* eapply composition. apply comp. eapply composition. *)
+  (* apply comp. apply assoc. *)
+  (* apply (map_comp [map U e']). *)
+  (* eapply composition. apply assoc. *)
+  (* eapply composition. apply comp. *)
+  (* eapply composition. eapply inverse. apply assoc. *)
+  (* eapply composition. apply comp.  apply identity. *)
+  (* eapply composition. eapply inverse. *)
+  (* apply (map_comp [map U e']). *)
+  (* eapply composition. eapply (map2 [map U e']). *)
+  (* apply inv_L. apply (map_id [map U e']). *)
+  (* apply id_L. apply identity. apply identity. apply identity. *)
+  (* eapply inverse. eapply composition.  apply comp. apply identity. *)
+  (* apply (map_comp [eqTU @ z]). eapply composition. apply assoc. *)
+  (* eapply inverse. eapply composition. apply assoc. *)
+  (* apply comp; try apply identity. *)
+  (* eapply composition. eapply inverse. apply assoc. *)
+  (* eapply composition. eapply inverse. apply assoc. *)
+  (* apply comp; try apply identity. *)
+  (* eapply (left_simplify' (T:=(|U @ z|g))). *)
+  (* eapply composition. eapply inverse. apply assoc. *)
+  (* eapply composition. apply comp. apply identity. *)
+  (* eapply composition. eapply inverse. apply assoc. *)
+  (* eapply composition. apply comp. apply identity. *)
+  (* apply inv_R. apply id_L. *)
+  (* eapply inverse. apply (α_map [α_map eqTU e']). *)
 Defined.
+
 Next Obligation.
   unfold prod_eq1'_obligation_1. unfold transport_map, transport_eq.
   eapply composition. apply comp. apply identity.
@@ -333,10 +342,11 @@ Next Obligation.
   eapply composition. apply comp. eapply composition. apply assoc.
   eapply composition. apply comp. apply inv_L. apply identity. apply id_R.
   apply identity.
-  assert (eq := nat_trans2 eqTU x y e e' H (t @ x)).
-  simpl in eq. eapply composition in eq. Focus 2.
-  simpl_id_bi. eapply inverse in eq. eapply composition in eq. Focus 2.
-  simpl_id_bi. apply eq.
+  admit.
+  (* assert (eq := nat_trans2 eqTU x y e e' H (t @ x)). *)
+  (* simpl in eq. eapply composition in eq. Focus 2. *)
+  (* simpl_id_bi. eapply inverse in eq. eapply composition in eq. Focus 2. *)
+  (* simpl_id_bi. apply eq. *)
 Defined.
 
 Instance prod_eq2' A (T U : [|A|g --> _Type]) (eqTU : T ~1 U) :
@@ -358,4 +368,5 @@ Defined.
 Next Obligation. intro. simpl. apply (map_comp [eqTU @ t]). Defined.
 Next Obligation. intro. simpl. apply (map2 [eqTU @ t]). apply (X _). Defined.
   
-Definition prod_eq' A (T U : [|A|g --> _Type]) (e:T ~1 U) : [_Prod T --> _Prod U] := (_ ; prod_eq2' A T U e).
+Definition prod_eq' A (T U : [|A|g --> _Type]) (e:T ~1 U) : [_Prod T --> _Prod U] := 
+  (_ ; prod_eq2' A T U e).

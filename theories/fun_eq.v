@@ -1,6 +1,7 @@
 Require Export Unicode.Utf8_core.
 Require Coq.Program.Tactics.
-Require Import HoTT_light groupoid.
+
+Require Import Groupoid.HoTT_light Groupoid.groupoid.
 
 Set Universe Polymorphism.
 Set Implicit Arguments.
@@ -62,7 +63,7 @@ Defined.
 
 Definition nat_assoc_inv (T U U' U'' : UGroupoidType) (g:[U --> U']) (g' :[U' --> U'']) (f : U'' ---> T) :
   (f ° (g' ° g)) ~1 ((f ° g') ° g).
-  eapply inverse. refine (nat_assoc g g' f). Defined.
+  red; apply inverse. refine (nat_assoc g g' f). Defined.
 
 Definition left_comp_eq' (T U U' U'' : UGroupoidType) (g:[U --> U']) (g' :[U' --> U'']) 
            : left_comp T (g' ° g) ~2 left_comp T g ° left_comp T g'.
@@ -82,28 +83,33 @@ Definition right_comp_id (T U : UGroupoidType) : right_comp U (identity T) ~2 id
   exists (fun t => nat_id_L t). red. intros. simpl. 
   intro. simpl. simpl_id_bi. Defined.
 
+Typeclasses Transparent nat_trans. 
+
 Program Instance fun_eq2 (T T' U U' : UGroupoidType) (e:T <~> T') (e': U <~> U') : Iso_struct (fun_eq e e').
 Next Obligation. exact (right_comp T (adjoint e') ° left_comp U' [e]). Defined.
-Next Obligation. unfold fun_eq, fun_eq2_obligation_1. eapply composition. 
-                 apply nat_assoc. eapply composition.  apply nat_comp'. apply nat_comp'.
-                 apply right_left_comp. apply identity. apply identity. 
-                 eapply composition. apply nat_comp'. eapply composition. eapply inverse. apply nat_assoc.
-                 eapply composition. 
-                 apply nat_comp'. apply identity. eapply composition. eapply inverse. apply left_comp_eq'.
-                 eapply composition. apply left_comp_eq. apply (section e). apply left_comp_id.
-                 apply nat_id_L. apply identity. eapply composition. eapply inverse. apply right_comp_eq'.
-                 eapply composition. apply right_comp_eq. apply (section e'). apply right_comp_id.
-                 Defined.
-Next Obligation. unfold fun_eq, fun_eq2_obligation_1. eapply composition. 
-                 apply nat_assoc. eapply composition.  apply nat_comp'. apply nat_comp'.
-                 apply right_left_comp. apply identity. apply identity. 
-                 eapply composition. apply nat_comp'. eapply composition. eapply inverse. apply nat_assoc.
-                 eapply composition. 
-                 apply nat_comp'. apply identity. eapply composition. eapply inverse. apply left_comp_eq'.
-                 eapply composition. apply left_comp_eq. eapply inverse. apply (inverse (retraction e)). apply left_comp_id.
-                 apply nat_id_L. apply identity. eapply composition. eapply inverse. apply right_comp_eq'.
-                 eapply composition. apply right_comp_eq. eapply inverse. apply (inverse (retraction e')). apply right_comp_id.
-                 Defined.
+Next Obligation. 
+  unfold fun_eq, fun_eq2_obligation_1. eapply composition. 
+  apply nat_assoc. eapply composition.  apply nat_comp'. apply nat_comp'.
+  apply right_left_comp. apply identity. apply identity. 
+  eapply composition. apply nat_comp'. eapply composition. eapply inverse. apply nat_assoc.
+  eapply composition. 
+  apply nat_comp'. apply identity. eapply composition. eapply inverse. apply left_comp_eq'.
+  eapply composition. apply left_comp_eq. apply (section e). apply left_comp_id.
+  apply nat_id_L. apply identity. eapply composition. eapply inverse. apply right_comp_eq'.
+  eapply composition. apply right_comp_eq. apply (section e'). apply right_comp_id.
+Defined.
+
+Next Obligation. 
+  unfold fun_eq, fun_eq2_obligation_1. eapply composition.
+  apply nat_assoc. eapply composition.  apply nat_comp'. apply nat_comp'.
+  apply right_left_comp. apply identity. apply identity. 
+  eapply composition. apply nat_comp'. eapply composition. eapply inverse. apply nat_assoc.
+  eapply composition. 
+  apply nat_comp'. apply identity. eapply composition. eapply inverse. apply left_comp_eq'.
+  eapply composition. apply left_comp_eq. eapply inverse. apply (inverse (retraction e)). apply left_comp_id.
+  apply nat_id_L. apply identity. eapply composition. eapply inverse. apply right_comp_eq'.
+  eapply composition. apply right_comp_eq. eapply inverse. apply (inverse (retraction e')). apply right_comp_id.
+Defined.
 
 Definition fun_eqT (T T' U U' : UGroupoidType) (e:T <~> T') (e': U <~> U') : (T --> U) <~> (T' --> U')
   := IsoToEquiv (fun_eq e e'; fun_eq2 _ _ _ _ _ _).
