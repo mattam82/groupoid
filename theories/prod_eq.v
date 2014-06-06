@@ -14,7 +14,7 @@ Set Primitive Projections.
 Set Program Mode.
  
 Opaque Equiv_adjoint.
-Opaque map_id map_inv.
+Opaque map_inv.
 
 Obligation Tactic := intros.
 
@@ -36,15 +36,14 @@ Defined.
 Instance prod_eq1 (A: [_Type]) (T U : [|A|g --> Type0]) (eqTU : T ~1 U)
         (t : [Prod0 T]) :
         DependentFunctor ([[[U]]]) (λ a : [A], [eqTU @ a] @ (t @ a))
-  := DepFun0DepFun (|A|g) U (_;prod_eq10 A T U eqTU t).
+  := @DepFun0DepFun (|A|g) U (_;prod_eq10 A T U eqTU t).
 
 Instance prod_eq2 (A: [_Type]) (T U : [|A|g --> Type0]) (eqTU : T ~1 U) :
         Functor (λ (t : [_Prod ([[[T]]])]), (λ a : [A], [eqTU @ a] @ (t @ a)  ; prod_eq1 eqTU t) : [_Prod ([[[U]]])]).
-Next Obligation. exists (fun t => map [ [eqTU] t] (X @ t)). red. intros; simpl.
-                 unfold groupoid.DepFun0DepFun_obligation_1. simpl.
-                 unfold prod_eq10_obligation_1.
-                 trunc1_eq.
+Next Obligation. exists (fun t => map [ [eqTU] t] (X @ t)). 
+                 red. intros; simpl. trunc1_eq.
 Defined.
+Next Obligation. intro. trunc1_eq. Defined.
 Next Obligation. intro. trunc1_eq. Defined.
 Next Obligation. intro. trunc1_eq. Defined.
   
@@ -135,6 +134,7 @@ Next Obligation.
                        (X @ ([adjoint (map A e)] a))).
   red; intros. trunc1_eq.
 Defined.
+Next Obligation. intro. intros. simpl. apply (map_id [Dmap F e @ t]). Defined.
 Next Obligation. intro. intros. simpl. apply (map_comp [Dmap F e @ t]). Defined.
 Next Obligation. simpl; red; intros; simpl. apply (map2 [Dmap F e @ t] (X _)). Defined.
 
@@ -365,6 +365,7 @@ Next Obligation.
   apply comp; [idtac | apply identity].
   apply (α_map ((inverse [α_map eqTU e]) : nat_trans _ _)).
 Defined.
+Next Obligation. intro. simpl. apply (map_id [eqTU @ t]). Defined.
 Next Obligation. intro. simpl. apply (map_comp [eqTU @ t]). Defined.
 Next Obligation. intro. simpl. apply (map2 [eqTU @ t]). apply (X _). Defined.
   

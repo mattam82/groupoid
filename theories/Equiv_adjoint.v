@@ -1,9 +1,9 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 (* Add Rec LoadPath "." as Groupoid. *)
-Require Import groupoid.
-Require Import fun_eq.
-Require Import groupoid_interpretation_def.
+Require Import Groupoid.groupoid.
+Require Import Groupoid.fun_eq.
+Require Import Groupoid.groupoid_interpretation_def.
 
 Set Implicit Arguments.
 Set Universe Polymorphism.
@@ -11,7 +11,7 @@ Set Program Mode.
 Set Primitive Projections.
 
 Opaque Equiv_adjoint.
-Opaque map_id map_inv.
+Opaque map_inv.
 
 Definition equiv_adjoint {Γ:Context} {A:Typ Γ} (a:Elt A) 
         {x y : [Γ]} (e : x ~1 y) : a @ x ~1 (adjoint (map A e)) @ (a @ y) :=
@@ -42,12 +42,6 @@ Definition Equiv_adjoint_eq {Γ:Context} {A:Typ Γ} (a:Elt A) (x y:[Γ]) (e e':x
   (* simpl.  *)
 Admitted.
 
-Transparent map_id.
-Definition map_id_Type0 Γ (A:[Γ --> |Type0|g]) (γ:[Γ]) (x : [A @ γ]) : [map_id (Type0_Type A)] @ x = [map_id A] @ x.
-  simpl. apply eq_refl.
-Defined.
-Opaque map_id.
-
 Definition Equiv_adjoint_identity {Γ:Context} {A:Typ Γ} (a:Elt A) (x:[Γ]) : 
   [Equiv_adjoint [map_id A] ] (a @ x) ° equiv_adjoint a (identity x) ~
    identity ([a] x).
@@ -61,7 +55,7 @@ Definition Equiv_adjoint_identity {Γ:Context} {A:Typ Γ} (a:Elt A) (x:[Γ]) :
   eapply composition. eapply inverse. apply assoc. eapply composition. apply comp. apply identity. 
   eapply inverse.
   exact (α_map (inverse (Equiv_adjoint [map_id A ])) ([map_id ([[[A]]])] @ ([a] x))). 
-  eapply composition. apply assoc. apply comp. rewrite map_id_Type0. apply inv_R. apply identity. apply identity. simpl_id. apply inv_R.
+  eapply composition. apply assoc. apply comp.  apply inv_R. apply identity. apply identity. simpl_id. apply inv_R.
 Defined.
 
 Definition equiv_adjoint_map (Γ: Context) (A : Typ Γ)  (γ γ' : [Γ]) (e0 : γ ~1 γ')

@@ -13,7 +13,7 @@ Set Program Mode.
 Set Primitive Projections.
 
 Opaque Equiv_adjoint.
-Opaque map_id map_inv.
+Opaque map_inv.
 
 Definition ext (Γ: Context) (T : Typ Γ) : Type := sigma (fun γ => [T @ γ]).
 
@@ -56,8 +56,7 @@ Definition sum_id_left_id {Γ: Context} {T : Typ Γ}
   sum_id_left (identity x) ~2 identity _.
 exists (identity _). simpl. unfold transport_id, transport_eq.
 eapply composition. apply id_L. eapply inverse. eapply composition; try apply id_R.
-apply comp. apply (map2_id T _ x).
-apply (HoTT_light.transport _ (map_id_Typ0 T _ x)). apply identity.
+apply comp. apply (map2_id T _ x). apply identity.
 Defined.
 
 Definition sum_eq_map {Γ: Context} {T : Typ Γ}

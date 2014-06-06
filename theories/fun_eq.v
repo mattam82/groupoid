@@ -1,6 +1,8 @@
 Require Export Unicode.Utf8_core.
 Require Coq.Program.Tactics.
 
+Add LoadPath "." as Groupoid.
+
 Require Import Groupoid.HoTT_light Groupoid.groupoid.
 
 Set Universe Polymorphism.
@@ -9,7 +11,7 @@ Set Program Mode.
 
 Set Primitive Projections.
 
-Opaque map_id map_inv.
+Opaque map_inv.
 Notation α_map f := ((proj2 f) _ _).
 
 (******* Groupoud_utility **********)
@@ -19,6 +21,8 @@ Infix "--->" := Fun_Type (at level 55).
 Program Instance left_comp_1 A B C (f: [A --> B]) : Functor (λ g : [B --> C], g ° f : [A-->C]).
 Next Obligation. exists (fun t => X @ (f @ t)). red. 
                  intros. apply (α_map X). Defined.
+Next Obligation. unfold left_comp_1_obligation_1. simpl.
+                 exact (fun t => identity _). Defined.
 Next Obligation. unfold left_comp_1_obligation_1. simpl.
                  exact (fun t => identity _). Defined.
 Next Obligation. unfold left_comp_1_obligation_1. simpl.
@@ -33,10 +37,9 @@ Next Obligation. exists (fun t => map g (X @ t)). red.
                  eapply composition. eapply inverse. apply (map_comp g).
                  eapply inverse. eapply composition. eapply inverse. apply (map_comp g).
                  eapply inverse. apply (map2 g (α_map X e)). Defined.
-Next Obligation. unfold right_comp_1_obligation_1. simpl.
-                 exact (fun t => map_comp g (e @ t) (e' @ t)). Defined.
-Next Obligation. unfold right_comp_1_obligation_1. simpl.
-                 exact (fun t => map2 g (X t)). Defined.
+Next Obligation. exact (fun t => map_id g). Defined.
+Next Obligation. exact (fun t => map_comp g (e @ t) (e' @ t)). Defined.
+Next Obligation. exact (fun t => map2 g (X t)). Defined.
 
 Program Definition right_comp A B C (g: [B --> C]) : (A --> B) ---> (A --> C) :=
   (fun f => g ° f; right_comp_1 _ _ _ _).
@@ -150,4 +153,12 @@ Definition fun_eq_map' {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ])
 eapply composition. apply fun_eq_eq. apply (map_comp A). eapply inverse.
 apply (id_R (CategoryP:=Equiv_cat)).
 apply fun_eq_eq'. Defined.
+
+
+Program Definition fun_eq_id' {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x : [Γ]) :
+  fun_eq (map A (identity x)) (identity (Identity := _Type_id) Type0) ~1
+  identity ( [[[ A ]]] @ x -||-> Type0).
+eapply composition. apply fun_eq_eq. apply (map_id A). apply identity. 
+unfold fun_eq. eapply composition. apply nat_comp'. apply left_comp_id. 
+apply right_comp_id. apply nat_id_L. Defined.
 

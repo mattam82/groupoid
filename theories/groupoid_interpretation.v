@@ -176,6 +176,10 @@ Program Instance Curry1 {Γ: Context} {T : Typ Γ}
         (U : TypDep T) (γ : [Γ]) : Functor (T:=[[T @ γ]]) (curry U γ).
 Next Obligation. intros. exact (map U (sum_id_left X)). Defined.
 Next Obligation. intros. unfold Curry1_obligation_1.                 
+  eapply composition. apply (map2 U (sum_id_left_id _ x)).
+  apply (map_id U).
+Defined.
+Next Obligation. intros. unfold Curry1_obligation_1.                 
   eapply composition. apply (map2 U (inverse (sum_id_left_comp _ _ _ _ e e'))).
   apply (map_comp U).
 Defined.
@@ -208,6 +212,22 @@ Ltac betared :=
                              end
          end. 
 
+Global Arguments right_simplify' : simpl never.
+
+(* Lemma foo (Γ : Context) (A : Typ Γ) (x : [Γ]): *)
+(*     nat_id_L (identity ([[A @ x]] --> Type0)) *)
+(*          ° (right_comp_id Type0 ([[A @ x]]) °' left_comp_id Type0 ([[A @ x]])) *)
+(*          ~ *)
+(*     nat_id_L (identity ([[A @ x]] --> Type0)) *)
+(*          ° (right_comp_id Type0 ([[A @ x]]) °' left_comp_id Type0 ([[A @ x]])). *)
+
+(*         ° fun_eq_eq (map_id A]]])) (identity (identity (Type0)))) *)
+(*             ~  *)
+(* ((nat_id_L (identity (([[[A]]]) @ x -||-> Type0)) *)
+(*          ° (right_comp_id Type0 (A @ x) °' left_comp_id Type0 (A @ x))) *)
+(*         ° fun_eq_eq (map_id A) (identity (identity Type0))). *)
+ 
+
 Program Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: TypDep A) : 
   DependentFunctor (UFamily A) (Curry B).
 Next Obligation. 
@@ -219,13 +239,41 @@ Next Obligation.
 Defined.
 
 Next Obligation.
-  unfold LamT_1_obligation_1. intro.
-  betared. unfold transport_id. Transparent map_id. betared. 
-  unfold Curry. simpl.
-unfold map_id. simpl right_simplify'.
-  unfold right_simplify'. unfold right_simplify. unfold right_simplify_gen. 
-  betared.
-  unfold sum_id_right. Opaque Type1. simpl.
+  intro. unfold LamT_1_obligation_1, transport_id. Opaque fun_eq_id'. simpl.
+
+  (* Does this should work ? *)
+  (* apply (@_map2 ([[_Sum0 A]]) Type0 [B]). *)
+  assert (nat_trans [map B (sum_id_right (identity x) t)]
+            [(fun_eq_id' A x @ Curry B x) @ t]).
+  apply (map2 B). simpl. unfold id. eapply composition. Focus 2.
+  apply sum_id_left_map. 
+  simpl_id_bi. apply identity.
+  exists (identity _). simpl.
+  unfold transport_eq. simpl_id_bi. eapply composition.
+  apply comp. apply (map2_id A).
+  apply assoc. eapply composition. apply id_R.
+  eapply composition. apply comp. apply inv_L. apply identity.
+  apply id_R.
+  exists X. admit.
+Defined.
+
+Next Obligation.
+  unfold LamT_1_obligation_1. intro. betared.
+  (* Opaque sum_id_left_right sum_id_right sum_id_left. simpl. *)
+  eapply composition. eapply inverse.
+  unfold sum_id_right. 
+  pose ((x ; [inverse (map A (e' ° e))] @ t) : [_Sum0 A]).
+  pose (e ; map A e : B @ (x ; A @ x) ~1 B @ (y ; A @ y)).
+  pose (H := map_comp B (e;map A e) e').
+simpl.
+  apply (map_comp B). apply (map2 B).
+  exists (inverse H ° id_R _ _ _). simpl.
+
+
+  Opaque right_simplify'. simpl.
+  (* unfold right_simplify'. unfold right_simplify. unfold right_simplify_gen.  *)
+  (* betared. *)
+  unfold sum_id_right. simpl. betared.  unfold _map.
   eapply composition. eapply inverse.
   apply (map_comp B). apply (map2 B).
   exists (inverse H ° id_R _ _ _). simpl.

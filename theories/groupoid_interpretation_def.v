@@ -152,6 +152,8 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 
+Add LoadPath "." as Groupoid.
+
 Require Import HoTT_light.
 Require Import groupoid.
 Require Import fun_eq.
@@ -161,7 +163,7 @@ Set Universe Polymorphism.
 (* Set Program Mode. *)
  
 Opaque Equiv_adjoint.
-Opaque map_id map_inv.
+Opaque map_inv.
 
 (* end hide *)
 (** 
@@ -204,6 +206,8 @@ Opaque map_id map_inv.
 (* begin hide *)
 
 (* Infix "--->" := Fun_Type_Groupoid (at level 55).  *)
+
+Infix "--->" := Fun_Type (at level 55). 
 
 Unset Implicit Arguments.
 
@@ -370,27 +374,17 @@ Defined.
 Notation "[[ x ']]'" := (SetoidTypeToGroupoidType x) (at level 50).
 
 
-Program Instance TypFam_1 {Γ : Context} (A: Typ Γ) : Functor (T := [[Γ]]) (U:=_Type) (λ s : [Γ], [[A @ s]] -||-> Type0).
+(* why do we need to the lemma heren the one in fun_eq does not apply ...*)
 
-Next Obligation. 
-Proof.
-  refine (fun_eqT _ _). 
-  apply (map A X). 
-  apply identity. 
-Defined.
-
-Next Obligation. 
-Proof.
-  exists (fun_eq_map' A x y z e e').
-  apply AllEquivEq. 
-Defined.
-
-Next Obligation. 
-Proof.
-  unfold TypFam_1_obligation_1.
-  exists (fun_eq_eq (map2 A X) (identity (identity  (|Type0|g)))).
-  apply AllEquivEq.
-Defined.
+Instance TypFam_1 {Γ : Context} (A: Typ Γ) : Functor (T := [[Γ]]) (U:=_Type) (λ s : [Γ], [[A @ s]] -||-> Type0)
+:=
+  {| _map := fun _ _ X => fun_eqT (map A X) (identity _) ; 
+     _map_id := fun X => (fun_eq_id' A X ; AllEquivEq _) ;
+     _map_comp := fun x y z e e' => (fun_eq_map' A x y z e e';
+                                     AllEquivEq _);
+     _map2 := fun _ _ _ _ X => (fun_eq_eq (map2 A X) (identity (identity  (|Type0|g)));
+         AllEquivEq _)
+  |}.
 
 Class Action {T} (homAc : T -> Type) :=
 {  AC :> CategoryP T;

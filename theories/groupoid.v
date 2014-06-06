@@ -543,6 +543,7 @@ subject to compatibility laws.
 
 Class Functor {T U : UGroupoidType} (f : [T] -> [U]) : Type :=
 { _map : ∀ {x y}, x ~1 y -> f x ~1 f y ;
+  _map_id : ∀ {x}, _map (identity x) ~ identity (f x) ;
   _map_comp : ∀ {x y z} (e:x ~1 y) (e':y ~1 z), _map (e' ° e) ~2 _map e' ° _map e ;
   _map2 : ∀ {x y:[T]} {e e' : x ~1 y}, (e ~2 e') -> _map  e ~2 _map e' }.
 
@@ -553,6 +554,7 @@ Definition Fun_Type (T U : UGroupoidType) := {f : [T] -> [U] & Functor f}.
 Infix "--->" := Fun_Type (at level 55). 
 
 Notation "'map' f" := ((proj2 f).(_map)) (at level 0, f at level 0).
+Notation map_id f := ((proj2 f).(_map_id)).
 Notation map_comp f := ((proj2 f).(_map_comp)).
 Notation map2 f := ((proj2 f).(_map2)).
 
@@ -567,12 +569,12 @@ component of a dependent pair. *)
 (* begin hide *)
 Notation " M @ N " := ([M] N) (at level 20). 
 
-Lemma map_id {T U} (f : T ---> U) {x} : map f (identity x) ~ identity (f @ x).
-Proof.
-  apply (right_simplify' _ _ _ (map f (identity x))).
-  eapply composition. eapply inverse, (map_comp f).
-  eapply composition. eapply (map2 f). apply id_L. eapply inverse. apply id_L. 
-Defined.
+(* Lemma map_id {T U} (f : T ---> U) {x} : map f (identity x) ~ identity (f @ x). *)
+(* Proof. *)
+(*   apply (right_simplify' _ _ _ (map f (identity x))). *)
+(*   eapply composition. eapply inverse, (map_comp f). *)
+(*   eapply composition. eapply (map2 f). apply id_L. eapply inverse. apply id_L.  *)
+(* Defined. *)
 
 Lemma map_inv {T U} (f : T ---> U) :
   ∀ x y (e : x ~1 y) , map f (inverse e) ~ inverse (map f e).
@@ -583,19 +585,23 @@ Proof.
   eapply composition. apply (map_id f). eapply inverse. apply inv_L.
 Defined.
 
-
-Opaque map_id map_inv.
+Opaque map_inv.
 
 Instance arrow_id (T:UGroupoidType) : Functor (id (A := [T])) :=
   { _map x y e := e ;
+    _map_id x := identity _;
     _map_comp x y z e e' := identity _ }.
-
+  
 Instance id_fun : Identity Fun_Type :=
   { identity x := (id (A:=[x]) ; arrow_id _) }.
 
 Instance arrow_comp A B C (f : A ---> B) (g : B ---> C) : 
   Functor (λ x : [A], g @ (f @ x)) :=
   { _map x y e := map g (map f e) }.
+Next Obligation. 
+  eapply composition.
+  eapply (map2 g). apply (map_id f). apply (map_id g).
+Defined.
 Next Obligation. 
   eapply composition.
   eapply (map2 g). apply (map_comp f e e'). eapply (map_comp g). 
@@ -2099,6 +2105,7 @@ Program Instance Dmodification_equiv T (U:[T --> _Type]) (f g : Prod_Type U) :
 
 Instance Type1_Type_ T (f: [T --> Type1]) : @Functor T _Type (λ X : [T], f @ X ) := 
   {| _map x y := f.(proj2).(_map) ; 
+     _map_id x := f.(proj2).(_map_id) ; 
      _map_comp x y z := f.(proj2).(_map_comp);
      _map2 x y e e' := f.(proj2).(_map2) |}.
 
@@ -2121,6 +2128,7 @@ Notation "[[ x ']]'" := (SetoidTypeToGroupoidType x) (at level 50).
 
 Instance Type0_Type_ T (f: [T --> Type0]) : @Functor T _Type (λ X : [T], [[ f @ X]]) := 
   {| _map x y := f.(proj2).(_map) ; 
+     _map_id x := f.(proj2).(_map_id) ; 
      _map_comp x y z := f.(proj2).(_map_comp);
      _map2 x y e e' := f.(proj2).(_map2) |}.
 
@@ -2129,11 +2137,9 @@ Definition Type0_Type T : [T --> Type0] -> [T --> _Type] :=
 
 Notation "'[[[' x ']]]'" := (Type0_Type x) (at level 50).
 
-Transparent map_id.
-Definition map_id_Typ0 Γ (A:[Γ-->Type0]) (γ:[Γ]) (x : [A @ γ]) : [map_id (Type0_Type A)] @ x = [map_id A] @ x.
-  simpl. apply eq_refl.
-Defined.
-Opaque map_id.
+(* Definition map_id_Typ0 Γ (A:[Γ-->Type0]) (γ:[Γ]) (x : [A @ γ]) : [map_id (Type0_Type A)] @ x = [map_id A] @ x. *)
+(*   simpl. apply eq_refl. *)
+(* Defined. *)
 
 Class DependentFunctor0 T (U : [T --> Type0]) (f : ∀ t, [U @ t]) : Type := {
   _Dmap0      : ∀ {x y} (e: x ~1 y), transport ([[[U]]]) e @ (f x) ~1 f y ;
@@ -2162,16 +2168,19 @@ Proof.
   apply (α_map [map_id ([[[U]]])]). eapply composition. apply assoc.
   apply comp; [idtac | apply identity]. apply inverse.
   eapply composition. apply (map2_id_L U).
-  unfold id_L'. Opaque map_id. simpl. apply comp. apply identity.
+  unfold id_L'. simpl. apply comp. apply identity.
   eapply composition. eapply id_L. eapply composition. apply id_L.
-  Transparent map_id. simpl. simpl_id_bi'. apply identity.
+  simpl_id_bi'. 
 Defined.
 
-Instance DepFun0DepFun T (U : [T --> Type0]) (f : Prod_Type0 U) : DependentFunctor ([[[U]]]) f.1. 
-Next Obligation. apply (Dmap0 f). Defined.
-Next Obligation. apply (Dmap_id0 f). Defined.
-Next Obligation. apply (Dmap_comp0 f). Defined.
-Next Obligation. apply (Dmap20 f). Defined.
+Instance DepFun0DepFun T (U : [T --> Type0]) (f : Prod_Type0 U) :
+  DependentFunctor ([[[U]]]) f.1 :=
+{| 
+  _Dmap := fun x y => Dmap0 f;
+  _Dmap_id := fun x => Dmap_id0 f;
+  _Dmap_comp := fun x y z => Dmap_comp0 f;
+  _Dmap2 := fun x y e e' => Dmap20 f
+|}.
 
 Definition DNaturalTransformationEq2 T (U:[T --> Type0]) 
  {f g: Prod_Type (Type0_Type U)} (α : ∀ t : [T], f @ t ~1 g @ t)
@@ -2233,6 +2242,7 @@ groupoid of Σ types over a groupoid [T] and a morphism of type [ [T -||-> Type0
 (* corresponds to the fact that our source theory has restricted sums: the *)
 (* first component cannot be a type itself.  *)
 
+
 Definition sum_type T (U : [T -||-> Type0]) := {t : [T] & [U @ t]}.
 
 (** %\noindent%
@@ -2245,8 +2255,6 @@ Definition sum_eq T (U : [T -||-> Type0]) : HomT (sum_type U) :=
   λ m n, {P : [m] ~1 [n] & transport ([[[U]]]) P @ (Π2 m) ~1 Π2 n}.
 
 (* begin hide *)
-
-Set Program Mode.
 
 Program Instance sum_id T U : Identity (sum_eq (T:=T) (U:=U)) :=
   { identity x := (identity (Π1 x) ;transport_id (Type0_Type U) @ Π2 x) }.
@@ -2278,7 +2286,6 @@ Defined.
 
 Program Instance sum_eqHom T (U : [T -||-> Type0]) : HomT1 (sum_type U) := 
   {eq1 := sum_eq (T:=T) (U:=U)}.
-
 
 (* end hide *)
 (** %\noindent%

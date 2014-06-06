@@ -13,7 +13,7 @@ Set Program Mode.
 Set Primitive Projections.
  
 Opaque Equiv_adjoint.
-Opaque map_id map_inv.
+Opaque map_inv.
 
 
 Instance comp_fun_depfun_1  {T T': Context} {U : [ [[T']] --> _Type]}
