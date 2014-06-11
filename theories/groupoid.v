@@ -771,6 +771,7 @@ Proof.
   exists (λ t , identity _). intros t t' e. 
   eapply composition. apply id_L. eapply inverse. apply id_R. 
 Defined.
+
 Next Obligation.
 Proof.
   exists (λ t , identity _).  intros t t' e. 
