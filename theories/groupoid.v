@@ -771,8 +771,10 @@ Proof.
   exists (λ t , identity _). intros t t' e. 
   eapply composition. apply id_L. eapply inverse. apply id_R. 
 Defined.
+Set Debug Unification.
 Next Obligation.
 Proof.
+  simpl.
   exists (λ t , identity _).  intros t t' e. 
   eapply composition. apply id_L. eapply inverse. apply id_R. 
 Defined.
