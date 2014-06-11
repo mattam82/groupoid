@@ -238,13 +238,16 @@ Next Obligation.
   apply (map2 B). apply inverse. apply sum_id_left_right. 
 Defined.
 
-Next Obligation.
-  intro. unfold LamT_1_obligation_1, transport_id. Opaque fun_eq_id'. simpl.
 
+Next Obligation.
+  intro. Opaque composition inverse identity assoc comp id_L id_R eq2. simpl.
+  unfold transport_id. simpl. 
   (* Does this should work ? *)
   (* apply (@_map2 ([[_Sum0 A]]) Type0 [B]). *)
-  assert (nat_trans [map B (sum_id_right (identity x) t)]
+  Transparent composition inverse identity assoc comp id_L id_R eq2.
+  assert ([map B (sum_id_right (identity x) t)] ~
             [(fun_eq_id' A x @ Curry B x) @ t]).
+  (* apply (@_map2 ([[_Sum0 A]]) Type0 [B]). *)
   apply (map2 B). simpl. unfold id. eapply composition. Focus 2.
   apply sum_id_left_map. 
   simpl_id_bi. apply identity.
@@ -258,24 +261,48 @@ Next Obligation.
 Defined.
 
 Next Obligation.
-  unfold LamT_1_obligation_1. intro. betared.
-  (* Opaque sum_id_left_right sum_id_right sum_id_left. simpl. *)
-  eapply composition. eapply inverse.
-  unfold sum_id_right. 
-  pose ((x ; [inverse (map A (e' ° e))] @ t) : [_Sum0 A]).
-  pose (e ; map A e : B @ (x ; A @ x) ~1 B @ (y ; A @ y)).
-  pose (H := map_comp B (e;map A e) e').
-simpl.
-  apply (map_comp B). apply (map2 B).
-  exists (inverse H ° id_R _ _ _). simpl.
+  intro. Opaque composition inverse identity assoc comp id_L id_R eq2. simpl.
+  unfold transport_comp, transport_map. simpl. 
+  Transparent composition inverse identity assoc comp id_L id_R eq2.
+  assert ( map B (sum_id_right (e' ° e) t) ~
+            (map B (sum_id_right e' t) °
+             map B (sum_id_right e (adjoint (map A e') @ t)) °
+             (transport_comp (UFamily A) e e' @ Curry B x) @ t)).
 
+  Opaque composition inverse identity assoc comp id_L id_R eq2.
 
-  Opaque right_simplify'. simpl.
-  (* unfold right_simplify'. unfold right_simplify. unfold right_simplify_gen.  *)
-  (* betared. *)
-  unfold sum_id_right. simpl. betared.  unfold _map.
-  eapply composition. eapply inverse.
-  apply (map_comp B). apply (map2 B).
+  unfold transport_comp. simpl. unfold fun_eq_map'.
+  eapply inverse. 
+  eapply composition. eapply (@comp _ Equiv_cat). 
+  Focus 2. eapply inverse. eapply (map_comp B).
+  unfold fun_eq_eq, fun_eq_eq'. 
+  eapply composition. eapply (@comp _ Equiv_cat). 
+  apply identity. eapply (@comp _ category_fun).
+  apply identity. eapply composition.
+  apply identity. eapply (@comp _ category_fun).
+  apply identity. eapply (@comp _ category_fun).
+  eapply (@inv _ category_fun).
+  eapply (@comp _ category_fun).
+  apply identity. eapply (@comp _ category_fun).
+
+  eapply (@assoc _ category_fun).
+  eapply composition.
+  eapply (@assoc _ category_fun). 
+  eapply (@comp _ category_fun).
+  apply identity. apply (@assoc _ category_fun).
+  eapply inverse. apply (map_comp B).
+
+  unfold nat_comp'. simpl.
+  unfold groupoid.category_fun_obligation_4. simpl.
+  replace groupoid.Equiv_cat_Setoid_obligation_4 with assoc.
+  simpl_id. Print nat_id.
+  unfold Curry. simpl.
+  apply identity.
+  eapply inverse. apply (map_comp B). 
+  eapply composition. eapply inverse. 
+  simpl.
+betared. apply (map_comp B). 
+apply (map2 B).
   exists (inverse H ° id_R _ _ _). simpl.
   unfold eq_rect_eq, eq_rect_comp. simpl_id_bi.
   eapply composition. apply comp. apply identity.
