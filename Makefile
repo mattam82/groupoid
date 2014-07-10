@@ -46,8 +46,10 @@ TIMER=$(if $(TIMED), $(STDTIME), $(TIMECMD))
 #                        #
 ##########################
 
-COQLIBS?= -R theories Groupoid
-COQDOCLIBS?=-R theories Groupoid
+COQLIBS?=\
+  -R theories Groupoid
+COQDOCLIBS?=\
+  -R theories Groupoid
 
 ##########################
 #                        #
@@ -101,10 +103,10 @@ VFILES:=theories/groupoid_interpretation.v\
 -include $(addsuffix .d,$(VFILES))
 .SECONDARY: $(addsuffix .d,$(VFILES))
 
-VOFILES:=$(VFILES:.v=.vo)
+VO=vo
+VOFILES:=$(VFILES:.v=.$(VO))
 VOFILES1=$(patsubst theories/%,%,$(filter theories/%,$(VOFILES)))
 GLOBFILES:=$(VFILES:.v=.glob)
-VIFILES:=$(VFILES:.v=.vi)
 GFILES:=$(VFILES:.v=.g)
 HTMLFILES:=$(VFILES:.v=.html)
 GHTMLFILES:=$(VFILES:.v=.g.html)
@@ -122,8 +124,12 @@ endif
 
 all: $(VOFILES) 
 
-spec: $(VIFILES)
-
+quick:
+	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) all VO=vi
+vi2vo:
+	$(COQC) $(COQDEBUG) $(COQFLAGS) -schedule-vi2vo $(J) $(VOFILES:%.vo=%.vi)
+checkproofs:
+	$(COQC) $(COQDEBUG) $(COQFLAGS) -schedule-vi-checking $(J) $(VOFILES:%.vo=%.vi)
 gallina: $(GFILES)
 
 html: $(GLOBFILES) $(VFILES)
@@ -195,7 +201,7 @@ uninstall: uninstall_me.sh
 	sh $<
 
 clean:
-	rm -f $(VOFILES) $(VIFILES) $(GFILES) $(VFILES:.v=.v.d) $(VFILES:=.beautified) $(VFILES:=.old)
+	rm -f $(VOFILES) $(VOFILES:.vo=.vi) $(GFILES) $(VFILES:.v=.v.d) $(VFILES:=.beautified) $(VFILES:=.old)
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
 	- rm -rf html mlihtml uninstall_me.sh
 
@@ -222,31 +228,34 @@ Makefile: Make
 #                 #
 ###################
 
-%.vo %.glob: %.v
+$(VOFILES): %.vo: %.v
 	$(COQC) $(COQDEBUG) $(COQFLAGS) $*
 
-%.vi: %.v
-	$(COQC) -i $(COQDEBUG) $(COQFLAGS) $*
+$(GLOBFILES): %.glob: %.v
+	$(COQC) $(COQDEBUG) $(COQFLAGS) $*
 
-%.g: %.v
+$(VFILES:.v=.vi): %.vi: %.v
+	$(COQC) -quick $(COQDEBUG) $(COQFLAGS) $*
+
+$(GFILES): %.g: %.v
 	$(GALLINA) $<
 
-%.tex: %.v
+$(VFILES:.v=.tex): %.tex: %.v
 	$(COQDOC) $(COQDOCFLAGS) -latex $< -o $@
 
-%.html: %.v %.glob
+$(HTMLFILES): %.html: %.v %.glob
 	$(COQDOC) $(COQDOCFLAGS) -html $< -o $@
 
-%.g.tex: %.v
+$(VFILES:.v=.g.tex): %.g.tex: %.v
 	$(COQDOC) $(COQDOCFLAGS) -latex -g $< -o $@
 
-%.g.html: %.v %.glob
+$(GHTMLFILES): %.g.html: %.v %.glob
 	$(COQDOC) $(COQDOCFLAGS)  -html -g $< -o $@
 
-%.v.d: %.v
-	$(COQDEP) -slash $(COQLIBS) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
+$(addsuffix .d,$(VFILES)): %.v.d: %.v
+	$(COQDEP) $(COQLIBS) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
 
-%.v.beautified:
+$(addsuffix .beautified,$(VFILES)): %.v.beautified:
 	$(COQC) $(COQDEBUG) $(COQFLAGS) -beautify $*
 
 # WARNING
