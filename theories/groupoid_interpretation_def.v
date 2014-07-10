@@ -222,11 +222,11 @@ Obligation Tactic := intros; try (constructor; intros; exact tt).
 Definition IrrRelEquiv T : Equivalence (Hom_irr T).
   econstructor; econstructor; firstorder. Defined.
 
-Program Definition IrrRelCat T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1): 
+Program Definition IrrRelCat {T} {Hom : HomT1 T} (id : Identity eq1) (comp : Composition eq1): 
   CategoryP T := {| Hom2 := @_Hom_irr T Hom |}.
 Next Obligation. simpl. apply IrrRelEquiv. Defined.
   
-Program Definition IrrRelGrp T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1): GroupoidP T := {| C := IrrRelCat id comp|}.
+Program Definition IrrRelGrp {T} {Hom : HomT1 T} (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1): GroupoidP T := {| C := IrrRelCat id comp|}.
 
 Definition IrrRelId T (Hom : HomT1 T) (x y : T) : Identity (Hom_irr (x ~1 y)).
   econstructor; econstructor; firstorder. Defined.
@@ -375,16 +375,15 @@ Notation "[[ x ']]'" := (SetoidTypeToGroupoidType x) (at level 50).
 
 
 (* why do we need to the lemma heren the one in fun_eq does not apply ...*)
-
 Instance TypFam_1 {Γ : Context} (A: Typ Γ) : Functor (T := [[Γ]]) (U:=_Type) (λ s : [Γ], [[A @ s]] -||-> Type0)
-:=
-  {| _map := fun _ _ X => fun_eqT (map A X) (identity _) ; 
-     _map_id := fun X => (fun_eq_id' A X ; AllEquivEq _) ;
-     _map_comp := fun x y z e e' => (fun_eq_map' A x y z e e';
-                                     AllEquivEq _);
-     _map2 := fun _ _ _ _ X => (fun_eq_eq (map2 A X) (identity (identity  (|Type0|g)));
-         AllEquivEq _)
-  |}.
+:= @Build_Functor ([[Γ]]) (_Type) (λ s : [Γ], [[A @ s]] -||-> Type0)
+  (fun H H0 X => (fun_eqT (map A X) (identity Type0) : ([[A @ H]] -||-> Type0) ~1 
+                                                                               ([[A @ H0]] -||-> Type0)))
+  (fun X => (@fun_eq_id' Γ A X ; AllEquivEq _ _ _))
+  (fun x y z e e' => (fun_eq_map' A x y z e e';
+                      AllEquivEq _ _ _))
+  (fun x y e e' X => (fun_eq_eq (map2 A X) (identity (identity  (|Type0|g)));
+         AllEquivEq _ _ _)).
 
 Class Action {T} (homAc : T -> Type) :=
 {  AC :> CategoryP T;

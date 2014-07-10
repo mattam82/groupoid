@@ -210,7 +210,7 @@ Ltac trunc_eq' := match goal with
           set(X:=e) in *; 
           set(X':=e') in *;
           let H := fresh in
-           assert (H:=@HoTT_light.center _ (Trunc_2 (T:=Type0) _ _ _ _ X X')) ;
+           assert (H:=@HoTT_light.center _ (Trunc_2 Type0 _ _ _ _ X X')) ;
              try ((destruct H; apply identity) 
                     || (simpl in *; destruct H; apply identity))
        end.

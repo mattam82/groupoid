@@ -1,6 +1,7 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 
+Set Standard Proposition Elimination Names.
 Set Universe Polymorphism.
 Set Primitive Projections.
 
@@ -133,7 +134,7 @@ Qed.
 
 Program Instance isequiv_inverse A B (f:A -> B) (H:IsEquiv f) : IsEquiv (f^^-1) | 1000
     := BuildIsEquiv (@eissect _ _ f _) (@eisretr _ _ f _) _.
-Next Obligation. Admitted.
+Next Obligation. admit. Defined. 
 
 Definition contr_sigma A {P : A -> Type}
   {H : Contr A} `{H0 : forall a, Contr (P a)}
@@ -152,7 +153,7 @@ Definition path_sigma_uncurried (A : Type) (P : A -> Type) (u v : sigma P)
 Defined.
 
 Definition path_sigma_equiv {A : Type} (P : A -> Type) (u v : sigma P):
-           IsEquiv (path_sigma_uncurried (u:=u) (v:=v)).
+           IsEquiv (path_sigma_uncurried u v).
 Admitted.
 
 Instance contr_unit : Contr unit | 0 := let x := {|

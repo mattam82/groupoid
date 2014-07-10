@@ -71,12 +71,12 @@ Definition nat_assoc_inv (T U U' U'' : UGroupoidType) (g:[U --> U']) (g' :[U' --
 Definition left_comp_eq' (T U U' U'' : UGroupoidType) (g:[U --> U']) (g' :[U' --> U'']) 
            : left_comp T (g' ° g) ~2 left_comp T g ° left_comp T g'.
   exists (nat_assoc_inv g g'). red. intros.
-  simpl. intro. simpl. simpl_id_bi. apply identity. Defined.
+  simpl. intro. simpl. simpl_id_bi'. apply identity. Defined.
 
 Definition right_left_comp (T T' U U' : UGroupoidType) (g :[T --> T']) (f: [U --> U'])
            : right_comp T f ° left_comp U g ~1 left_comp U' g ° right_comp T' f.
 simpl. red. simpl. exists (fun t => nat_assoc_inv g t f). red. intros.
-  simpl. intro. simpl. simpl_id_bi. apply identity. Defined.
+  simpl. intro. simpl. simpl_id_bi'. apply identity. Defined.
 
 Definition left_comp_id (T U : UGroupoidType) : left_comp T (identity U) ~2 identity _.
   exists (fun t => nat_id_R t). red. intros. simpl. 
