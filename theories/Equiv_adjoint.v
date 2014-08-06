@@ -1,6 +1,5 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-(* Add Rec LoadPath "." as Groupoid. *)
 Require Import Groupoid.groupoid.
 Require Import Groupoid.fun_eq.
 Require Import Groupoid.groupoid_interpretation_def.
@@ -27,7 +26,7 @@ eapply composition.
 apply (map_comp (adjoint (map A (e' ° e)))). apply comp. apply identity. apply (map_comp(adjoint (map A (e' ° e)))). apply identity.
 (* unfold map; simpl. *)
 eapply composition. apply comp. apply identity.
-apply (Equiv_adjoint_simpl [map_comp A e e']). simpl. simpl_id.
+apply (Equiv_adjoint_simpl _ _ [map_comp A e e']). simpl. simpl_id.
 unfold inverse. 
 Admitted.
 
@@ -50,7 +49,7 @@ Definition Equiv_adjoint_identity {Γ:Context} {A:Typ Γ} (a:Elt A) (x:[Γ]) :
   simpl. simpl_id. eapply (map2 (adjoint (map A (identity x)))). apply (Dmap_id a). apply identity.
   eapply composition. apply comp.
   eapply composition. eapply comp. eapply inverse. 
-  apply (comp_inv _ _ _ (Equiv_adjoint [map_id A] @ ([map A (identity x)] @ (a @ x)))).
+  apply (comp_inv _ _ _ _ (Equiv_adjoint [map_id A] @ ([map A (identity x)] @ (a @ x)))).
   apply identity. 
   eapply composition. eapply inverse. apply assoc. eapply composition. apply comp. apply identity. 
   eapply inverse.

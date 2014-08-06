@@ -122,6 +122,7 @@ Require Import Groupoid.HoTT_light.
 Set Universe Polymorphism.
 Set Program Mode.
 Set Primitive Projections.
+Set Standard Proposition Elimination Names.
 
 Set Implicit Arguments.
 
@@ -455,7 +456,7 @@ Lemma right_compose (T:CatType) (x y z:[T]) (f: x ~1 y) (g g': y ~1 z)
       (inv_L : inv_f ° f ~2 identity x) :
   g ~2 g' -> g ° f ~2 g' ° f.
 Proof.
-  intro Heq. apply (right_simplify _ _ _ (inv_f) _ _ f inv_L).
+  intro Heq. apply (right_simplify _ _ _ _ (inv_f) _ _ f inv_L).
   eapply composition. apply assoc.
   eapply inverse. eapply composition. apply assoc.
   eapply composition. apply comp; [idtac | apply identity].
@@ -470,7 +471,7 @@ Lemma left_compose (T:CatType) (x y z:[T]) (f f': x ~1 y) (g: y ~1 z)
       (inv_g : z ~1 y) (inv_R : g ° inv_g ~ identity z) 
       (inv_L : inv_g ° g ~ identity y) : f ~ f' -> g ° f ~ g ° f'.
 Proof.
-  intro Heq. apply (left_simplify _ _ _ _ _ (inv_g) g inv_R).
+  intro Heq. apply (left_simplify _ _ _ _ _ _ (inv_g) g inv_R).
   eapply composition. eapply inverse; apply assoc.
   eapply inverse. eapply composition. eapply inverse; apply assoc.
   eapply composition. apply comp. apply identity.
@@ -482,24 +483,24 @@ Qed.
 
 Definition left_simplify' (T:UGroupoidType) (x y z: [T]) (f f': x ~1 y) 
            (g : y ~1 z) : g ° f ~ g ° f' -> f ~ f' := 
-  left_simplify (T:=T) x y z f f' g (inverse g) (inv_L _ _ _).
+  left_simplify T x y z f f' g (inverse g) (inv_L _ _ _).
 
 Definition right_simplify' (T:UGroupoidType) (x y z: [T]) (f : x ~1 y)
            (g g' : y ~1 z)
-  := right_simplify (T:=T) x y z f g g' (inverse f) (inv_R _ _ _).
+  := right_simplify T x y z f g g' (inverse f) (inv_R _ _ _).
 
 Definition left_compose' (T:UGroupoidType) (x y z:[T]) (f f': x ~1 y) 
            (g: y ~1 z) 
-  := left_compose (T:=T) x y z f f' g (inverse g) (inv_R _ _ _ ) (inv_L _ _ _ ). 
+  := left_compose T x y z f f' g (inverse g) (inv_R _ _ _ ) (inv_L _ _ _ ). 
 
 Definition right_compose' (T:UGroupoidType) (x y z:[T]) (f : x ~1 y) 
            (g g': y ~1 z)
-  := right_compose (T:=T) x y z f g g' (inverse f) (inv_R _ _ _) (inv_L _ _ _).
+  := right_compose T x y z f g g' (inverse f) (inv_R _ _ _) (inv_L _ _ _).
 
 Lemma comp_inv (T:UGroupoidType) (x y z:[T]) (f : x ~1 y) (g : y ~1 z) : 
   inverse f ° inverse g ~ inverse (g ° f).
 Proof.
-  apply (left_simplify' _ _ _ _ _ (g°f)).
+  apply (left_simplify' _ _ _ _ _ _ (g°f)).
   eapply inverse. eapply composition; try apply inv_R.
   eapply inverse. eapply composition. 
   Focus 2.
@@ -516,7 +517,7 @@ Proof.
 Lemma inv_inv (T:UGroupoidType) (x y:[T]) (e : x ~1 y) : 
   inverse (inverse e) ~ e.
 Proof.
-  apply (left_simplify' _ _ _ _ _ (inverse e)).
+  apply (left_simplify' _ _ _ _ _ _ (inverse e)).
   eapply composition. apply inv_R. eapply inverse. apply inv_L. 
 Defined.
 
@@ -659,7 +660,7 @@ Defined.
 Program Instance _nat_inv T U (f g : T ---> U) (H : nat_trans f g) :
   NaturalTransformation (λ t : [T], inverse  (H @ t)).
 Next Obligation. intros. simpl in *. 
-  eapply (left_simplify (T:=U)).
+  eapply (left_simplify U).
   apply inv_L.
   eapply composition. eapply inverse; apply assoc.
   eapply composition. apply comp. apply identity.
@@ -811,53 +812,6 @@ Proof.
   intro a. simpl in *. eapply composition. apply id_R. apply (map_id g).
 Defined.
 
-(* Tactics for simplification of goals containing [identity] applications. *)
-
-Ltac simpl_id_end' := eapply composition ; [match goal with
-                   | [ |- eq2 (?P ^-1 ° ?P) _] => 
-                     apply inv_L
-                   | [ |- eq2 (?P ° ?P ^-1) _] => 
-                     apply inv_R
-                   | [ |- eq2 (?P ° identity ?x) _] => 
-                     apply id_R
-                   | [ |- eq2 (identity ?x ° ?P) _] => 
-                     apply id_L
-                   | [ |- eq2 ((?P ^-1)^-1) _] => 
-                     apply inv_inv
-                   | [ |- eq2 ((identity ?T)^-1) _] => 
-                     apply (inv_id T)
-                 end | idtac].
-
-Ltac simpl_id_end_extended' := first [ simpl_id_end' |
-                                      match goal with
-                   | [ |- eq2 ?e _ ] => apply (identity e)
-                   | [ |- _ ] => idtac
-                 end].
-
-Ltac simpl_id' := first [simpl_id_end' ; simpl_id' |
-                        match goal with
-                   | [ |- eq2 (?P ^-1) _] => eapply composition;
-                              [apply inv ; simpl_id' | idtac]; 
-                              try apply identity
-                   | [ |- eq2 (map ?F (identity _)) _] => eapply composition;
-                              [eapply (map_id F); simpl_id' | idtac]; 
-                              simpl_id'
-                   | [ |- eq2 (map ?F ?P) _] => first [
-                          eapply composition;
-                              [eapply (map2 F); simpl_id' | idtac]; 
-                              [apply identity | idtac] | 
-                          (progress_evars (eapply composition;
-                              [eapply (@_map2 _); simpl_id' | idtac]; instantiate)) ; simpl_id' |
-                          idtac]
-                   | [ |- eq2 (?Q ° ?P) _] => eapply composition;
-                                             [apply comp; simpl_id' | idtac];
-                                            simpl_id_end_extended'
-                   | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply (identity e)]
-                   | [ |- _ ] => idtac
-                 end].
-
-Ltac simpl_id_bi' := simpl_id'; eapply inverse; simpl_id'.
-
 Definition NaturalTransformationEq2 (T U : SetoidType)
   (f g : T ---> U) (α : ∀ t : [T], [f] t ~1 [g] t)
   (H H' : NaturalTransformation (T:=[[T]]) (U:=[[U]]) α):
@@ -883,7 +837,7 @@ Definition _Fun_Setoid_ T U (f g : T -S-> U) (e e' : nat_trans f g) : e = e'.
   assert (e.1 = e'.1).
   apply path_forall. intros z.
   apply is_Trunc_1.
-  apply (path_sigma X). 
+  apply (path_sigma _ _ X). 
   apply NaturalTransformationEq2.
 Defined.
 
@@ -975,7 +929,7 @@ Lemma Equiv_map_injective {A B} (f: Iso A B) {x y : [A]} (e e': x ~1 y) :
   map [f] e ~ map [f] e' -> e ~ e'.
 Proof.
   intros H. apply (map2 (adjoint' f)) in H.
-  eapply (left_compose' (T:=A)) in H.
+  eapply (left_compose' A) in H.
   eapply composition in  H. Focus 2. eapply inverse. apply (α_map (retraction' f)).
   apply inverse in H.
   eapply composition in  H. Focus 2. eapply inverse. apply (α_map (retraction' f)).
@@ -1035,14 +989,100 @@ Next Obligation. exact (retraction' f). Defined.
 
 Definition IsoToEquiv' A B (f : Iso A B) := ([f] ; IsoToEquiv'' _ _ f).
 
+
+(* Tactics for simplification of goals containing [identity] applications. *)
+
+Ltac simpl_id_end' := eapply composition ; [match goal with
+                   | [ |- eq2 (?P ^-1 ° ?P) _] => 
+                     apply inv_L
+                   | [ |- eq2 (?P ° ?P ^-1) _] => 
+                     apply inv_R
+                   | [ |- eq2 (?P ° identity ?x) _] => 
+                     apply id_R
+                   | [ |- eq2 (identity ?x ° ?P) _] => 
+                     apply id_L
+                   | [ |- eq2 ((?P ^-1)^-1) _] => 
+                     apply inv_inv
+                   | [ |- eq2 ((identity ?T)^-1) _] => 
+                     apply (inv_id _ T)
+                 end | idtac].
+
+Ltac simpl_id_end_extended' := first [ simpl_id_end' |
+                                      match goal with
+                   | [ |- eq2 ?e _ ] => apply (identity e)
+                   | [ |- _ ] => idtac
+                 end].
+
+Ltac simpl_id' := first [simpl_id_end' ; simpl_id' |
+                        match goal with
+                   | [ |- eq2 (?P ^-1) _] => eapply composition;
+                              [apply inv ; simpl_id' | idtac]; 
+                              try apply identity
+                   | [ |- eq2 (map ?F (identity _)) _] => eapply composition;
+                              [eapply (map_id F); simpl_id' | idtac]; 
+                              simpl_id'
+                   | [ |- eq2 (map ?F ?P) _] => first [
+                          eapply composition;
+                              [eapply (map2 F); simpl_id' | idtac]; 
+                              [apply identity | idtac] | 
+                          (progress_evars (eapply composition;
+                              [eapply (@_map2 _); simpl_id' | idtac]; instantiate)) ; simpl_id' |
+                          idtac]
+                   | [ |- eq2 (?Q ° ?P) _] => eapply composition;
+                                             [apply comp; simpl_id' | idtac];
+                                            simpl_id_end_extended'
+                   | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply (identity e)]
+                   | [ |- _ ] => idtac
+                 end].
+
+Tactic Notation "comp" open_constr(c) :=
+  eapply composition; [eapply c|idtac].
+
+(* Ltac simpl_id_end' ::=  *)
+(*      match goal with *)
+(*        | [ |- eq2 (?P ^-1 ° ?P) _] => comp inv_L *)
+(*        | [ |- eq2 (?P ° ?P ^-1) _] => comp inv_R *)
+(*        | [ |- eq2 (?P ° identity ?x) _] => comp id_R *)
+(*        | [ |- eq2 (identity ?x ° ?P) _] => comp id_L *)
+(*        | [ |- eq2 ((?P ^-1)^-1) _] => comp inv_inv *)
+(*        | [ |- eq2 ((identity ?T)^-1) _] => comp (inv_id _ T) *)
+(*      end. *)
+
+Ltac simpl_id_bi' := simpl_id'; eapply inverse; simpl_id'.
+
+Ltac simpl_id' ::= 
+  first [simpl_id_end' ; (match goal with |- _ => simpl_id' end) |
+         match goal with
+           | [ |- eq2 (?P ^-1) _] => 
+             eapply composition;
+               [apply inv; simpl_id' | idtac]; 
+               try apply identity
+           | [ |- eq2 (map ?F (identity _)) _] =>
+             eapply composition;
+               [eapply (map_id F); simpl_id' | idtac]
+           | [ |- eq2 (map ?F ?P) _] => 
+             first [
+                 progress_evars (comp (map2 F); [simpl_id'; apply identity|idtac]) |
+                 (progress_evars (eapply composition;
+                                  [eapply (@_map2 _); simpl_id' | idtac]; instantiate)) ; simpl_id' |
+                 idtac]
+           | [ |- eq2 (?Q ° ?P) _] => 
+             eapply composition;
+               [apply comp; simpl_id' | idtac];
+               simpl_id_end_extended'
+           | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply (identity e)]
+           | [ |- _ ] => idtac
+         end].
+
 Program Instance IsoToEquiv_ A B (f : Iso A B) : Equiv_struct [f].
-Next Obligation. simpl. simpl_id'. simpl_id'.
-                 unfold IsoToEquiv''_obligation_3.
-                 eapply (right_simplify' (T:=B)). eapply composition. apply assoc.
-                 eapply composition. apply comp. apply inv_L. apply identity.
-                 simpl_id'. eapply composition. apply comp.
-                 apply (map2 [f] (nat_on_id (retraction' f) t)). apply identity.
-                 simpl in *. apply (α_map (section' f)).
+Next Obligation. 
+  simpl. simpl_id'. simpl_id'.
+  unfold IsoToEquiv''_obligation_3.
+  eapply (right_simplify' B). eapply composition. apply assoc.
+  eapply composition. apply comp. apply inv_L. apply identity.
+  simpl_id'. eapply composition. apply comp.
+  apply (map2 [f] (nat_on_id (retraction' f) t)). apply identity.
+  simpl in *. apply (α_map (section' f)).
 Defined.
 
 (* end hide *)
@@ -1164,7 +1204,7 @@ Definition Equiv_adjoint_simpl A B (f f': A <~> B) (H: [f] ~1 [f']) a :
      map (adjoint f') ([section f] a ° inverse ([H] ([adjoint f] a)))
    ° [inverse (retraction f')] ([adjoint f] a).
 Proof.
-  unfold Equiv_adjoint. simpl. simpl_id'. apply identity.
+  unfold Equiv_adjoint. simpl. simpl_id'. simpl_id'. 
 Defined.
 
 Opaque Equiv_adjoint.
@@ -1477,7 +1517,7 @@ Definition Equiv_adjoint_assoc (X Y Z W : UGroupoidType)
         (H := (nat_assoc [f] [g] [h] : [(h ° g) °f] ~1 [h ° (g ° f)])) : 
     (Equiv_adjoint H @ w) ~2 (identity (adjoint ((h ° g) °f)) @ w).
 Proof.
-  simpl. eapply composition. apply (Equiv_adjoint_simpl H w). simpl.
+  simpl. eapply composition. apply (Equiv_adjoint_simpl _ _ H w). simpl.
   simpl_id'.
   eapply composition. apply comp. eapply composition. eapply inverse.
   apply comp_inv. apply comp. eapply composition. eapply inverse.
@@ -1581,7 +1621,7 @@ Next Obligation.
   exists (section f). 
   intro; simpl; simpl_id_bi'.
   eapply composition. apply comp. apply identity.
-  exact (Equiv_adjoint_simpl (f:=f ° inverse f) (f':=identity y) (section f) t).
+  exact (Equiv_adjoint_simpl (f ° inverse f) (identity y) (section f) t).
   simpl. unfold id.
   simpl_id'. eapply composition. apply assoc.
   eapply composition; try apply id_R.
@@ -1721,7 +1761,7 @@ Ltac simpl_id_end :=
     | [ |- eq2 ((?P ^-1) ^-1) _] => compose;
        [first [apply inv_inv | apply (@inv_inv _Type)]|idtac]
     | [ |- eq2 ((identity ?T) ^-1) _] => compose;
-       [first [apply (inv_id T)| apply (@inv_id _Type)]|idtac]
+       [first [apply (inv_id _ T)| apply (@inv_id _Type)]|idtac]
     | [ |- Equiv_eq (?P ^-1 ° ?P) _] => compose; [apply equiv_inv_L|idtac]
     | [ |- Equiv_eq (?P ° ?P ^-1) _] => compose; [apply equiv_inv_R|idtac]
     | [ |- Equiv_eq (?P ° identity ?x) _] => compose; [apply equiv_id_R|idtac]
@@ -1759,16 +1799,20 @@ Ltac simpl_id := first [simpl_id_end ; simpl_id |
       first [eapply composition;
               [eapply (map2 F); simpl_id | idtac]; 
               [apply identity | idtac] | 
-             (progress_evars (eapply composition;
-                              [eapply (map2 F); simpl_id | idtac];instantiate));
-               simpl_id |idtac]
+             (eapply composition;
+                              [eapply (map2 F); simpl_id | idtac];instantiate);
+             first [match goal with
+              | [ |- eq2 (map ?G ?H) _] => constr_eq (map F P) (map G H) end | 
+                    simpl_id] |idtac]
     | [ |- Equiv_eq (map ?F ?P) _] => 
       first [eapply composition;
               [eapply (map2 F); simpl_id | idtac]; 
               [apply identity | idtac] | 
-             (progress_evars (eapply composition;
-                              [eapply (map2 F); simpl_id | idtac];instantiate));
-               simpl_id |idtac]
+             (eapply composition;
+                              [eapply (map2 F); simpl_id | idtac];instantiate);
+             first [match goal with
+              | [ |- Equiv_eq (map ?G ?H) _] => constr_eq (map F P) (map G H) end | 
+                    simpl_id] |idtac]
     | [ |- Equiv_eq (?P ^-1) _] =>
       eapply composition;
         [apply equiv_inv; simpl_id | idtac]; 
@@ -1885,7 +1929,7 @@ Ltac trunc_eq := match goal with
                        let H := fresh in
                        let H':=fresh in 
                        set(H':=e) in *; clearbody H';
-                       assert (H:=@center _ (Trunc_2 (T:=Type0) _ _ _ _ H' e'));
+                       assert (H:=@center _ (Trunc_2 (Type0) _ _ _ _ H' e'));
                                          try ((destruct H; apply identity) 
                                                 || (simpl in *; destruct H; apply identity))
 
@@ -1902,7 +1946,7 @@ Ltac trunc1_eq :=   match goal with
       set(X:=e) in *; 
       set(X':=e') in *; 
       let H := fresh in
-      assert (H:=@HoTT_light.center _ (Trunc_1 _ _ X X'));
+      assert (H:=@HoTT_light.center _ (Trunc_1 _ _ _ X X'));
       try ((destruct H; apply identity)
              || (simpl in *; destruct H; apply identity))          
   end.
@@ -1985,7 +2029,7 @@ Notation "'Dmap2' f" := ((proj2 f).(_Dmap2) _ _ _ _) (at level 0, f at level 0).
 
 Definition right_simplify'' (T:SetoidType) (x y z: [T]) (f : x ~1 y)
            (g g' : y ~1 z)
-  := right_simplify (T:=T) x y z f g g' (inverse f) (inv_R _ _ _).
+  := right_simplify T x y z f g g' (inverse f) (inv_R _ _ _).
 
 (* end hide *)
 (** 
@@ -2342,24 +2386,22 @@ Program Instance sum_category2 T U : CategoryP (sum_type (T:=T) U).
 
 Next Obligation.
   exists (id_R _ _ [f]). unfold transport_eq. 
-  refine (setoid_irr2 _ _ _ _).
+  refine (setoid_irr2 _ _ _ _ _).
 Defined.
 
 Next Obligation.
   exists (id_L _ _ [f]). unfold transport_eq. simpl.
-  refine (setoid_irr2 _ _ _ _).
+  apply setoid_irr2.
 Defined.
 
 Next Obligation.
   exists (assoc _ _ _ _ [f] [g] [h]). simpl. 
-  (* apply setoid_irr2. *)
-  refine (setoid_irr2 _ _ _ _).
+  apply setoid_irr2.
 Defined.
 
 Next Obligation.
   exists (comp _ _ _ _ _ _ _ [X] [X0]). simpl.
-  (* apply setoid_irr2. *)
-  refine (setoid_irr2 _ _ _ _).
+  apply setoid_irr2.
 Defined.
 
 Lemma id_R'' (T : CatType) (x y : [T]) (f g : x ~1 y) : 

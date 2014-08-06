@@ -172,20 +172,15 @@ Set Universe Polymorphism.
 Definition curry {Γ: Context} {T : Typ Γ} (U : TypDep T) (γ : [Γ]) :=
   λ t : [T @ γ], U @ (γ; t).
 
+
 Program Instance Curry1 {Γ: Context} {T : Typ Γ}
-        (U : TypDep T) (γ : [Γ]) : Functor (T:=[[T @ γ]]) (curry U γ).
-Next Obligation. intros. exact (map U (sum_id_left X)). Defined.
-Next Obligation. intros. unfold Curry1_obligation_1.                 
-  eapply composition. apply (map2 U (sum_id_left_id _ x)).
-  apply (map_id U).
-Defined.
-Next Obligation. intros. unfold Curry1_obligation_1.                 
-  eapply composition. apply (map2 U (inverse (sum_id_left_comp _ _ _ _ e e'))).
-  apply (map_comp U).
-Defined.
-Next Obligation. intros.
-  apply (map2 U). apply sum_id_left_map. exact X.
-Defined.
+        (U : TypDep T) (γ : [Γ]) : Functor (T:=[[T @ γ]]) (curry U γ)
+:=
+  {| _map := λ (x y : [T @ γ]) X, map U (sum_id_left X)  ;
+     _map_id := λ x, map_id U ° map2 U (sum_id_left_id γ x) ;
+     _map_comp := λ _ _ _ e e', map_comp U (sum_id_left e) (sum_id_left e')
+                              ° map2 U (sum_id_left_comp _ _ _ _ e e') ^-1 ;
+     _map2 := λ _ _ _ _ X, map2 U (sum_id_left_map _ _ _ _ _ X)|}.
 
 Definition Curry {Γ: Context} {T : Typ Γ}
         (U : TypDep T) (γ : [Γ]) : Typ (T @ γ) :=
@@ -214,19 +209,7 @@ Ltac betared :=
 
 Global Arguments right_simplify' : simpl never.
 
-(* Lemma foo (Γ : Context) (A : Typ Γ) (x : [Γ]): *)
-(*     nat_id_L (identity ([[A @ x]] --> Type0)) *)
-(*          ° (right_comp_id Type0 ([[A @ x]]) °' left_comp_id Type0 ([[A @ x]])) *)
-(*          ~ *)
-(*     nat_id_L (identity ([[A @ x]] --> Type0)) *)
-(*          ° (right_comp_id Type0 ([[A @ x]]) °' left_comp_id Type0 ([[A @ x]])). *)
-
-(*         ° fun_eq_eq (map_id A]]])) (identity (identity (Type0)))) *)
-(*             ~  *)
-(* ((nat_id_L (identity (([[[A]]]) @ x -||-> Type0)) *)
-(*          ° (right_comp_id Type0 (A @ x) °' left_comp_id Type0 (A @ x))) *)
-(*         ° fun_eq_eq (map_id A) (identity (identity Type0))). *)
- 
+Axiom equiv_eq_nat_trans :forall {A B} (f g : A <~> B), [f] ~ [g] -> f ~ g.
 
 Program Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: TypDep A) : 
   DependentFunctor (UFamily A) (Curry B).
@@ -234,166 +217,60 @@ Next Obligation.
   exists (fun a => map B (sum_id_right e a)).
   intros t t' X. unfold id.
   eapply composition. eapply inverse. simpl. eapply (map_comp B).
-  eapply composition. Focus 2. simpl. apply (map_comp B).
+  eapply composition. Focus 2. apply (map_comp B).
   apply (map2 B). apply inverse. apply sum_id_left_right. 
 Defined.
 
-
 Next Obligation.
-  intro. Opaque composition inverse identity assoc comp id_L id_R eq2. simpl.
-  unfold transport_id. simpl. 
-  (* Does this should work ? *)
-  (* apply (@_map2 ([[_Sum0 A]]) Type0 [B]). *)
-  Transparent composition inverse identity assoc comp id_L id_R eq2.
-  assert ([map B (sum_id_right (identity x) t)] ~
-            [(fun_eq_id' A x @ Curry B x) @ t]).
-  (* apply (@_map2 ([[_Sum0 A]]) Type0 [B]). *)
-  apply (map2 B). simpl. unfold id. eapply composition. Focus 2.
+  intro. apply equiv_eq_nat_trans. 
+  unfold transport_id. simpl. unfold id. unfold nat_trans. simpl.
+  apply (map2 B). eapply composition. Focus 2.
   apply sum_id_left_map. 
   simpl_id_bi. apply identity.
-  exists (identity _). simpl.
-  unfold transport_eq. simpl_id_bi. eapply composition.
-  apply comp. apply (map2_id A).
-  apply assoc. eapply composition. apply id_R.
-  eapply composition. apply comp. apply inv_L. apply identity.
-  apply id_R.
-  exists X. admit.
+  exists (identity _). trunc1_eq.
+  (* simpl. unfold transport_eq.  *)
+  (* apply inverse. eapply composition. apply comp. apply (map2_id A). *)
+  (* apply assoc. eapply composition. apply id_R. *)
+  (* eapply composition. apply comp. apply inv_L. apply identity. *)
+  (* apply id_R. *)
 Defined.
 
 Next Obligation.
-  intro. Opaque composition inverse identity assoc comp id_L id_R eq2. simpl.
-  unfold transport_comp, transport_map. simpl. 
-  Transparent composition inverse identity assoc comp id_L id_R eq2.
-  assert ( map B (sum_id_right (e' ° e) t) ~
-            (map B (sum_id_right e' t) °
-             map B (sum_id_right e (adjoint (map A e') @ t)) °
-             (transport_comp (UFamily A) e e' @ Curry B x) @ t)).
-
-  Opaque composition inverse identity assoc comp id_L id_R eq2.
-
-  unfold transport_comp. simpl. unfold fun_eq_map'.
-  eapply inverse. 
-  eapply composition. eapply (@comp _ Equiv_cat). 
-  Focus 2. eapply inverse. eapply (map_comp B).
-  unfold fun_eq_eq, fun_eq_eq'. 
-  eapply composition. eapply (@comp _ Equiv_cat). 
-  apply identity. eapply (@comp _ category_fun).
-  apply identity. eapply composition.
-  apply identity. eapply (@comp _ category_fun).
-  apply identity. eapply (@comp _ category_fun).
-  eapply (@inv _ category_fun).
+  intro. apply equiv_eq_nat_trans. 
+  eapply composition. Focus 2.
   eapply (@comp _ category_fun).
-  apply identity. eapply (@comp _ category_fun).
+  apply identity. apply (map_comp B). 
+  eapply composition. Focus 2. 
+  unfold transport_id. simpl. unfold id. unfold nat_trans. simpl.
+  apply (map_comp B). apply (map2 B). 
+  exists (inverse (id_R _ _ _)). 
+  trunc1_eq.
+Defined.
 
-  eapply (@assoc _ category_fun).
-  eapply composition.
-  eapply (@assoc _ category_fun). 
-  eapply (@comp _ category_fun).
-  apply identity. apply (@assoc _ category_fun).
-  eapply inverse. apply (map_comp B).
-
-  unfold nat_comp'. simpl.
-  unfold groupoid.category_fun_obligation_4. simpl.
-  replace groupoid.Equiv_cat_Setoid_obligation_4 with assoc.
-  simpl_id. Print nat_id.
-  unfold Curry. simpl.
-  apply identity.
-  eapply inverse. apply (map_comp B). 
-  eapply composition. eapply inverse. 
-  simpl.
-betared. apply (map_comp B). 
-apply (map2 B).
-  exists (inverse H ° id_R _ _ _). simpl.
-  unfold eq_rect_eq, eq_rect_comp. simpl_id_bi.
-  eapply composition. apply comp. apply identity.
-  apply (eq_section (map2 A H)). simpl.
-  eapply composition. apply assoc.
-  eapply inverse.
-  eapply composition. apply assoc.
-  apply comp; [idtac | apply identity].
-  eapply composition. apply comp. apply identity.
-  apply _map_comp. eapply composition. apply assoc.
-  eapply inverse.
-  eapply composition. apply assoc.
-  apply comp; [idtac | apply identity].
-  assert (map2 A H ° map2 A (inverse H ° id_R x y e') ~
-               id_R _ _ _ ° (map_id A ** identity _) °  map_comp A (identity x) e').
-  (* trunc_eq. *)
-  admit.
-  eapply composition. apply X.
-  unfold HorComp. simpl. Transparent _Type. mysimpl.
-  simpl_id.
-Qed.
+  (* assert (map [map A (e' ° e)] ([map_id A] @ (adjoint (map A (e' ° e)) @ t)) ° [(map_comp A) (identity x) (e' ° e)] @ (adjoint (map A (e' ° e)) @ t) *)
+  (*  ° [(map2 A) (id_R x z (e' ° e)) ^-1] @ (adjoint (map A (e' ° e)) @ t) ~ identity _). *)
+  (* admit. *)
+  (* eapply composition. apply assoc. *)
+  (* eapply composition. apply comp. apply identity. *)
+  (* eapply composition. *)
+  (* apply comp. apply (map_comp [map A (e' ° e)]). apply identity.  *)
+  (* eapply inverse. apply assoc.  *)
+  (* eapply composition. apply assoc. eapply composition. apply comp. *)
+  (* eapply composition. eapply inverse. apply assoc. apply X. *)
+  (* apply comp. *)
+  (* eapply (map2 [map A (e' ° e)]). *)
+  (* apply comp. eapply inverse. apply comp_inv. apply identity. *)
+  (* apply identity. simpl_id. *)
 
 Next Obligation. 
 Proof.
-  intros. unfold LamT_1_obligation_1. intro.
-  Opaque _map2 Comp_Equiv_eq _Type_comp _Type_comp' nat_comp nat_comp' comp_fun _map_comp identity inverse.
-  simpl.
-  cbn beta iota zeta delta [ proj1 ].
-  simpl.
-  unfold transport_map.
-  match goal with
-    |- Equiv_eq ?x (?f @ ?y) => let y' := eval hnf in [f] in set(foo:=y'); try change (Equiv_eq x (y' y))
-  end.
-  Transparent composition.
-  Transparent _map2 Comp_Equiv_eq _Type_comp nat_comp.
-  Ltac t := match goal with
-    |- context C [ ?f @ ?y ] => 
-    let y' := eval hnf in [f] in
-    match y' with
-      | [f] => fail 1
-      | _ =>
-        let rhs' := context C [ y' y ] in
-        change (rhs')
-    end
-  end. 
-  repeat t.
-  
-  cbn beta iota zeta delta [ proj1 SetoidTypeToGroupoidType ].
-  Transparent _map2 Comp_Equiv_eq _Type_comp nat_comp nat_comp' comp_fun _map_comp identity inverse.
+  intro. apply equiv_eq_nat_trans. 
+  eapply composition. Focus 2.
+  apply (map_comp B). apply (map2 B).
+  exists (inverse (id_R _ _ _) ° H).  
+  trunc1_eq.
+Defined.
 
-  match goal with
-      |- Equiv_eq ?x ?y => change (x ~ y)
-  end.
-
-  eapply inverse. compose. 
-  Transparent _Type_comp'.
-  eapply equiv_comp. apply identity.
-  t.
-
-  Opaque _Type_comp _Type_comp'. 
-  match goal with
-    |- ?f @ ?y ~ ?rhs => 
-    let y' := eval hnf in ([f] y) in
-       change (y' ~ rhs)
-  end. 
-
-  cbn beta iota zeta delta [ proj1 SetoidTypeToGroupoidType SetoidType ].
-  
-  repeat t.
-  simpl.
-  
-  apply identity.
-  
-  unfold transport_comp. unfold Curry.
-  Opaque _map2 Comp_Equiv_eq _Type_comp _Type_comp' nat_comp nat_comp' comp_fun identity inverse.
-  simpl.
-  unfold curry.
-  Transparent _map2 Comp_Equiv_eq _Type_comp _Type_comp' nat_comp nat_comp' comp_fun identity inverse.
-  match goal with
-     |- Equiv_eq (_ ° ?y) _ => set (foo:=y) in *
-  end.
-
-  Opaque _map2 Comp_Equiv_eq _Type_comp _Type_comp' nat_comp nat_comp' comp_fun identity inverse.
-  Transparent composition _Type_comp _Type_comp'.
-  unfold fun_eq_map' in foo.
-  simpl in foo.
-  
-    
-Admitted.
-Next Obligation. 
-Admitted.
 
 (* end hide *)
 (** 
@@ -430,10 +307,8 @@ Program Instance SubExt_1 {Γ Δ : Context} {A : Typ Δ} (f: [Γ -|-> Δ])
          (t: Elt (A ⋅⋅ f)) : 
   Functor (U := [[_Sum0 A]]) (λ s, (f @ s; t @ s)).
 Next Obligation. exact (map f X; Dmap t X). Defined.
-Next Obligation. exists (map_comp f e e'). simpl. 
-                 eapply composition. exact (Dmap_comp t e e'). 
-                 apply inverse. eapply composition. apply assoc. 
-                 apply identity.
+Next Obligation. exact (map_id f; Dmap_id t). Defined.
+Next Obligation. exact (map_comp f e e'; (assoc' _ _ _)^-1 ° Dmap_comp t e e').
 Defined.
 Next Obligation. exact (map2 f X; Dmap2 t X). Defined.
 
@@ -451,6 +326,10 @@ Arguments SubExt {Γ Δ A} σ a.
 Program Instance SubExtId_1 {Γ : Context} {A : Typ Γ} (t: Elt (A)) : 
   Functor (T:=[[Γ]]) (U := [[_Sum0 A]]) (λ s , (s; t @ s)).
 Next Obligation. exact (X ; Dmap t X). Defined.
+Next Obligation. exists (identity _). simpl. eapply composition. exact (Dmap_id t). 
+                 unfold transport_eq. apply inverse. eapply composition.
+                 apply comp. simpl. apply (map2_id A). apply identity. simpl. 
+                 simpl_id_bi. Defined.
 Next Obligation. exists (identity _). eapply composition.
                  exact (Dmap_comp t e e'). simpl. unfold transport_eq.
                  eapply composition. Focus 2. apply comp. 
@@ -466,7 +345,9 @@ Program Instance substF_1 {T Γ : Context} {A:Typ Γ} (F:TypFam A) (f:[T -|-> Γ
   DependentFunctor (λ t : [_], ([[[A ⋅⋅ f]]] @ t) -||-> Type0; TypFam_1 (A ⋅⋅ f)) 
                        ([F °° f] : ∀ t : [T], [[(A ⋅⋅ f) @ t]] ---> Type0).
 Next Obligation. exact (Dmap F (map f e)). Defined.
-Next Obligation. Admitted.
+Next Obligation. intro. apply equiv_eq_nat_trans. 
+                 simpl; unfold id. unfold substF_1_obligation_1. simpl.
+Admitted.
 Next Obligation. 
   (* intro. unfold substF_1_obligation_1.  *)
   (* unfold transport_comp, transport_map. *)
