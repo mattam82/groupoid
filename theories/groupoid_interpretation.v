@@ -371,16 +371,19 @@ Next Obligation. intro. apply equiv_eq_nat_trans.
   apply nat_comp'; [idtac | apply identity].
   apply nat_comp'; [idtac | apply identity].
   eapply composition.
-  eapply inverse. simpl; unfold id. unfold nat_trans. simpl.
-
+  eapply inverse. 
+  simpl; unfold id. 
   (* should work here *)
 
-  apply (map_comp (F @ (f @ x))).
-  apply (map2 (F @ (f @ x))). trunc1_eq.
+  (* apply (map_comp (F @ (f @ x))). *)
+  
+  match goal with | [ |- nat_trans _ (fun x0 => [map (F @ (f @ x)) ?P] @ 
+                                                ([map (F @ (f @ x)) ?Q] @ x0); _)] => 
+                    apply (map_comp (F @ (f @ x)) Q P) end.
+  simpl; unfold id. apply (map2 (F @ (f @ x))). trunc1_eq.
 Defined.
 Next Obligation.
   intro. apply (Dmap2 F (map2 f H) t).
-  unfold substF_1_obligation_1. apply identity.
 Defined.
 
 Infix "--->" := Fun_Type_Groupoid (at level 55).
