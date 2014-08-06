@@ -209,7 +209,12 @@ Ltac betared :=
 
 Global Arguments right_simplify' : simpl never.
 
-Axiom equiv_eq_nat_trans :forall {A B} (f g : A <~> B), [f] ~ [g] -> f ~ g.
+Definition equiv_eq_nat_trans :forall {A B : SetoidType} (f g : A <~> B), [f] ~ [g] -> f ~ g.
+  intros. exists X. unfold EquivEq. intro. simpl. simpl_id_bi. 
+  trunc1_eq.
+Defined.
+ 
+(* Axiom equiv_eq_nat_trans :forall {A B} (f g : A <~> B), [f] ~ [g] -> f ~ g. *)
 
 Program Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: TypDep A) : 
   DependentFunctor (UFamily A) (Curry B).
@@ -346,35 +351,35 @@ Program Instance substF_1 {T Γ : Context} {A:Typ Γ} (F:TypFam A) (f:[T -|-> Γ
                        ([F °° f] : ∀ t : [T], [[(A ⋅⋅ f) @ t]] ---> Type0).
 Next Obligation. exact (Dmap F (map f e)). Defined.
 Next Obligation. intro. apply equiv_eq_nat_trans. 
-                 simpl; unfold id. unfold substF_1_obligation_1. simpl.
-Admitted.
-Next Obligation. 
-  (* intro. unfold substF_1_obligation_1.  *)
-  (* unfold transport_comp, transport_map. *)
-  (* (* simpl_id. simpl_id. *) *)
-  (* eapply composition. apply (Dmap2 F (map_comp f e e') t). *)
-  (* eapply composition. apply equiv_comp. apply identity. *)
-  (* apply (Dmap_comp F (map f e) (map f e') t). *)
-  (* (* mysimpl. *) *)
-  (* unfold transport_comp, transport_map, transport_eq. *)
-  (* eapply composition. apply equiv_assoc. *)
-  (* apply inverse. *)
-  (* eapply composition.  *)
-  (* Opaque Type0 composition. simpl  @proj1. Transparent Type0 composition. simpl_id. *)
-  (* apply equiv_assoc. apply inverse. *)
-  (* eapply composition. apply equiv_assoc. *)
-  (* apply equiv_comp; [idtac | apply identity]. *)
-  (* apply equiv_comp; [idtac | apply identity]. *)
-  (* apply inverse. *)
-  (* eapply composition. *)
-  (* eapply inverse. *)
-  (* apply (map_comp ([F] ([f] x))). *)
-  (* apply (map2 ([F] ([f] x))). *)
-  (* apply inverse. *)
-  (* apply (groupoid.Equiv_adjoint_comp [map2 A (map_comp f e e')]  [map_comp A (map f e) (map f e')] t). *)
-Admitted.
-Next Obligation. 
-  intro. eapply composition. eapply (Dmap2 F (map2 f H) t).
+                 eapply composition. apply (Dmap2 F (map_id f)). 
+                 eapply composition. eapply nat_comp'.
+                 apply identity. eapply composition. apply (Dmap_id F). 
+                 apply identity. eapply composition. simpl.
+                 eapply inverse. apply (map_comp (F @ (f @ x))).
+                 apply (map2 (F @ (f@x))). 
+                 trunc1_eq.
+Defined.
+Next Obligation. intro. apply equiv_eq_nat_trans.                  
+  eapply composition. apply (Dmap2 F (map_comp f e e')).
+  eapply composition. apply equiv_comp. apply identity.
+  apply (Dmap_comp F (map f e) (map f e') t).
+  unfold substF_1_obligation_1, transport_comp, transport_map, transport_eq.
+  eapply composition. apply nat_assoc. 
+  apply inverse. eapply composition.
+  apply nat_assoc. apply inverse.
+  eapply composition. apply nat_assoc.
+  apply nat_comp'; [idtac | apply identity].
+  apply nat_comp'; [idtac | apply identity].
+  eapply composition.
+  eapply inverse. simpl; unfold id. unfold nat_trans. simpl.
+
+  (* should work here *)
+
+  apply (map_comp (F @ (f @ x))).
+  apply (map2 (F @ (f @ x))). trunc1_eq.
+Defined.
+Next Obligation.
+  intro. apply (Dmap2 F (map2 f H) t).
   unfold substF_1_obligation_1. apply identity.
 Defined.
 
