@@ -386,14 +386,13 @@ Notation "[[ x ']]'" := (SetoidTypeToGroupoidType x) (at level 50).
 (* (* why do we need to the lemma heren the one in fun_eq does not apply ...*) *)
 Instance TypFam_1 {Γ : Context} (A: Typ Γ) : Functor (T := [[Γ]]) (U:=_Type) (λ s : [Γ], [[A @ s]] -||-> Type0)
 := @Build_Functor ([[Γ]]) (_Type) (λ s : [Γ], [[A @ s]] -||-> Type0)
-  (fun H H0 X => (fun_eqT (map A X) (identity Type0) : ([[A @ H]] -||-> Type0) ~1
-                                                                               ([[A @ H0]] -||-> Type0)))
+  (fun H H0 X => (fun_eqT (map A X) (identity Type0) : ([[A @ H]] -||-> Type0) ~1 
+                  ([[A @ H0]] -||-> Type0)))
   (fun X => (@fun_eq_id' Γ A X ; AllEquivEq _ _ _))
   (fun x y z e e' => (fun_eq_map' A x y z e e';
                       AllEquivEq _ _ _))
   (fun x y e e' X => (fun_eq_eq (map2 A X) (identity (identity  (|Type0|g)));
          AllEquivEq _ _ _)).
-(* >>>>>>> FETCH_HEAD *)
 
 Class Action {T} (homAc : T -> Type) :=
 {  AC :> CategoryP T;
