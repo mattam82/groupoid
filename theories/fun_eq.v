@@ -162,3 +162,10 @@ eapply composition. apply fun_eq_eq. apply (map_id A). apply identity.
 unfold fun_eq. eapply composition. apply nat_comp'. apply left_comp_id. 
 apply right_comp_id. apply nat_id_L. Defined.
 
+Program Definition fun_eq_id2 {Γ : UGroupoidType} (A B:  [Γ --> _Type]) (x : [Γ]) :
+  fun_eq (map A (identity x)) (map B (identity x)) ~1
+  identity _.
+eapply composition. apply fun_eq_eq. 
+apply (map_id A). apply (map_id B).
+unfold fun_eq. eapply composition. apply nat_comp'. apply left_comp_id. 
+apply right_comp_id. apply nat_id_L. Defined.
