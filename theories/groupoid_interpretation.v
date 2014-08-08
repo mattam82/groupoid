@@ -444,47 +444,52 @@ Next Obligation. eapply composition; try apply ([Dmap F X] (a @ y)).
                  simpl. unfold id. apply (map (F @ x)).
                  apply equiv_adjoint.
 Defined. 
- Next Obligation. admit. Defined.
+ Next Obligation. apply equiv_eq_nat_trans.
+                  eapply composition. apply nat_comp'. 
+                  apply identity. apply (Dmap_id F (a @ x)). 
+                  eapply composition. eapply inverse. 
+                  unfold transport_id. simpl. unfold id.
+                  apply (map_comp (F @ x)). 
+                  eapply composition. eapply (map2 (F @ x)).
+                  apply Equiv_adjoint_identity. apply (map_id (F @ x)).
+ Defined.
  Next Obligation.
-Proof. 
-  (* unfold SubstT_1_obligation_1. *)
-  (* eapply composition. apply equiv_comp. apply identity. *)
-  (* apply (Dmap_comp F e e' (a @ z)). *)
-  (* eapply composition. mysimpl. *)
-  (* eapply equiv_assoc. eapply composition. eapply equiv_assoc. *)
-  (* eapply inverse. eapply composition. apply equiv_assoc. *)
-  (* apply equiv_comp; try apply identity. *)
+   unfold SubstT_1_obligation_1.
+   apply equiv_eq_nat_trans. 
+  eapply composition. apply nat_comp'. apply identity.
+  apply (Dmap_comp F e e' (a @ z)).
+  eapply composition. 
+  eapply nat_assoc. eapply composition. eapply nat_assoc.
+  eapply inverse. eapply composition. apply nat_assoc.
+  apply nat_comp'; try apply identity.
+  unfold transport_map, transport_comp.
 
-  (* unfold eq_rect_comp. unfold _map_comp. Opaque _Type. simpl _map_comp. *)
-  (* simpl @proj1. cbn beta. Transparent _Type. *)
-  (* unfold equiv_adjoint. *)
-  (* apply inverse. simpl_id. simpl_id. *)
-  
-  (* eapply inverse. eapply composition. eapply inverse. apply equiv_assoc. *)
-  (* eapply composition. apply equiv_comp. apply identity. eapply inverse. *)
-  (* apply (α_map (Dmap F e)). *)
-  (* Time eapply composition. *)
-  (* Time eapply equiv_assoc. *)
-  (* apply equiv_comp; [idtac | apply identity].  *)
-  (* eapply composition. eapply inverse. apply (map_comp (F @ x)). *)
-  (* eapply inverse. eapply composition. *)
-  (* eapply inverse. *)
-  (* apply (map_comp (F @ x)). *)
-  (* apply (map2 (F @ x)). apply Equiv_adjoint_comp. *)
-  admit.
+  apply inverse. eapply composition. apply nat_comp'.
+  eapply composition.
+  simpl; unfold id. eapply inverse.
+  match goal with | [ |- nat_trans _ (fun x0 => [map (F @ x) ?P] @ 
+                                               ([map (F @ x) ?Q] @ x0); _)] => 
+                    apply (map_comp (F @ x) Q P) end.
+  eapply composition. eapply (map2 (F @ x)). apply Equiv_adjoint_comp. 
+  apply (map_comp (F @ x)). apply identity.
+  eapply composition. eapply inverse. apply nat_assoc.
+  apply inverse. eapply composition. eapply inverse. apply nat_assoc.
+  apply nat_comp'; try apply identity. apply inverse.
+  apply (α_map (Dmap F e)).
 Defined.
 Next Obligation. 
-Proof. 
-  (* unfold SubstT_1_obligation_1. *)
-  (* eapply composition. apply equiv_comp. apply identity. *)
-  (* apply (Dmap2 F X (a @ y)). *)
-  (* mysimpl.  *)
-  (* simpl_id. *)
-  (* eapply composition. apply equiv_assoc. *)
-  (* apply equiv_comp; [idtac | apply identity]. *)
-  (* eapply composition. eapply inverse. apply (map_comp (F @ x)). *)
-  (* apply (map2 (F @ x)). apply Equiv_adjoint_eq. *)
-  admit.
+  unfold SubstT_1_obligation_1.
+  apply equiv_eq_nat_trans. 
+  eapply composition. apply nat_comp'. apply identity.
+  apply (Dmap2 F X (a @ y)).
+  eapply composition. apply nat_assoc.
+  apply nat_comp'; [idtac | apply identity].
+  eapply composition. eapply inverse. 
+  simpl; unfold id.
+  match goal with | [ |- nat_trans _ (fun x0 => [map (F @ x) ?P] @ 
+                                               ([map (F @ x) ?Q] @ x0); _)] => 
+                    apply (map_comp (F @ x) Q P) end.
+  apply (map2 (F @ x)). apply Equiv_adjoint_eq.
 Defined.
  
 
