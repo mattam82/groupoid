@@ -192,9 +192,6 @@ Definition UFamily {Γ: Context} (A : Typ Γ) : [ [[Γ]] --> _Type] :=
 Lemma simpl_app {A B} {P : (A -> B) -> Type} (f : A -> B) (t : P f) x : @eq _  ((f; t) @ x) (f x).
 Proof. simpl. reflexivity. Defined.
 
-Ltac mysimpl ::=
-     cbn beta iota zeta delta -[_Type Type1 _Type_comp curry Equiv_cat _Equiv_Id _Dmap transport_comp].
-
 Obligation Tactic := intros.
 
 Ltac betared :=
@@ -463,7 +460,6 @@ Defined.
   eapply inverse. eapply composition. apply nat_assoc.
   apply nat_comp'; try apply identity.
   unfold transport_map, transport_comp.
-
   apply inverse. eapply composition. apply nat_comp'.
   eapply composition.
   simpl; unfold id. eapply inverse.
@@ -927,12 +923,10 @@ Program Definition ndep {Γ} (T:Context) : Typ Γ := (λ γ, T; _).
 Next Obligation. intros. admit. Defined.
 
 Definition eq_fun_ctxt {T Γ} (A B: Typ Γ) (f: [T -|-> Γ]) :
-  nat_trans ([[[A ----> B]]] ⋅ f)  ([[[A ⋅⋅ f  ----> B ⋅⋅ f]]]).
+  nat_trans ((A ----> B) ⋅⋅ f)  (A ⋅⋅ f  ----> B ⋅⋅ f).
   red; simpl. exists (fun t => identity _). red. intros.
-  (* eapply composition. apply equiv_id_L. *)
-  (* apply inverse. eapply composition. apply equiv_id_R. *)
-  (* simpl. *)
-  admit.
+  eapply composition. apply equiv_id_L.
+  apply inverse. apply equiv_id_R. 
 Defined.
 
 Notation "e 'with' t" := (prod_eq' t @ e) (at level 50).
@@ -970,11 +964,21 @@ Definition UId {Γ} (A B: Typ Γ) : Typ Γ := (λ γ, (A @ γ ~11 B @ γ ; _); U
  To define the notion of isomorphism, we need to define a proper notion of function (noted [A ----> B]) that does not use the restriction of [Prod] to constant type families. This is because the definition of an isomorphism involves two functions that have to be composed in both ways, which lead to universe inconsistency if we use dependent products to encode functions. We define the notion of application (noted [g @@@ f]) for this kind of functions. 
 *)
 
+Definition  _iso_section (Γ: Context) (A B : Typ Γ) (f : Elt (A ----> B)) (iso_adjoint : Elt (B ----> A)) := Elt (Prod (LamT (Id (iso_adjoint @@@ (f @@@ Var A)) (Var A)))).
+
+Definition  _iso_retraction (Γ: Context) (A B : Typ Γ) (f : Elt (A ----> B)) (iso_adjoint : Elt (B ----> A)) := Elt (Prod (LamT (Id (f @@@ (iso_adjoint @@@ Var B)) (Var B)))).
 
 Class iso_struct (Γ: Context) (A B : Typ Γ) (f : Elt (A ----> B)) := 
 { iso_adjoint : Elt (B ----> A)  ;
-  iso_section : Elt (Prod (LamT (Id (iso_adjoint @@@ (f @@@ Var A)) (Var A)))) ;
-  iso_retract : Elt (Prod (LamT (Id (f @@@ (iso_adjoint @@@ Var B)) (Var B))))}.
+  iso_section : _iso_section f iso_adjoint;
+  iso_retract : _iso_retraction f iso_adjoint}.
+
+(* this one does not work ?? *) 
+
+(* Class iso_struct (Γ: Context) (A B : Typ Γ) (f : Elt (A ----> B)) :=  *)
+(* { iso_adjoint : Elt (B ----> A)  ; *)
+(*   iso_section : Elt (Prod (LamT (Id (iso_adjoint @@@ (f @@@ Var A)) (Var A)))) ; *)
+(*   iso_retract : Elt (Prod (LamT (Id (f @@@ (iso_adjoint @@@ Var B)) (Var B))))}. *)
 
 Definition iso (Γ: Context) (A B : Typ Γ) := {f : Elt (A ----> B) & iso_struct f}.
 (* begin hide *)
