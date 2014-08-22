@@ -211,8 +211,6 @@ Definition equiv_eq_nat_trans :forall {A B : SetoidType} (f g : A <~> B), [f] ~ 
   intros. exists X. apply AllEquivEq_Setoid. 
 Defined.
  
-(* Axiom equiv_eq_nat_trans :forall {A B} (f g : A <~> B), [f] ~ [g] -> f ~ g. *)
-
 Program Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: TypDep A) : 
   DependentFunctor (UFamily A) (Curry B).
 Next Obligation. 
@@ -720,8 +718,12 @@ Program Instance Pair_1 {Γ} {A:Typ Γ} {B:TypFam A} (a: Elt A) (b : Elt (B {{a}
   DependentFunctor (Type0_Type (Sigma B)) (λ γ, (a @ γ; b @ γ)).
 Next Obligation. exists (Dmap a e). unfold id. 
                  eapply composition. Focus 2. apply (Dmap b e).
-                 simpl.
-                 admit.
+                 simpl. eapply composition. unfold transport.                 
+                 eapply (map [map ([[[B @ y]]]) (Dmap a e)]). 
+                 apply (map_id (B @ y)). simpl. unfold id.
+                 apply inverse. eapply composition. 
+                 eapply (map [Dmap B e @ (a @ y)] ). apply (map_comp (B @ x)).
+                 apply (α_map (Dmap B e)).
 Defined. 
 Next Obligation. exists (Dmap_id a).
                  trunc1_eq. Defined.
