@@ -91,6 +91,7 @@ endif
 ######################
 
 VFILES:=theories/groupoid_interpretation.v\
+  theories/sum_eq.v\
   theories/prod_eq.v\
   theories/sum_id.v\
   theories/fun_depfun.v\

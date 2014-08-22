@@ -19,14 +19,15 @@ Opaque map_inv.
 Instance comp_fun_depfun_1  {T T': Context} {U : [ [[T']] --> _Type]}
         (F : [ T -|-> T' ]) (G : [_Prod U]) : DependentFunctor (U ⋅ F) (λ x : [T], G @ (F @ x)).
 Next Obligation. apply (Dmap G (map F e)). Defined.
-Next Obligation. admit. Defined.
-Next Obligation. unfold comp_fun_depfun_1_obligation_1. 
-                 eapply composition. apply (Dmap2 G (map_comp F e e')).
+Next Obligation. eapply composition. apply (Dmap2 G (map_id F)).
+                 apply comp. apply identity. apply (Dmap_id G).
+Defined.
+Next Obligation. eapply composition. apply (Dmap2 G (map_comp F e e')).
                  eapply composition. apply comp. apply identity. 
-                 apply (Dmap_comp G). eapply composition. apply assoc. 
-                 apply identity.
-                 Defined.
-Next Obligation. apply (Dmap2 G (map2 F H)). Defined. 
+                 apply (Dmap_comp G). apply assoc. 
+Defined.
+Next Obligation. apply (Dmap2 G (map2 F H)). 
+Defined. 
 
 Program Definition comp_fun_depfun {T T': Context} {U : [ [[T']] --> _Type]}
         (F : [ T -|-> T' ]) (G : [_Prod U]) : [_Prod (U ⋅ F)] :=
@@ -40,14 +41,15 @@ Program Instance comp_fun_depfun0_1 {T T': Context} {U : [ [[T']] -||-> Type0]}
         (F : [ T -|-> T' ]) (G : [Prod0 U]) : 
                                      DependentFunctor ([[[U ⋅⋅ F]]]) (λ x : [T], G @ (F @ x)).
 Next Obligation. intros. apply (Dmap G (map F e)). Defined.
-Next Obligation. admit. Defined.
-Next Obligation. unfold comp_fun_depfun0_1_obligation_1. 
-                 eapply composition. apply (Dmap2 G (map_comp F e e')).
+Next Obligation. eapply composition. apply (Dmap2 G (map_id F)).
+                 apply comp. apply identity. apply (Dmap_id G).
+Defined.
+Next Obligation. eapply composition. apply (Dmap2 G (map_comp F e e')).
                  eapply composition. apply comp. apply identity. 
-                 apply (Dmap_comp G). eapply composition. apply assoc. 
-                 apply identity.
-                 Defined.
-Next Obligation. apply (Dmap2 G (map2 F H)). Defined. 
+                 apply (Dmap_comp G). apply assoc. 
+Defined. 
+Next Obligation. apply (Dmap2 G (map2 F H)). 
+Defined. 
 
 Program Definition comp_fun_depfun0 {T T': Context} {U : [ [[T']] -||-> Type0]}
         (F : [ T -|-> T' ]) (G : [Prod0 U]) : [Prod0 (U ⋅⋅ F)] :=
