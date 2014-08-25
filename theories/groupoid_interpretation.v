@@ -228,11 +228,7 @@ Next Obligation.
   apply sum_id_left_map. 
   simpl_id_bi. apply identity.
   exists (identity _). trunc1_eq.
-  (* simpl. unfold transport_eq.  *)
-  (* apply inverse. eapply composition. apply comp. apply (map2_id A). *)
-  (* apply assoc. eapply composition. apply id_R. *)
-  (* eapply composition. apply comp. apply inv_L. apply identity. *)
-  (* apply id_R. *)
+  
 Defined.
 
 Next Obligation.
@@ -246,21 +242,6 @@ Next Obligation.
   exists (inverse (id_R _ _ _)). 
   trunc1_eq.
 Defined.
-
-  (* assert (map [map A (e' ° e)] ([map_id A] @ (adjoint (map A (e' ° e)) @ t)) ° [(map_comp A) (identity x) (e' ° e)] @ (adjoint (map A (e' ° e)) @ t) *)
-  (*  ° [(map2 A) (id_R x z (e' ° e)) ^-1] @ (adjoint (map A (e' ° e)) @ t) ~ identity _). *)
-  (* admit. *)
-  (* eapply composition. apply assoc. *)
-  (* eapply composition. apply comp. apply identity. *)
-  (* eapply composition. *)
-  (* apply comp. apply (map_comp [map A (e' ° e)]). apply identity.  *)
-  (* eapply inverse. apply assoc.  *)
-  (* eapply composition. apply assoc. eapply composition. apply comp. *)
-  (* eapply composition. eapply inverse. apply assoc. apply X. *)
-  (* apply comp. *)
-  (* eapply (map2 [map A (e' ° e)]). *)
-  (* apply comp. eapply inverse. apply comp_inv. apply identity. *)
-  (* apply identity. simpl_id. *)
 
 Next Obligation. 
 Proof.
@@ -898,16 +879,18 @@ Definition depEq Γ (A:Typ Γ) (a :Elt A) : Typ Γ := Sigma (LamT (Id (a °°°�
 Definition BetaT2 Γ (A:Typ Γ) (a b:Elt A) : LamT (Id (a °°°° Sub) (Var A)) {{b}} ~1 Id a b.
 simpl. red. simpl. exists (fun _ => identity _).
 intros t t' e.
-simpl_id_bi. 
-(* apply inverse. eapply composition. eapply inverse. simpl.  *)
-(* red. simpl. unfold Equiv_injective. simpl.  *)
-(* eapply comp. *)
-(* apply (map_comp (adjoint (map A e ^-1))). *)
-(* apply equiv_eq_nat_trans. simpl. *)
-(* unfold SubstT_1_obligation_1. simpl.  apply (map_comp (Id a b)). *)
-(* apply (map2 B). *)
-(* trunc1_eq. *)
-admit.
+simpl_id_bi. apply equiv_eq_nat_trans. simpl. red. simpl.
+match goal with | [ |- sigma (λ α : ?H, _)]
+                  => assert H end.
+intros. red. Focus 1.
+apply comp. apply identity. 
+eapply composition. eapply inverse. 
+apply (comp_inv _ _ _ _ ((retraction (map A e ^-1) @ (b @ t')) ^-1)).
+apply inverse. eapply composition. eapply inverse. 
+apply (comp_inv _ _ _ _ ((retraction (map A e ^-1) @ (b @ t')) ^-1)).
+apply comp; try apply identity. eapply inv. 
+apply (map2 (adjoint (map A e ^-1))). trunc1_eq. 
+exists H. red. intros. exact tt.
 Defined.
 
 (****** To Be Removed Once prod_eq.v Is OK ******)
@@ -951,10 +934,7 @@ apply inverse. eapply composition. eapply inverse. apply (map_comp (P @ t)).
 apply (map2 (P @ t)). simpl. red. 
 match goal with | [ |- sigma (λ α : ?H, _)]
                   => assert H end.
-simpl. trunc1_eq. exists H. 
-(* this simpl does not terminate *)
-(* simpl. trunc1_eq. *)
-admit.
+simpl. trunc1_eq. exists H.  exact tt.
 exists X. red. intros. simpl. trunc1_eq.
 Defined.
 
