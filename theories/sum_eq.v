@@ -138,9 +138,33 @@ Definition Sum_eq_comp' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
   (Sum_eq F e' ° Sum_eq F e) @ t~1 Sum_eq F (e' °e) @ t.
   exists (inverse [map_comp A e e'] @ [t]). simpl. 
   unfold id, transport. simpl. apply inverse. eapply composition.
-  apply ([_map_id (Functor := (F @ z).2) (x:=[map A (e' ° e)] @ [t])]).
-  simpl. unfold id. eapply composition. apply ([Dmap_comp F e e' ([map A (e' ° e)] @ [t])]). simpl. unfold id. apply inverse. 
-admit.
+  apply ([map_id (F @ z)]). 
+  simpl. unfold id. eapply composition. 
+  apply (Dmap_comp F e e'). simpl. unfold id. 
+  apply (Equiv_injective (map (F @ z) ([(map_comp A) e e'] @ [t]))).
+  eapply composition.  eapply inverse. 
+  apply (α_map (Dmap F e')).
+  apply inverse. eapply composition. eapply (map [map (F @ z) ([(map_comp A) e e'] @ [t])]).
+  apply (map_inv (F @ z)). eapply composition.
+  apply [inv_R _ _  (map (F @ z) ([(map_comp A) e e'] @ [t]))].1.
+  simpl. unfold id. eapply composition. apply (map_id (F @ z)). 
+  simpl; unfold id. apply (map [Dmap F e' @ ([map A e'] @ ([map A e] @ [t]))]).
+  pose  ((retraction (map A e') @ ([map A e] @ [t])) ^-1).
+  pose (map (adjoint (map A e')) ([(map_comp A) e e'] @ [t])).
+  simpl in *. unfold id in e0. 
+  pose (category_fun.(comp) _ _ _ _ _ _ _ (identity (adjoint (map A e'))) (Dmap F e)). 
+  pose ([@_α_map _ _ _ _ _ e2.2 _ _ ([(map_comp A) e e'] @ [t])].1). 
+  eapply composition. eapply (map [map (F @ y) e0]). apply (map_id (F @ y)). simpl; unfold id.
+  eapply composition. eapply inverse. apply (α_map (Dmap F e)).
+  simpl in e3. apply inverse. eapply composition.
+  eapply (map [map (F @ y) _]). eapply inverse. apply (map_id (F @ y)).
+  eapply composition. eapply inverse. apply e3. clear e3 e2.
+  eapply composition. apply (map_id (F @ y)). simpl; unfold id.
+  apply (map [Dmap F e @ (adjoint (map A e') @ ([map A e'] @ ([map A e] @ [t])))]).
+  eapply composition. eapply inverse. apply (map_comp (F @ x)).
+  eapply composition. eapply inverse. apply (map_comp (F @ x)).
+  apply inverse.  eapply composition. eapply inverse. apply (map_comp (F @ x)).
+  apply (map2 (F @ x)). trunc1_eq.
 Defined.
 
 Ltac trunc1_eq_arg t :=   match goal with
@@ -166,9 +190,20 @@ Defined.
 Definition Sum_eq_map' {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]}
            (e e':x ~1 y) (H : e ~ e') t :
   Sum_eq F e @ t ~1 Sum_eq F e' @ t .
-exists ([map2 A H] @ [t]). simpl.  apply inverse. eapply composition.
-  apply ([_map_id (Functor := (F @ y).2) (x:=[map A e'] @ [t])]).
-  simpl. unfold id. admit.
+  exists ([map2 A H] @ [t]). simpl.  apply inverse. eapply composition.
+  apply (map_id (F @ y)). simpl; unfold id. 
+  apply inverse. eapply composition. unfold transport. 
+  eapply (map [map (F @ y) _]). apply (map_id (F @ y)).
+  simpl. eapply composition. eapply (map [map (F @ y) _]).
+  apply (Dmap2 F H). simpl; unfold id. 
+  apply (Equiv_injective (map (F @ y) ([(map2 A) H] @ [t])^-1)).
+  eapply composition. apply (map_inv (F @ y)). eapply composition. 
+  apply [inv_L _ _  (map (F @ y) ([(map2 A) H] @ [t]))].1.
+  apply inverse. eapply composition. eapply inverse. apply (α_map (Dmap F e')). simpl.
+  apply (map [Dmap F e' @ ([map A e] @ [t])]).
+  eapply composition. eapply inverse. apply (map_comp (F @ x)).
+  apply inverse. eapply composition. eapply inverse. apply (map_comp (F @ x)).
+  apply (map2 (F @ x)). trunc1_eq. 
 Defined.
 
 Definition Sum_eq_map {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]}
@@ -178,8 +213,13 @@ Next Obligation. red. intros. trunc1_eq_arg (_Sum0 (F @ y)). Defined.
 
 Definition Sum_eq_id' {Γ} (A:Typ Γ) (F:TypFam A) {x: [Γ]} t
   :  Sum_eq F (identity x) @ t  ~1 identity ([[_Sum0 (F @ x)]]) @t.
-  exists ([map_id A] @ [t]). simpl. unfold id.
-  admit.
+  exists ([map_id A] @ [t]). simpl. unfold id, transport.
+  eapply composition. eapply (map [map ([[[F @ x]]]) ([map_id A] @ [t])]).
+  eapply composition. apply (map_id (F @ x)). apply (Dmap_id F).
+  simpl; unfold id.  eapply composition. eapply inverse. apply (map_comp (F @ x)).
+  eapply composition. eapply inverse. apply (map_comp (F @ x)).
+  eapply composition. Focus 2. apply (map_id (F @ x)).
+  apply (map2 (F @ x)). trunc1_eq.
 Defined.
 
 Definition Sum_eq_id {Γ} (A:Typ Γ) (F:TypFam A) {x: [Γ]}
