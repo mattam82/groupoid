@@ -763,9 +763,26 @@ Definition Proj1 {Γ} {A:Typ Γ} {B:TypFam A} (t: Elt (Sigma B))
 
 Program Instance Proj2_1 {Γ} {A:Typ Γ} {B:TypFam A} (t: Elt (Sigma B)) :
 DependentFunctor (Type0_Type (B {{Proj1 t}})) (λ γ, Π2 (t @ γ)).
-Next Obligation. simpl. pose ((equiv_adjoint (Proj1 t) e)). 
-                 (* Something using naturality of (Dmap B e) *)
-                 admit.         
+Next Obligation. eapply composition. Focus 2. apply ((Dmap t e).2). simpl. unfold id.
+                 unfold transport.
+                 assert ([Dmap B e @ [t @ y] ] °
+                      ([map (B @ x) (equiv_adjoint (Proj1 t) e)]) ~
+                      [map ([[[B @ y]]]) [Dmap t e] ] °
+   ([map (B @ y) (identity ([map A e] @ [t @ x]))] °
+                                                   ([Dmap B e @ ([map A e] @ [t @ x])] °
+                                        ([map (B @ x) (retraction (map A e) @ [t @ x]) ^-1])))).
+                 unfold equiv_adjoint.
+                 eapply composition. apply nat_comp'. apply (map_comp (B @ x)).
+                 apply identity. eapply composition. eapply inverse. apply nat_assoc.
+                 apply inverse. eapply composition. eapply inverse. apply nat_assoc.
+                 eapply composition. eapply inverse. apply nat_assoc.
+                 apply nat_comp'. apply identity. apply inverse. eapply composition.
+                 apply (α_map (Dmap B e)). apply inverse.
+                 eapply composition. eapply inverse. apply nat_assoc.
+                 apply nat_comp'. apply identity. eapply composition.
+                 eapply inverse. apply (map_comp (B @y)). apply (map2 (B @ y)).
+                 apply id_R.
+                 apply X.
 Defined. 
 Next Obligation. trunc1_eq. Defined. 
 Next Obligation. trunc1_eq. Defined. 
