@@ -1565,6 +1565,12 @@ Proof.
   apply (triangle_inv' f).
 Defined.
 
+Definition Equiv_adjoint_comp' (X Y Z : UGroupoidType)
+        (f f': X <~> Y) (g g': Y <~> Z) (e : f ~ f') (e' : g ~ g')
+        (H := Equiv_adjoint (e' .1 °' e .1 : [g ° f] ~1 [g' ° f'])) :
+  H ~ nat_comp' (Equiv_adjoint (e' .1)) ((Equiv_adjoint (e.1))).
+Admitted.
+
 Program Instance Equiv_Equiv_eq T U : Equivalence (Equiv_eq (T:=T) (U:=U)).
 
 Program Instance Equiv_cat : CategoryP UGroupoidType. 
@@ -1613,7 +1619,36 @@ Defined.
                  similar to the previous one. *) 
 Next Obligation. 
   exists (nat_comp' [X] [X0]). 
-  apply AllEquivEq.
+  intro. simpl. simpl_id_bi'.
+  apply inverse. eapply composition. eapply comp. eapply (map2 (g.1)). 
+  apply (α_map X). apply (α_map X0). simpl.
+  eapply composition. apply assoc. apply inverse.
+  eapply composition. apply assoc. apply comp; try apply identity.
+  apply inverse. eapply composition. apply assoc. 
+  apply inverse. eapply composition. apply comp. apply comp.
+  apply identity. eapply (map2 (g'.1)). eapply (map2 (f'.1)).
+  apply Equiv_adjoint_comp'. apply identity. 
+  eapply composition. eapply inverse. apply assoc.
+  eapply composition. apply comp. apply identity.
+  eapply composition. eapply inverse. apply (map_comp (g'.1)). 
+  eapply (map2 (g'.1)). eapply composition. apply comp. 
+  apply (map_comp (f'.1)). apply identity. eapply composition.
+  eapply inverse. apply assoc. apply comp. apply identity. 
+  apply (α_map (section f')). simpl. eapply composition.
+  apply comp. apply identity. apply (map_comp (g'.1)).
+  eapply composition. apply assoc. eapply composition.
+  apply comp. apply identity. apply (map_comp (g'.1)).
+  eapply composition. apply assoc. apply comp; try apply identity.
+  eapply composition. eapply inverse. apply assoc.
+  eapply composition. eapply inverse. apply assoc.
+  eapply composition. eapply comp. apply identity.
+  eapply composition. apply comp. apply identity. 
+  eapply inverse. apply (map_comp (g'.1)). 
+  eapply inverse. apply (map_comp (g'.1)). 
+  eapply composition. eapply inverse. apply (α_map [X0]). 
+  apply comp; try apply identity.
+  apply (map2 [g]). eapply composition. apply assoc.
+  apply identity.
 Defined.
 
 Program Instance Equiv_grp : GroupoidP UGroupoidType.
@@ -1628,10 +1663,55 @@ Next Obligation.
   apply comp; [idtac | apply identity].
   apply inv_L.
 Defined.
-Next Obligation. exists (retraction f). 
-                 apply AllEquivEq.
+Next Obligation. exists (retraction f). intro. simpl.
+                 simpl_id_bi'. 
+                 unfold __Equiv_inv_obligation_1, __Equiv_inv_obligation_2.
+                 apply comp. apply inverse. apply (triangle' f).
+                 eapply composition. 
+                 exact (Equiv_adjoint_simpl (f^-1 ° f) (identity x) (retraction f) t).
+                 simpl. unfold id.
+                 simpl_id'. 
+                 unfold __Equiv_inv_obligation_1, __Equiv_inv_obligation_2.
+                 eapply composition. apply assoc.
+                 eapply composition; try apply id_R.
+                 apply comp; [idtac | apply identity].
+                 eapply composition. apply comp. apply identity. 
+                 eapply (map2 (adjoint f)). apply (triangle f).
+                 eapply right_simplify'.
+                 eapply composition. apply assoc.
+                 eapply composition. apply comp. apply inv_R.
+                 apply identity. simpl_id_bi'.
+                 apply inverse. eapply composition. 
+                 Focus 2. apply (triangle' f). apply (map2 (adjoint f)). 
+                 apply inverse. apply (triangle f). 
 Defined.
-Next Obligation. exists (Equiv_adjoint [X]). apply AllEquivEq.
+Next Obligation. exists (Equiv_adjoint [X]). intro. 
+                 eapply composition. apply (eq_retraction X). simpl.
+                 unfold __Equiv_inv_obligation_1, __Equiv_inv_obligation_2.
+                 apply comp; try apply identity.
+                 apply comp; try apply identity.
+                 apply (map2 (adjoint f')). 
+                 apply inverse. eapply composition.
+                 exact (Equiv_adjoint_simpl (f^-1) (f'^-1) _ t).
+                 simpl. unfold __Equiv_inv_obligation_1, __Equiv_inv_obligation_2.
+                 unfold __Equiv_inv_obligation_3.
+                 eapply composition. apply comp. apply identity.
+                 eapply composition. 
+                 eapply (map2 [f']). eapply composition. apply comp. apply identity.
+                 apply (eq_retraction X). simpl.
+                 eapply composition. apply assoc. apply comp.
+                 eapply composition. apply assoc.
+                 eapply composition. apply comp. apply inv_R. apply identity. 
+                 apply id_R. apply identity.
+                 apply (map_comp [f']). eapply composition. apply assoc.
+                 pose ((section f')^-1).2. simpl in n. unfold NaturalTransformation in n.
+                 simpl in n.
+                 eapply composition. apply comp. eapply inverse.  apply n.
+                 apply identity. eapply composition. eapply inverse. apply assoc.
+                 eapply composition. apply comp. apply identity.
+                 eapply composition. apply comp. apply identity. 
+                 eapply inverse. apply (triangle f'). apply inv_R.
+                 apply id_L.
 Defined.
 
 Program Instance Equiv_eq2_equ (T U : UGroupoidType) (f g : T <~> U) :
