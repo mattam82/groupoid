@@ -1365,10 +1365,6 @@ Definition AllEquivEq_Setoid : forall (T U : SetoidType) (f g : T <~> U)
                      EquivEq α.
   intros. intro u. apply setoid_irr2. Defined.
 
-Axiom AllEquivEq : forall (T U : UGroupoidType) (f g : T <~> U) 
-                               (α : nat_trans [f] [g]),
-                     EquivEq α.
-
 Lemma ExLawComp_nat A B C (f f' f'': A ~1 B) (g g' g'' : B ~1 C) 
       (H:f ~1 f') (H': f' ~1 f'') (G : g ~1 g') (G': g' ~1 g'') :
     nat_comp' (H' ° H) (G' ° G) ~2 nat_comp' H' G' ° nat_comp' H G.
@@ -1568,8 +1564,49 @@ Defined.
 Definition Equiv_adjoint_comp' (X Y Z : UGroupoidType)
         (f f': X <~> Y) (g g': Y <~> Z) (e : f ~ f') (e' : g ~ g')
         (H := Equiv_adjoint (e' .1 °' e .1 : [g ° f] ~1 [g' ° f'])) :
-  H ~ nat_comp' (Equiv_adjoint (e' .1)) ((Equiv_adjoint (e.1))).
-Admitted.
+  H ~ nat_comp' (Equiv_adjoint (e' .1)) ((Equiv_adjoint (e.1))).  
+  intro b. eapply composition. apply Equiv_adjoint_simpl. apply inverse.
+  eapply composition. apply comp. apply Equiv_adjoint_simpl.
+  eapply (map2 (adjoint f')). apply Equiv_adjoint_simpl. simpl.
+  simpl_id_bi'.
+  eapply composition. apply comp. eapply inverse. apply comp_inv.
+  apply identity. eapply composition. eapply inverse. apply assoc.
+  eapply composition. apply comp. apply identity. 
+  eapply composition. apply comp. eapply inverse. apply (map_inv (adjoint f')). 
+  eapply identity. eapply inverse. apply (map_comp (adjoint f')). apply inverse.
+  eapply composition. eapply inverse. apply assoc.
+  eapply composition. apply comp. apply identity. 
+  eapply inverse. apply (map_comp (adjoint f')). 
+  apply comp; try apply identity. apply (map2 (adjoint f')). apply inverse.
+  eapply composition. apply comp. apply identity.
+  apply (map_comp (adjoint g')). eapply composition. apply assoc.
+  eapply composition. apply comp. eapply composition.
+  apply comp. apply identity. eapply composition. apply (map_inv (adjoint g')).
+  eapply composition. eapply inv. apply (map_comp (adjoint g')). 
+  eapply inverse. apply comp_inv. eapply composition. apply assoc.
+  apply comp. eapply composition. apply comp_inv. 
+  eapply composition. eapply inv. apply (retraction g').2. simpl.
+  eapply inverse. apply comp_inv. apply identity. apply identity.
+  eapply composition. apply comp. 
+  eapply inverse. apply assoc. apply identity.
+  eapply composition. eapply inverse. apply assoc. apply inverse.
+  eapply composition. eapply inverse. apply assoc. apply comp; try apply identity.
+  eapply composition. apply assoc. eapply composition. apply comp. apply identity.
+  apply (map_comp (adjoint g')). eapply composition. apply assoc.
+  apply inverse. eapply composition. apply comp. apply identity. 
+  apply (map_comp (adjoint g')). eapply composition. apply assoc.
+  apply comp; try apply identity. eapply composition.
+  eapply inverse. apply assoc. eapply composition.
+  apply comp. apply identity.
+  eapply composition. apply comp. eapply inverse. apply (map_inv (adjoint g')). 
+  apply identity. eapply composition. eapply inverse. apply (map_comp (adjoint g')).
+  eapply composition. eapply (map2 (adjoint g')). eapply inverse. 
+  pose ((e'^-1).1.2). simpl in n. apply n. 
+  apply (map_comp (adjoint g')). eapply composition. apply assoc.
+  apply comp; try apply identity.
+  eapply inverse. pose ((retraction g')^-1).2.
+  simpl in n. apply n. 
+Defined.
 
 Program Instance Equiv_Equiv_eq T U : Equivalence (Equiv_eq (T:=T) (U:=U)).
 
