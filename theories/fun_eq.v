@@ -154,6 +154,9 @@ eapply composition. apply fun_eq_eq. apply (map_comp A). eapply inverse.
 apply (id_R (CategoryP:=Equiv_cat)).
 apply fun_eq_eq'. Defined.
 
+Definition equiv_eq_nat_trans :forall {A B : SetoidType} (f g : A <~> B), [f] ~ [g] -> f ~ g.
+  intros. exists X. apply AllEquivEq_Setoid. 
+Defined.
 
 Program Definition fun_eq_id' {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x : [Γ]) :
   fun_eq (map A (identity x)) (identity (Identity := _Type_id) Type0) ~1
@@ -161,6 +164,145 @@ Program Definition fun_eq_id' {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x : [Γ]
 eapply composition. apply fun_eq_eq. apply (map_id A). apply identity. 
 unfold fun_eq. eapply composition. apply nat_comp'. apply left_comp_id. 
 apply right_comp_id. apply nat_id_L. Defined.
+
+Opaque Equiv_adjoint. 
+
+Definition Equiv_ajoint_map_id {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x : [Γ]) t t0
+(H:=fun_eq_id' A x: [fun_eqT (map A (identity x)) (identity Type0)] ~1
+                    [_Type_id.(identity) (([[[A]]]) @ x -||-> Type0)]) :
+  Equiv_adjoint H @ t @ t0 ~ map t ([map_id A] @ t0). 
+  apply equiv_eq_nat_trans. red. red.  simpl. 
+  match goal with | [ |- sigma (λ α : ?H, _)]
+                    => assert H end. 
+  intro. Transparent Equiv_adjoint. simpl. unfold id. Opaque Equiv_adjoint. 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  apply (map2 t). trunc1_eq_expl (A @ x).
+  exists X. red; intros. trunc1_eq_expl (t@t0).
+Defined. 
+
+Definition fun_eq_idT {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x : [Γ]) :
+  Equiv_eq (fun_eqT (map A (identity x)) (identity Type0)) 
+           (_Type_id.(identity) (([[[A]]]) @ x -||-> Type0)) := (fun_eq_id' A x; _ ).
+Next Obligation.
+    intro. intro. apply equiv_eq_nat_trans. 
+                 Opaque composition. simpl. red. 
+                 match goal with | [ |- sigma (λ α : ?H, _)]
+                     => assert H end.
+                 intro. Transparent composition. simpl.
+                 unfold id. 
+                 eapply composition. eapply inverse. apply (map_comp t). 
+                 eapply composition. eapply (map [map t _]). 
+                 eapply inverse. apply (map_inv t). 
+                 eapply composition. eapply inverse. apply (map_comp t). 
+                 apply inverse. eapply composition. apply Equiv_ajoint_map_id.
+                 eapply composition. eapply inverse. apply (map_comp t).
+                 apply (map2 t). trunc1_eq_expl (A @ x).
+                 exists X. red; intros. trunc1_eq_expl (t @ t0). 
+Defined.
+
+Definition Equiv_adjoint_map_comp {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ])  (x y z :[Γ])
+           (e : x ~1 y) (e' : y ~1 z) t t0
+           (H := fun_eq_map' A x y z e e' : [fun_eqT (map A (e' ° e)) (_Type_id.(identity) Type0)] ~1 [fun_eqT (map A e') (_Type_id.(identity) Type0) ° fun_eqT (map A e) (_Type_id.(identity) Type0)]) : (Equiv_adjoint H @ t) @ (adjoint (map A e) @ (adjoint (map A e') @ t0)) ~
+    map t ([map_comp A e e'] @ (adjoint (map A e) @ (adjoint (map A e') @ t0))). 
+  apply equiv_eq_nat_trans. red. red.  simpl. 
+  match goal with | [ |- sigma (λ α : ?H, _)]
+                    => assert H end. 
+  intro. Transparent Equiv_adjoint. simpl. unfold id. Opaque Equiv_adjoint. 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  apply (map2 t). trunc1_eq_expl (A @ z).
+  exists X. red; intros. simpl. 
+  pose (tt0 := t @ ([map A e' ° map A e] @
+        (adjoint (map A e) @ (adjoint (map A e') @ t0)))).
+  trunc1_eq_expl tt0.
+Defined. 
+
+Definition fun_eq_compT {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ])  (x y z :[Γ])
+           (e : x ~1 y) (e' : y ~1 z) :
+           Equiv_eq (fun_eqT (map A (e' ° e)) (_Type_id.(identity) Type0))
+                    (fun_eqT (map A e') (_Type_id.(identity) Type0) ° fun_eqT (map A e) (_Type_id.(identity) Type0)) := (fun_eq_map' A x y z e e' ; _).
+Next Obligation. 
+  intro. intro. apply equiv_eq_nat_trans. 
+  Opaque composition. simpl. red. 
+  match goal with | [ |- sigma (λ α : ?H, _)]
+                    => assert H end.
+  intro. Transparent composition. simpl.
+  unfold id. eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t). apply inverse.
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). apply Equiv_adjoint_map_comp. 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply inverse. apply (map_comp t).
+  apply (map2 t). trunc1_eq_expl (A @ z).
+  exists X. red; intros. trunc1_eq (t @ t0).
+Defined.
+
+
+Definition Equiv_adjoint_map2 {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x y :[Γ])
+           (e e' : x ~1 y) (X : e ~2 e') t t0
+           (H := fun_eq_eq (map2 A X) (identity (identity (|Type0|g))) :
+          [fun_eqT (map A e) (_Type_id.(identity) Type0)] ~1
+          [fun_eqT (map A e') (_Type_id.(identity) Type0)]) :
+  (Equiv_adjoint H @ t) @ (adjoint (map A e') @ t0) ~
+  map t ([map2 A X] @ (adjoint (map A e') @ t0)). 
+  apply equiv_eq_nat_trans. red. red.  simpl. 
+  match goal with | [ |- sigma (λ α : ?H, _)]
+                    => assert H end. 
+  intro. Transparent Equiv_adjoint. simpl. unfold id. Opaque Equiv_adjoint. 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  apply (map2 t). trunc1_eq_expl (A @ y).
+  exists X0. red; intros. pose (tt0 := t @ ([map A e'] @ (adjoint (map A e') @ t0))).
+  trunc1_eq_expl tt0.
+Defined.
+
+Definition fun_eq_map2T {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x y :[Γ])
+           (e e' : x ~1 y) (X : e ~2 e') :
+         Equiv_eq (fun_eqT (map A e) (_Type_id.(identity) Type0))
+                  (fun_eqT (map A e') (_Type_id.(identity) Type0)) :=
+  (fun_eq_eq (map2 A X) (identity (identity (|Type0|g))); _).
+Next Obligation. 
+  intro. intro. apply equiv_eq_nat_trans. 
+  Opaque composition. simpl. red. 
+  match goal with | [ |- sigma (λ α : ?H, _)]
+                    => assert H end.
+  intro. Transparent composition. simpl.
+  unfold id. eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t). apply inverse.
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply (map [map t _]). apply Equiv_adjoint_map2.
+  eapply composition. eapply inverse. apply (map_comp t).
+  eapply composition. eapply inverse. apply (map_comp t).
+  apply (map2 t). trunc1_eq_expl (A @ y).
+  exists X0. red; intros. trunc1_eq (t @ t0).
+Defined.
+
 
 Program Definition fun_eq_id2 {Γ : UGroupoidType} (A B:  [Γ --> _Type]) (x : [Γ]) :
   fun_eq (map A (identity x)) (map B (identity x)) ~1

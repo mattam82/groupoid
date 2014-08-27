@@ -1652,8 +1652,6 @@ Next Obligation.
   eapply composition; try apply (map_id [f]).
   apply (map2 [f]). exact (Equiv_adjoint_assoc f g h t).
 Defined.
-(* The fellowing admitted proof is not difficult in essence, and are
-                 similar to the previous one. *) 
 Next Obligation. 
   exists (nat_comp' [X] [X0]). 
   intro. simpl. simpl_id_bi'.
@@ -2041,16 +2039,22 @@ Definition Trunc_2 (T:GroupoidType) (x y : [T])
   (e e' : x ~1 y) (E E' : e ~2 e') : Contr (E = E') :=
   is_Trunc_2 x y e e' E E'.
 
+Definition eq_is_eq2 (T:[Type0]) {x y : [T]}
+  (e e' : x ~1 y) (E : e = e') : e ~2 e'.
+  destruct E. apply identity.
+Defined.
+
+Definition eq_is_eq2_Type0 {x y : [Type0]}
+  (e e' : x ~1 y)  (E E' : e ~2 e') (H : E = E') : E ~2 E'.
+  destruct H. apply identity.
+Defined.
+
 Ltac trunc_eq := match goal with
                      | [ |- ?e ~ ?e'] =>
                        let H := fresh in
                        let H':=fresh in 
                        set(H':=e) in *; clearbody H';
-                       assert (H:=@center _ (Trunc_2 (Type0) _ _ _ _ H' e'));
-                                         try ((destruct H; apply identity) 
-                                                || (simpl in *; destruct H; apply identity))
-
-                   end.
+                       apply (eq_is_eq2_Type0 (@center _ (Trunc_2 (Type0) _ _ _ _ H' e')))                   end.
        
 Definition Trunc_1 (T:[Type0]) (x y : [T])
   (e e' : x ~1 y)  : Contr (e = e') :=
@@ -2065,13 +2069,22 @@ Ltac trunc1_eq :=   match goal with
       let H := fresh in
       assert (H:=@HoTT_light.center _ (Trunc_1 _ _ _ X X'));
       try ((destruct H; apply identity)
-             || (simpl in *; destruct H; apply identity))          
+             || (simpl in *; destruct H; apply identity))    
+  end. 
+
+Ltac trunc1_eq_expl T :=   match goal with
+    | [ |- ?e ~ ?e'] =>
+      let X := fresh in
+      let X':=fresh in 
+      set(X:=e) in *; 
+      set(X':=e') in *; 
+      apply (eq_is_eq2 T (@HoTT_light.center _ (Trunc_1 _ _ _ X X')))
   end.
 
 
 Lemma map2_id : forall T (f : [T --> Type0]) {x y:[T]} (e: x ~1 y), 
                   map2 f (identity e) ~2 identity (map f e).
-Proof. intros. trunc_eq. Defined.
+Proof. intros. pose (identity (map f e)).  trunc_eq. Defined.
 
 Lemma map2_comp : forall T (f : [T --> Type0]) {x y:[T]} (e e' e'':x ~1 y) 
                        (E:e ~2 e') (E':e'~2 e''),

@@ -207,10 +207,6 @@ Ltac betared :=
 
 Global Arguments right_simplify' : simpl never.
 
-Definition equiv_eq_nat_trans :forall {A B : SetoidType} (f g : A <~> B), [f] ~ [g] -> f ~ g.
-  intros. exists X. apply AllEquivEq_Setoid. 
-Defined.
- 
 Program Instance LamT_1 {Γ: Context} {A : Typ Γ} (B: TypDep A) : 
   DependentFunctor (UFamily A) (Curry B).
 Next Obligation. 
