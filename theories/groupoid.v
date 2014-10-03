@@ -154,7 +154,7 @@ Notation "[ T ]" := T.1.
   rewriting mechanism on types (%\S\ref{sec:rew}%). This rewriting is
   used to extend functors and products to dependent functors and
   dependent sums (%\S\ref{sec:depprod}-\ref{sec:sigma}%).
- %\subsection{Notations} \input{notations}%
+ %\subsection{Notations} \input{../theories/notations}%
 *)
 
 
@@ -1815,7 +1815,6 @@ Program Instance Equiv_Groupoid_S : GroupoidP SetoidType.
 Next Obligation. exact (Equiv_grp_obligation_1 f). Defined.
 Next Obligation. exact (Equiv_grp_obligation_2 f). Defined.
 Next Obligation. exact (Equiv_grp_obligation_3 X). Defined.
-
 
 Program Instance Equiv_Groupoid : Groupoid SetoidType.
 Next Obligation.  apply (@contr_equiv _ _ _ (path_sigma_equiv E E')).
