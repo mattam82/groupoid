@@ -1,0 +1,56 @@
+
+\section{Related Work and Conclusion}
+\label{sec:conclusion}
+
+We have presented an internalization of the groupoid interpretation of
+Martin-Löf type theory with one universe respecting the invariance under
+isomorphism principle in \Coq's type theory with universe polymorphism.
+
+The groupoid interpretation is due to Hofmann
+and Streicher~\cite{groupoid-interp}. This interpretation is based on
+the notion of categories with families introduced by
+Dybjer~\cite{dybjer:internaltt}. 
+%
+This framework has recently been used by Coquand et al. to give an
+interpretation in semi-simplicial sets and cubical
+sets~\cite{barras:_gener_takeut_gandy_inter,coquand:cubical}.
+%
+Although very promising, the interpretation based on cubical sets has not
+yet been mechanically checked and only an extraction procedure based on
+it has been implemented in Haskell.
+
+Altenkirch et al. have introduced Observational Type Theory (OTT)
+\cite{altenkirch-mcbride-wierstra:ott-now}, an intentional type theory where
+functional extensionality is native, but equality in the universe is structural.
+%
+To prove expected properties on OTT such as strong normalization,
+decidable typechecking and canonicity, they use embeddings into Agda and
+extensional type theory. A setoid interpretation clearly guides their
+design, and our model could be adapted to interpret this theory as well.
+
+We have strived for generality in our definitions and while our
+interpretation is done for groupoids, it illustrates the main structures of the
+model and should adapt to higher dimensional models, specifically
+$\omega$-groupoids.
+%
+The next step of our work is to generalize the construction to higher
+dimensions. We already have a formalization of weak 2-groupoids based
+on inductive definitions (\emph{à la} enriched categories) on the
+computational structure.
+%
+The only mechanism that is not inductive is the generation of
+higher-order compatibilities between coherence maps. 
+%
+This is because category enrichment provides a co-inductive definition
+for \emph{strict} $\omega$-groupoids only. Formalizing in \Coq the recent work
+of Cheng and Leinster~\cite{cheng2012weak} on weak enrichment should
+provide a way to define \emph{weak} $\omega$-groupoids co-inductively using
+operads to parameterize the compatibility required on coherence maps at
+higher levels.
+  
+%\cite{DBLP:journals/aml/Palmgren12}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

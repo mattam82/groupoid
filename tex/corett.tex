@@ -1,0 +1,249 @@
+\def\Elt#1{\texttt{Elt}(#1)}
+\def\Univ{\ensuremath{\mathcal{U}}}
+\def\Id#1#2#3{\texttt{Id}_{#1}\,#2\ #3}
+\def\Equiv#1#2{\texttt{Equiv}\ \Elt{#1}\ \Elt{#2}}
+\def\Eq#1#2#3{\texttt{Eq}_{#1}\ #2\ #3}
+\def\refl#1#2{\texttt{refl}_{#1}\ #2}
+\def\zeroType{\ensuremath{\mathbb{O}}\xspace}
+\def\oneType{\ensuremath{\mathbb{1}}\xspace}
+\def\twoType{\ensuremath{\mathbb{2}}\xspace}
+\def\hzeroType{\ensuremath{\mathbb{O}}}
+\def\honeType{\ensuremath{\mathbb{1}}}
+\def\htwoType{\ensuremath{\mathbb{2}}}
+
+\subsection{Martin-Löf Type Theory with One Universe}
+\label{sec:definitions}
+
+
+For the purpose of this paper we study a restricted source theory
+resembling a cut-down version of the core language of the \Coq system,
+with only one \Type{} universe (see \cite{DBLP:bibsonomy_cupart} for an
+in-depth study of this system). This is basically Martin-Löf Type Theory
+(without \Type{} : \Type{}). First we introduce the definitions of the
+various objects at hand.  We start with the term language of a dependent
+λ-calculus: we have a countable set of variables $x, y, z$, and the
+usual typed λ-abstraction $λ x : τ, b$, à la Church, application $t~u$,
+the dependent product and sum types $Π/Σ x : A. B$, and an identity type
+$\Id{T}{t}{u}$. There is a single universe $\Univ$. For $T$ and $U$ in
+$\Univ{}$, the type of (Set)-isomorphisms $T `= U$, is definable
+directly using the other type constructors (see \ref{sec:universe}).
+
+The typing judgment for this calculus is written $\tcheck{Γ}{ψ}{t}{T}$
+(Figure \ref{fig:emltt}) where $Γ$ is a context of declarations $Γ ::=
+\Nil `| Γ, x : τ$, $t$ and $T$ are terms. If we have a valid derivation
+of this judgment, we say $t$ has type $T$ in $Γ$.
+%  and assume that $T$ is
+% not $\Type{}$ unless explicilty stated (this just allows us to do
+% without a separate judgment for carving out the types).
+
+Most of the rules are standard. The definitional equality $A = B$ is
+defined as the congruence on type and term formers compatible with
+β-reductions for abstractions and projections.
+
+\subsubsection{Identity type.} 
+%
+The identity type in the source theory is the standard
+Martin-Löf identity type $\Id{T}{t}{u}$, generated from an
+introduction rule for reflexivity with the usual \texttt{J} eliminator
+and its \emph{propositional} reduction rule. The \texttt{J} reduction 
+rule will actually be valid definitionally in the model for \emph{closed} terms.
+
+\subsubsection{Type equivalence.} 
+%
+The new, proof-relevant type equivalence in the source theory for which we want to
+give a computational model appears in rule \lrule{Equiv-Intro},
+extending the formation rules of identity types on $\Univ$. Type equivalences
+are introduced by giving a witness of $A ` = B$ for some $A, B$ \emph{in
+  the universe} $\Univ$. The \texttt{J} rule for type equivalences
+witnesses the invariance under isomorphism principle of the source type
+theory.
+
+\def\hFin#1{\mathtt{\hat Fin}\ #1}
+\def\Fin#1{\texttt{Fin}\ #1}
+\def\fin#1#2{\underline{#1}_{#2}}
+
+\subsubsection{Universe.} The universe $\Univ$ is closed under Σ, Π,
+\zeroType, \oneType, \twoType and $\texttt{Id}$ in elements of $\Univ$, 
+\emph{not} type equivalences. The
+constructors are circumflexed, e.g. $\hat \Pi$ and $\hat \Sigma$ are
+introduced with the rules:
+%
+%\vspace{-1em} 
+\begin{mathpar}
+\irule{Univ-$\hat \Pi$, -$\hat \Sigma$}
+{\tcheck{\Gamma}{ψ}{A}{\Univ} \\
+\tcheck{\Gamma, x : \Elt{A}}{ψ}{B}{\Univ}}
+{\tcheck{\Gamma}{ψ}{\hat \Pi/\hat \Sigma x : A. B}{\Univ}}
+\end{mathpar}
+
+\noindent 
+For presentation purposes, we do not detail here the treatment of finite
+types (see \cite{altenkirch-mcbride-wierstra:ott-now} for a standard treatment).
+The extension to W-types would be straightforward.
+%
+\texttt{Elt} is a $\type{}$-forming map from $\Univ$ that acts as a
+homomorphism, e.g. its action on products is: $$\Elt{\hat \Pi x : A. B} = Π x : \Elt{A}. \Elt{B}$$
+% \begin{mathpar}
+% \begin{array}{lcll}
+%   \texttt{Elt} : \Univ & → & \Type{} & \\
+%   \Elt{\{\hat \Pi/\hat \Sigma\} x : A. B} & = & \{Π/Σ\} x :
+%   \Elt{A}. \Elt{B} & \\
+%   \Elt{\hat{τ}} & = & τ & {τ \in \{ \hzeroType, \honeType, \htwoType \}} \\
+%   % \Elt{\hFin{n}} & = & \Fin{n} & \\
+% %  \Elt{a =_{τ} b} & = & \texttt{Id}_{\Elt{τ}}\ a\ b & \\
+%   \Elt{\hat{C}[X]} & = & C[\Elt{X}] & \text{(homomorphism)}
+% \end{array}
+% \end{mathpar}
+
+
+\begin{figure}[t]
+% \hspace{-0.0\textwidth}
+% \begin{minipage}{1.0\textwidth}
+\begin{mathpar}
+
+\irule{Empty}{}{\WFc{\Nil}{ψ}}
+
+\irule{Decl}
+{\ttcheck{\Gamma}{ψ}{T}{\Type{}} \hspace{-1em}\\
+ %T \neq \Univ, %\hspace{-1em}\\
+ x \not \in \Gamma }
+{\WFc{Γ, \vdecl{x}{T}}{ψ}}
+
+\irule{Univ}
+{}
+{\ttcheck{\Gamma}{ψ}{\Univ}{\Type{}}}
+
+\irule{Var}
+{\WFc{\Gamma}{ψ} \hspace{-1em}\\ 
+  (\vdecl{x}{T}) \in \Gamma}
+{\tcheck{\Gamma}{ψ}{x}{T}}
+
+
+\irule{Prod/Sigma}
+{\ttcheck{\Gamma, \vdecl{x}{A}}{ψ}{B}{\Type{}} \hspace{-1em}}
+{\ttcheck{\Gamma}{ψ}{\Pi/\Sigma \vdecl{x}{A}\mdot B}{\Type{}}}
+
+\irule{Pair}
+{%\ttcheck{\Gamma}{ψ}{Σ x : A. B}{\Type{}} \\
+\tcheck{\Gamma}{ψ}{t}{A} \hspace{-1em} \\ \tcheck{\Gamma}{ψ}{u}{B\{\subs
+    x t}\}}
+{\tcheck{\Gamma}{ψ}{(t,u)_{x : A. B}}{Σ x : A. B}}
+
+\irule{Proj1}
+{\tcheck{\Gamma}{ψ}{t}{\Sigma \vdecl{x}{A}\mdot B}}
+{\tcheck{\Gamma}{ψ}{\ensuremath{π_1\ t}}{A}}
+
+\irule{Proj2}
+{\tcheck{\Gamma}{ψ}{t}{\Sigma \vdecl{x}{A}\mdot B}}
+{\tcheck{\Gamma}{ψ}{π_2\ t}{B\{\subs x {π_1\ t}\}}}
+% \irule{Fin}
+% {n \in \{ 0, 1, 2 \}}
+% {\tcheck{\Gamma}{ψ}{\Fin{n}}{\Type{}}}
+% \irule{Fin-Intro}
+% {k, n \in \{ 0, 1, 2 \}, k < n}
+% {\tcheck{\Gamma}{ψ}{\fin{k}{n}}{\Fin{n}}}
+% \irule{Fin-Elim}
+% {n \in \{ 0, 1, 2 \} \\
+%   \tcheck{\Gamma, x : \Fin{n}}{ψ}{P}{\Type{}} \\
+%   ∀ k < n. \tcheck{\Gamma}{ψ}{p_k}{P\ \fin{k}{n}} \\
+%   \tcheck{\Gamma}{ψ}{f}{\Fin{n}}}
+% {\tcheck{\Gamma}{ψ}{\texttt{felim}_{P}\ \overrightarrow{p_k}\ f}{P\
+% f}}
+
+\irule{Conv}
+{\tcheck{\Gamma}{ψ}{t}{A} \hspace{-1em} \\ \ttcheck{Γ}{ψ}{B}{\Type{}} \hspace{-1em} \\ \tconv{ψ}{A}{B}}
+{\tcheck{\Gamma}{ψ}{t}{B}}
+
+\irule{Lam}
+{\tcheck{\Gamma, \vdecl{x}{A}}{ψ}{t}{B}}
+{\tcheck{\Gamma}{ψ}{\lambda \vdecl{x}{A}\mdot t}{\Pi \vdecl{x}{A}\mdot B}}
+
+\irule{App}
+{\tcheck{\Gamma}{ψ}{t}{\Pi \vdecl{x}{A}\mdot B} \hspace{-1em} \\
+ \tcheck{\Gamma}{ψ}{t'}{A}}
+{\tcheck{\Gamma}{ψ}{t\ t'}{B\{\subs x {t'}\}}}
+
+\irule{Id-Intro}
+{\tcheck{\Gamma}{ψ}{t}{T}}
+{\tcheck{\Gamma}{ψ}{\refl{T}{t}}{\Id{T}{t}{t}} }
+
+
+\irule{Id}
+{\ttcheck{\Gamma}{ψ}{T}{\Type{}}\\
+\tcheck{\Gamma}{ψ}{A, B}{T}}
+{\ttcheck{\Gamma}{ψ}{\Id{T}{A}{B}}{\Type{}}}
+
+
+\irule{Equiv-Intro}
+{\tcheck{\Gamma}{ψ}{i}{ \Elt{A} ` = \Elt{B}}}
+{\tcheck{\Gamma}{ψ}{\texttt{equiv}\ i}{\Id{\Univ}{A}{B}}}
+
+
+\irule{Id-Elim (J)}
+{\tcheck{\Gamma}{ψ}{i}{\Id{T}{t}{u}} \\
+\ttcheck{\Gamma, x : T, e : \Id{T}{t}{x}}{ψ}{P}{\Type{}} \\
+\tcheck{\Gamma}{ψ}{p}{P\{\subs x t\}\{\refl{T}{t}/e\}}}
+{\tcheck{\Gamma}{ψ}{\texttt{J}_{λx\ e. P}~i~p}{P\{\subs x u, \subs e i\}}}
+\end{mathpar}
+\caption{Typing judgments for our extended MLTT}\label{fig:emltt}
+\end{figure}
+
+
+
+% We abuse notations
+% and consider Π, Σ and \texttt{Id} as codes when seen as inhabitants of
+% \Univ, and as regular syntax for the type constructors in the rest of
+% the type theory.
+
+% P[t,refl] -> P[t,equiv i]: P is abstracted by x : U and Eq t x, can't look
+% inside the universe x, but p : P[t,refl] might use J q refl =
+% q. Replace by J q (equiv i) = q[i.1 y/y]. 
+
+%We write $\tcheck{Γ}{}{T}{s}$
+%as a shorthand for $\tcheck{Γ}{}{T}{\Type{u}}$ for some universe $u$.
+% \begin{figure}
+% \begin{mathpar}
+
+% % \irule{Univ-Id}
+% % {\tcheck{\Gamma}{ψ}{A}{\Univ} \\
+% % \tcheck{\Gamma}{ψ}{a, b}{\Elt{A}}}
+% % {\tcheck{\Gamma}{ψ}{a =_A b}{\Univ}}
+
+% \irule{Univ-Fin}
+% {τ \in \{ \hzeroType, \honeType, \htwoType \}}
+% {\tcheck{\Gamma}{ψ}{\hat{τ}}{\Univ}}
+
+% \irule{Univ-$\hat \Pi$, -$\hat \Sigma$}
+% {\tcheck{\Gamma}{ψ}{A}{\Univ} \\
+% \tcheck{\Gamma, x : \Elt{A}}{ψ}{B}{\Univ}}
+% {\tcheck{\Gamma}{ψ}{\hat \Pi/\hat \Sigma x : A. B}{\Univ}}
+% \end{mathpar}
+% \caption{Definition of \Univ{} (inductive-recursive with \Elt{\_})}\label{fig:univ}
+% \end{figure}
+
+% \begin{figure}[!h]
+% \begin{mathpar}
+
+% \begin{array}{lcll}
+%   \texttt{Elt} : \Univ & → & \Type{} & \\
+%   \Elt{\{\hat \Pi/\hat \Sigma\} x : A. B} & = & \{Π/Σ\} x :
+%   \Elt{A}. \Elt{B} & \\
+%   \Elt{\hat{τ}} & = & τ & {τ \in \{ \hzeroType, \honeType, \htwoType \}} \\
+%   % \Elt{\hFin{n}} & = & \Fin{n} & \\
+% %  \Elt{a =_{τ} b} & = & \texttt{Id}_{\Elt{τ}}\ a\ b & \\
+%   \Elt{\hat{C}[X]} & = & C[\Elt{X}] & \text{(homomorphism)}
+% \end{array}
+
+% \begin{array}{lcll}
+%   \texttt{Eq}_{U : \Univ} : \Elt{U} → \Elt{U} & → & \Type{} & \\
+%   \Eq{\hat \Pi x : A. B}{f}{g} & = & Π x : \Elt{A}. \Elt{f\ x =_B g\ x} \\
+%   \Eq{\hat \Sigma x : A. B}{t}{u} & = & %Π t u : (Σ x : \Elt{A}. \Elt{B}), 
+%   Π e : \Elt{π_1\ t =_A π_1\ u}, π_2\ t =_{B\ (π_1\ t)} \texttt{J}_{λx. \Elt{B x}}\
+%   e\ (π_2\ u)
+%  % \Eq{a =_{τ} b}{e}{e'} & = & \mathbf{1} &
+% \end{array}
+
+% \end{mathpar}
+% \caption{Universe decoding}\label{fig:univelt}
+% \end{figure}
+

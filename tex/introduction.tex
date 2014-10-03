@@ -1,0 +1,145 @@
+\section{Introduction}
+\label{sec:introduction}
+A notorious difficulty with intensional type theories like Martin-Löf
+type theory or the calculus of inductive constructions is the
+lack of extensionality principles in the core theory, and notably in
+its notion of propositional equality. This makes the theory both
+inflexible with respect to the notion of equality one might want to
+use on a given type and also departs from the traditional equality
+notion from set theory. Functional extensionality (pointwise equal
+functions are equal), propositional extensionality (logically
+equivalent propositions are equal) and proof irrelevance (all proofs
+of the same proposition are equal) are principles that are valid
+extensions of type theory and can be internalized in an intensional
+theory, in the manner of Altenkirch et al.~\cite{altenkirch-mcbride-wierstra:ott-now}.  Another
+extensionality principle coming from homotopy theory is univalence,
+whose first instance is the idea that isomorphic types are
+equal~\cite{Voevodsky:2011yq,Pelayo:2012uq}. All these principles
+should be imposable on a type theory like MLTT because, intuitively,
+no term can distinguish between isomorphic types, pointwise equal
+functions, logically equivalent propositions or two proofs of the same
+proposition. This hints at the idea that there ought to exist an
+internal model of type theory where equality is defined on a type by
+type basis using the aforementioned principles and a translation that
+witnesses that any term of the theory is equipped with proofs that
+they respect these properties. Formalizing this definitional
+translation is the goal of this paper.
+
+% However, before even starting to think about formalizing the
+% translation, we need to enhance the universe system of \Coq to handle
+% polymorphism. As the translation will be given as a set of definitions
+% inside the assistant, we will have to instantiate these definitions at
+% various levels depending on the source term. With fixed universes for
+% each translated construct, we would quickly run into inconsistencies. We
+% hence also present the design and implementation of a universe polymorphic
+% extension of \Coq, that is conservative over the original system.
+
+The central change in the theory is in the treatment of equality.  Much
+interest has been devoted to the study of the identity type of type
+theory and models thereof, starting with the groupoid model of Hofmann
+and Streicher \cite{groupoid-interp}. This eventually led to the
+introduction of homotopy type theory and the study of the ω-groupoid
+model of type theory with identity types, which validates extensionality
+principles.
+% \cite{DBLP:journals/corr/abs-0812-0409}. 
+This model in turn
+guides work to redesign type theory itself to profit from its
+richness, and develop a new theory that internalizes the new
+principles. Preliminary attempts have been made, notably by Licata and
+Harper \cite{DBLP:conf/popl/LicataH12} who develop a 2-dimensional
+version of an hybrid intensional/extensional type theory which
+integrates functional extensionality and univalence in the definition
+of equality. Work is underway to make it more intensional, and this
+starts by making the step to higher dimensions, whether finite (weak
+n-groupoids) or infinite (weak ω-groupoids)
+\cite{DBLP:conf/csl/AltenkirchR12}. %
+%
+Our work here concentrates on the internalization in \Coq of Hofmann and
+Streicher's groupoid model where we can have a self-contained definition
+of the structures involved.
+
+Our first motivation to implement this translation is to explore the
+interpretation of type theory in groupoids in a completely
+intensional setting and in the type theoretic language, leaving no space
+for imprecision on the notions of equality and coherence involved.  We
+also hope to give with this translation a basic exposition of the
+possible type theoretic implications of the groupoid/homotopy models,
+bridging a gap in the literature. 
+%
+On the technical side, the definition of the groupoid model actually
+requires to reason at a 2-dimensional level. This is due to the way we
+interpret the strictness in the definition of groupoids. 
+%
+Indeed, interpreting strictness by propositional equality seems to fail
+when it comes to define for instance the groupoid on the function
+space. Our interpretation of strictness is closer to the idea that a
+groupoid is a weak ω-groupoid for which all equalities at dimension 2
+are the same. 
+%
+That is, we only use identity types to express triviality of higher
+dimension, not coherences themselves. 
+%
+As the model that we use does not have the uniqueness of identity proof
+principle, the two ways of formalizing groupoids mentionned above are
+different.
+%
+Our presentation requires less properties on identity types,
+but we still need the axiom of functional extensionality.
+%
+Also, this indicates that if we scale to ω-groupoids, the presence of
+identity types in the core type theory will
+not be necessary anymore and so the core type theory will be axiom free.
+%
+Thus, this paper can be seen as a proof of concept that it is possible
+to interpret homotopy type theory into type theory without identity
+types.
+
+
+% coherences even limited at
+% groupoids, the the structures are already quite tedious to manipulate and we
+% found some interesting conditions on the structure of $Π$ and $Σ$ types
+% that we believe were never presented in this form before. In the
+% development, we strived to be as generic as possible and use the
+% abstract structures of category theory to not be essentially tied to a
+% particular dimension. That level of genericity also relies on the
+% extension of the system with universe polymorphism.
+
+% This translation could also be used to complete a forcing
+% translation of type theory into type theory~\cite{hal-00685150}. By
+% building up forcing layers on top of a core type theory, one can
+% introduce new logical operators or type constructors (e.g. modal logic,
+% recursive types), defined by translation. For correctness, this
+% translation relies on a type theory that integrates proof-irrelevance
+% and functional extensionality. The present translation gives the
+% expressive power needed to compose with the forcing translation and get
+% a fully definitional extension of type theory with forcing.
+
+% To summarize, our contributions are: 
+% \begin{enumerate}
+% \item A theory of groupoids compatible with the ω-groupoids approach
+%   and a partially mechanized interpretation of type theory into groupoids.
+% \item A type-theoretic description of the necessary conditions on the
+%   interpretation of function types, including dependent product types
+%   which give rise to dependent groupoid functors and dependent sums.
+% \item A proof of concept that it is possible to interpret homotopy
+%   type theory into type theory without identity types.
+% \end{enumerate}
+
+The paper is organized as follows: Section \ref{sec:setting-translation}
+introduces the source type theory of the translation and some features of the proof assistant
+that are used in the formalization. The formal model includes a
+formalization of groupoids and associated structures
+(\S\ref{sec:w2gpds}-\ref{sec:rew}) and a construction of the groupoids
+interpreting the standard type constructors
+(\S\ref{sec:depprod}-\ref{sec:sigma}). Section
+\ref{sec:interpretation} presents a semi-formal interpretation of the
+dependent type theory in the groupoid model and gives proofs that our
+interpretation validates a univalence principle at the level of sets
+(\S\ref{sec:extprinc}).
+ % and conclude (Section \ref{sec:conclusion}).
+%
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

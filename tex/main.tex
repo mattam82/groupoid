@@ -1,0 +1,169 @@
+\documentclass[runningheads,a4paper]{llncs}
+\usepackage[T1]{fontenc}
+
+\usepackage{utf}
+\usepackage{float}
+\usepackage{stfloats}
+%\usepackage{midfloat}
+%\usepackage{dblfloatfix}
+\usepackage{subfig}
+\usepackage{latexsym,amssymb,amsmath,ae,aeguill,amscd,stmaryrd}
+\let\mathbb\undefined  % delete the command definition 
+\usepackage{bbold}     % let bbold define its own \mathbb command
+%\usepackage{mathrsfs}
+\usepackage{xcolor}
+\usepackage{tikz,xspace}
+\usetikzlibrary{arrows,automata}
+\usepackage[]{hyperref}
+
+% My packages
+\usepackage{abbrevs}
+\usepackage{coq}
+\usepackage{code}
+\usepackage{qsymbols}
+
+\usepackage[color]{coqdoc}
+\definecolor{kwblack}{rgb}{0,0,0}
+\def\coqdockwcolor{kwred}
+\renewcommand{\coqdocnotation}[1]{#1}
+\renewcommand{\coqexternalref}[3]{\href{#2.html\##1}{\textcolor{black}{#3}}}
+
+\renewcommand{\coqdef}[3]{\phantomsection\hypertarget{coq:#1}{\text{#3}}}
+
+\setlength{\coqdocbaseindent}{0.5em}
+
+\newcommand{\aidememoire}[1]{\textcolor{red}{[[ #1 ]]}}
+\def\interp#1{\ensuremath{\llbracket #1 \rrbracket}}
+\usepackage{url}
+
+\input{univmacros}
+
+\def\textchi{\ensuremath{\chi}}
+\def\textbeta{\ensuremath{\beta}}
+\DeclareUnicodeCharacter{8657}{\ensuremath{\uparrow}}
+
+\def\coqlibrary#1#2#3{}
+
+\renewenvironment{coqdoccode}{\begin{footnotesize}}{\end{footnotesize}}
+\def\coqcode#1{#1}
+
+% \renewcommand{\coqdocemptyline}{\vspace{0.3em}}
+
+\def\kw#1{\mathsf{#1}}
+\def\coqdoccst#1{{\color{\coqdoccstcolor}{\textsf{#1}}}}
+\def\cst#1{{\color{\coqdoccstcolor}{#1}}}
+
+\def\eqty#1#2#3{\kw{eq}~#1~#2~#3}
+\def\matcheqkw{\kw{matcheq}}
+\def\matcheq#1#2#3{\matcheqkw\ #1\ \kw{in}\ #2\ \kw{gives}\ #3}
+\def\vec#1{\ensuremath{\overrightarrow{#1}}}
+\def\nfdelta{{\downarrow^{δ}}}
+\def\nfdeltab#1{#1{\downarrow^{δ}}}
+\def\hnfbetadelta{\downarrow_{βδ}}
+\def\lrule#1{\RefTirName{#1}}
+
+%\renewcommand{\irule}[3]
+%{\inferrule[#1] {\scriptstyle#2 }{\scriptstyle#3 }}
+
+\begin{document}
+
+\mainmatter  % start of an individual contribution
+
+\title{Internalization of the Groupoid Interpretation of Type Theory}
+%\subtitle{}
+
+\author{Matthieu Sozeau\inst{1,2} \and Nicolas Tabareau\inst{1,3}}
+
+\date{}
+
+\institute{
+$\pi r^2$ and Ascola teams, INRIA \and 
+Preuves, Programmes et Systèmes (PPS) \and 
+Laboratoire d'Informatique de Nantes Altantique (LINA)  
+\\
+\email{firstname.surname@inria.fr}
+}
+
+
+\def\mathrm#1{#1}
+
+\maketitle
+%  Already,formalizing such weak structures is a difficult endeavor. 
+
+\begin{abstract}
+Homotopical interpretations of Martin-Löf type theory lead toward an
+interpretation of equality as a richer, more extensional
+notion. Extensional or axiomatic presentations of the theory with
+principles based on such models do not yet fully benefit from the power
+of dependent type theory, that is its computational
+character. Reconciling intensional type theory with this richer notion
+of equality requires to move to higher-dimensional structures where
+equality reasoning is explicit. In this paper, we follow this idea and
+develop an internalization of a groupoid interpretation of Martin-Löf
+type theory with one universe respecting the invariance by isomorphism
+principle. Our formal development relies crucially on ad-hoc
+polymorphism to overload notions of equality and on a conservative
+extension of Coq's universe mechanism with polymorphism.
+\end{abstract}
+
+
+
+\input{introduction}
+
+\input{setting}
+
+\section{Formalization of groupoids}
+\label{sec:formalization}
+
+\input{groupoid}
+
+\section{The groupoid interpretation}
+\label{sec:interpretation}
+
+
+\input{groupoid_interpretation_def_light}
+
+% \input{groupoid_interpretation}
+
+% \input{type-theory-elab}
+
+%\input{bench-apps}
+
+\input{related-concl}
+
+% This is the text of the appendix, if you need one.
+
+% \acks
+
+% Acknowledgments, if needed.
+
+% We recommend abbrvnat bibliography style.
+
+\bibliographystyle{splncs}
+\bibliography{biblio}
+
+% \newpage
+
+% \appendix
+% \section{Algebraic universes}
+% \label{sec:algunivs}
+% \input{appendix_univs}
+
+
+% \newpage
+% \appendix
+% \section{Algebraic universes}
+% \label{sec:algunivs}
+% \input{appendix_univs}
+
+% The bibliography should be embedded for final submission.
+
+% \begin{thebibliography}{}
+% \softraggedright
+
+% \bibitem[Smith et~al.(2009)Smith, Jones]{smith02}
+% P. Q. Smith, and X. Y. Jones. ...reference text...
+
+% \end{thebibliography}
+
+\end{document}

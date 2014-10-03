@@ -1,0 +1,73 @@
+We show here that the algebraic universes are sufficient to typecheck
+terms in the calculus, and that the kernel only needs to handle atomic
+constraints. Indeed, we have the invariant that taking least upper
+bounds $\lub{u}{v}$ will always give algebraic universes and that the
+constraints to be checked during conversion can always be reduced to
+atomic ones.
+
+To show this, we first have to introduce a few definitions related to the form 
+of universes appearing in terms:
+
+\begin{definition}[Arity]
+  A term $t$ is an arity if it is of the form $Π \overrightarrow{(x : T)}, \Type{u}$.
+\end{definition}
+
+\begin{definition}[Non-algebraic term]
+  A term $t$ is \emph{non-algebraic} if all universes appearing in it are
+  variables/levels.
+\end{definition}
+
+\begin{definition}[Depth-1 algebraic term]
+  A term $t$ is depth-1 algebraic if:
+  \begin{itemize}
+  \item $t$ is an arity $Π \overrightarrow{(x : T)}, \Type{u}$, 
+    the types $\overrightarrow{T}$ are non-algebraic and $u$ is an algebraic universe.
+  \item Otherwise, if $t$ is non-algebraic.
+  \end{itemize}
+\end{definition}
+
+We can show:
+\begin{lemma}[Depth-1 algebraic types]
+  If $\tcheck{Γ}{ψ}{t}{T}$ then $t$ is non-algebraic and $T$ is depth-1 algebraic.
+  If $\WFc{Γ}{ψ}$ and $\vdecl{x}{T} \in Γ$ then $T$ is non-algebraic.
+\end{lemma}
+\begin{proof}
+  By mutual induction on the derivations.
+  The interesting case is \lrule{Prod}:
+  We have by induction that $s$ and $s'$ are depth-1 algebraic, we have
+  to show that their least upper bound is as well: 
+  $\lub{\max{le}{lt}}{\max{le'}{lt'}} = \max{le \cup le'}{lt \cup lt'}$.
+  Clearly, least upper bounds of algebraic universes stay in the subset
+  of algebraic universes.
+
+  For \lrule{Lambda}, we have to check that the domain $A$ is
+  non-algebraic: this follows by induction on the first premise, as $A$
+  appears in a term position.
+
+  The other cases follow by induction.
+\end{proof}
+
+This invariant is useful to show that the constraints necessary to
+typecheck a term can be reduced to a set of \emph{atomic} constraints
+between universe levels. Looking at a typing derivation, we see that
+constraints are checked only in the rule \lrule{R-Type}, in a premise
+of a \lrule{Conv} rule application:
+\begin{mathpar}
+\irule{}
+{\tgenconstr{ψ}{u}{\relR}{v}}
+{\tgenconv{\relR}{ψ}{\Type{u}}{\Type{v}}}
+\end{mathpar}
+
+We know that the type on the right is non-algebraic due to
+\lrule{Conv}'s second premise, hence $v$ is a variable $i$. For
+\lrule{$\preceq$-Type}, $u$ could be depth-1 algebraic and the
+constraint we must check could be of the form: $\max{\vec{le}}{\vec{lt}}
+\leq i$.  This can be translated to an equivalent set of atomic
+constraints:
+\[\max{\vec{le}}{\vec{lt}} \leq i "<=>" \overrightarrow{le \leq i} ∧ \overrightarrow{lt < i}\]
+
+For \lrule{Conv-Type}, we know that the two types are non-algebraic as
+they come from domains of products or are non-algebraic in the first
+place (arities are convertible with arities only).
+Hence the kernel need only check that sets of atomic constraints are
+consistent. 

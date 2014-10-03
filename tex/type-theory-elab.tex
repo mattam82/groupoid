@@ -1,0 +1,748 @@
+\section{Elaborating Polymorphic Universes}
+\label{sec:type-theory-with}
+
+This section presents our elaboration from a source level language
+with typical ambiguity and universe polymorphism to a conservative
+extension of the core calculus presented in
+Section~\ref{sec:definitions}.
+%
+Typical ambiguity lets users write only anonymous levels (as
+$\Type{}$) in the source language, leaving the relationship between
+different universes to be implicitly inferred by the system.  The job
+of the elaborator is to give names to these levels and compute the
+constraints associated to them that make the term type-check, if
+possible.  Roughly speaking, typical ambiguity associated with
+universe polymorphism gives something akin to Hindley-Milner type
+inference: the levels of universes are entirely inferred by the
+system, as well as the proper generalization by universes to give a
+most general type. A striking example of this additional generality is
+the following.  Suppose we define two universes:
+%
+\input{defU}
+% \begin{verbatim}
+%   Definition U2 := Type.
+%   Definition U1 := Type : U2.
+% \end{verbatim}
+% In the non-polymorphic case but with typical ambiguity, these two
+% definitions are elaborated as $\cstu{\texttt{U2}}{} := \Type{u} :
+% \Type{u+1}$ and $\cstu{\texttt{U1}}{} := \Type{v} :
+% \cstu{\texttt{U2}}{}$ with a single, global constraint $v < u$.
+
+% In a polymorphic setting, \texttt{U2} is elaborated as a polymorphic
+% constant $\cstu{\texttt{U2}}{u} := \Type{u} : \Type{u+1}$ where $u$ is
+% a bound universe variable. The monomorphic definition of \texttt{U1}
+% is elaborated as $\cstu{\texttt{U1}}{} := \Type{v} :
+% \cstu{\texttt{U2}}{u'} \equiv \Type{u'}$ with a single global
+% constraint $v < u'$ for a fresh $u'$. In other words, \texttt{U2}'s
+% universe is no longer fixed and a fresh level is generated at every
+% occurence of the constant.
+
+We can hence reuse a polymorphic constant at different, incompatible
+levels. Another example is given by the polymorphic identity function,
+defined as: \[\cstu{id}{u} := λ (A : \Type{u}) (a : A), a : Π (A :
+\Type{u}), A → A\]
+
+If we apply $\cstu{id}{}$ to itself, we elaborate an application:
+\[(\cstu{id}{v}\ (Π (A : \Type{u}), A → A)~\cstu{id}{u} : (Π (A :
+\Type{u}), A → A)\]
+
+Type-checking generates a constraint in this case, to ensure that
+the universe of $Π (A : \Type{u}), A → A$, that is $\lub{u}{u+1} = u+1$,
+is smaller or equal to (the fresh) $v$. It adds indeed a constraint
+$u < v$.  With a monomorphic $\cst{id}$, the generated constraint $u < u$
+raises a universe inconsistency.
+
+\subsection{Universe Polymorphic Definitions}
+\label{sec:univ-polym-defin}
+
+The elaboration actually needs a notion of definitions in its target
+language, so we first formalize an extension of the core theory defined
+in Section~\ref{sec:definitions}.
+
+We build on the design of \citet{DBLP:journals/tcs/HarperP91} for the
+\textsc{LEGO} proof assistant, allowing arbitrary nesting of polymorphic
+constants. We simply add a new term former to the calculus
+$\cstu{c}{\vec{u}}$ for referring to a constant $c$ defined in a global
+environment $Σ$, instantiating its universes at $\vec{u}$. The typing judgment
+(denoted $\vdash^{d}$) is made relative to this environment and there is
+a new introduction rule for constants:
+\begin{mathpar}
+\irule{Constant}
+{(c : \vec{i} \models ψ_c \vdash t : τ) \in Σ \\
+  ψ \models ψ_c[\vec{u/i}]}
+{\tcheckd{Σ; Γ}{ψ}{\cstu{c}{\vec{u}}}{τ[\vec{u/i}]}}
+\end{mathpar}
+
+Universe instances $\vec{u}$ are simply lists of universe \emph{levels} that
+instantiate the universes abstracted in definition $c$. A single constant
+can hence be instantiated at multiple different levels, giving a form of
+parametric polymorphism. The constraints associated to these variables
+are checked against the given constraints for consistency, just as if we 
+were checking the constraints of the instantiated definitions directly.
+The general principle guiding us is that the use of
+constants should be \emph{transparent}, in the sense that the
+system should behave exactly the same when using a constant or its body.
+Substitution of universe levels for universe levels is defined in a
+completely standard way over universes, terms and constraints.
+
+Of course, well-formedness of the new global context of constants $Σ$
+has to be checked (Figure~\ref{fig:constglob}). As we are adding a
+global context and want to handle both polymorphic and monomorphic
+definitions (mentioning global universes), both a global set of
+constraints $Ψ$ and local universe constraints $ψ_c$ for
+each constant must be handled.
+
+\begin{figure}
+\begin{mathpar}
+\irule{Constant-Mono}
+{Σ \vdash^{d}_{Ψ} \\
+Ψ \cup ψ_c \models \\
+\tcheckd{Σ; \Nil}{Ψ \cup ψ_c}{t}{τ} \\ 
+c \notin Σ}
+{Σ, (c : ε \vdash t : τ) \vdash^{d}_{Ψ \cup ψ_c}}
+
+\irule{Constant-Poly}
+{Σ \vdash^{d}_Ψ \\
+Ψ \cup ψ_c \models \\
+\tcheckd{Σ; \Nil}{Ψ \cup ψ_c}{t}{τ} \\ 
+c \notin Σ}
+{Σ, (\cst{c} : \vec{i} \vdash^{d}_{ψ_c} t : τ) \vdash_{Ψ}^{d}}
+\end{mathpar}
+\caption{Well-formed global environments}\label{fig:constglob}
+\end{figure}
+
+When introducing a constant in the global environment, we are given a
+set of constraints necessary to typecheck the term and its type. In
+the case of a monomorphic definition (Rule \textsc{Constant-Mono}), we
+simply check that the local constraints are consistent with the global
+ones and add them to the global environment.  In Rule
+\textsc{Constant-Poly}, the abstraction of local universes is
+performed. In the polymorphic case, an additional set of
+universes $\vec{i}$ is given, for which the constant is meant to be
+polymorphic. To support this, the global constraints are not augmented
+with those of $ψ_c$ but instead are kept locally to the constant
+definition $c$.
+
+We add a new reduction rule for unfolding of constants:
+\[\begin{array}{lclr}
+  \cstu{c}{\vec{u}} & "->"_\delta & t[\vec{u/i}] & (\cst{c} :
+  \vec{i} \models \_ \vdash t : \_) \in Σ
+\end{array}\]
+Again, conversion should be a congruence modulo $δ$. The actual strategy
+employed in the kernel to check conversion/cumulativity of $T$ and $U$
+is to always take the $β$ head normal form of $T$ and $U$ and to do head
+$δ$ reductions step-by-step (choosing which side to unfold according to
+an oracle if necessary), as described by the following rules:
+\begin{mathpar}
+\irule{R-δ-l}
+{\cstu{c}{\vec{i}} "->"_\delta t \\
+  \tgenconv{R}{ψ}{t~\vec{a}}{u}}
+{\tgenconv{R}{ψ}{\cstu{c}{\vec{i}}~\vec{a}}{u}}
+
+\irule{R-δ-r}
+{\cstu{c}{\vec{i}} "->"_\delta u \\
+  \tgenconv{R}{ψ}{t}{u~\vec{a}}}
+{\tgenconv{R}{ψ}{t}{\cstu{c}{\vec{i}}~\vec{a}}}
+\end{mathpar}
+
+This allows to introduce an additional rule for \emph{first-order}
+unification of constant applications, which poses a number of problems
+when looking at conversion/unification with universes. The rules for
+conversion include the following short-cut rule \lrule{R-FO} that
+avoids unfolding definitions in case both terms start with the same
+head constant. 
+%
+\begin{mathpar}
+\irule{R-FO}
+{\tgenconv{R}{ψ}{\vec{as}}{\vec{bs}}}
+{\tgenconv{R}{ψ}{\cstu{c}{\vec{u}}~\vec{as}}{\cstu{c}{\vec{v}}~\vec{bs}}}
+\end{mathpar}
+%
+This rule not only has priority over the \lrule{R-δ}
+rules, but \emph{backtrack} on its application can also be done if the
+premise cannot be derived.
+
+The question is then, what can be expected on universes? A natural
+choice is to allow identification if the universe instances are
+pointwise equal: $\tconstreq{ψ}{\vec{u}}{\vec{v}}$. This is certainly a
+sound choice, if we can show that it does not break the principle of
+\emph{transparency} of constants. Indeed, due to the cumulativity
+relation on universes, we might get in a situation where the $δ$-normal
+forms of $\cstu{c}{\vec{u}}~\vec{as}$ and $\cstu{c}{\vec{v}}~\vec{bs}$
+are convertible while $\tconstrneq{ψ}{\vec{u}}{\vec{v}}$. This is where
+backtracking is useful: if the constraints are not derivable, we
+backtrack and unfold one of the two sides, ultimately doing
+conversion on the $βδ$-normal forms if necessary. Note that
+equality of universe instances is forced even if in cumulativity mode.
+
+\begin{mathpar}
+\irule{R-FO}
+{\tgenconv{R}{ψ}{\vec{as}}{\vec{bs}} \\
+  \tconstreq{ψ}{\vec{u}}{\vec{v}}}
+{\tgenconv{R}{ψ}{\cstu{c}{\vec{u}}~\vec{as}}{\cstu{c}{\vec{v}}~\vec{bs}}}
+\end{mathpar}
+
+There is a straightforward conservativity result of the calculus with
+polymorphic definitions over the original one. Below, $\nfdeltab{T}$
+denotes the δ-normalization of $T$, which is terminating as there is
+no recursive constants. It leaves us with a term with no constants,
+i.e., a term of \textsc{CC}.
+
+\begin{theorem}[Conservative extension]
+  If $\tcheckd{Σ; Γ}{Ψ}{t}{T}$ then $\nfdeltab{Γ}\vdash_{Ψ} t\nfdelta :
+  T\nfdelta$.
+  If $\tgenconv{R}{Ψ}{T}{U}$ then $\tgenconv{R}{Ψ}{T\nfdelta}{U\nfdelta}$.
+  If $(c : \vec{i} \vdash^{d}_{ψ_c} t : τ) \in Σ$ then 
+  for all fresh \vec{u}, $\tcheck{Σ; ε}{ψ_c[\vec{u/i}]}{(t[\vec{u/i}])\nfdelta}{(τ[\vec{u/i}])\nfdelta}$.
+\end{theorem}
+\begin{proof}
+  By mutual induction on the typing, conversion and well-formedness
+  derivations. 
+
+  For typing and well-formedness, all cases are by induction except for
+  \textsc{Constant}:
+  \begin{mathpar}
+    \irule{}
+    {(c : \vec{i} \vdash^{d}_{ψ_c} t : τ) \in Σ \\
+      Ψ \models ψ_c[\vec{u/i}]}
+    {\tcheckd{Σ; Γ}{Ψ}{\cstu{c}{\vec{u}}}{τ[\vec{u/i}]}}
+  \end{mathpar}  
+
+  To show: $\tcheck{Γ\nfdelta}{Ψ}{(t[\vec{u/i}])\nfdelta}{(τ[\vec{u/i}])\nfdelta}$.
+  By induction and weakening, it becomes:
+  $\tcheck{Γ\nfdelta}{ψ_c[\vec{u/i}]}{(t[\vec{u/i}])\nfdelta}{(τ[\vec{u/i}])\nfdelta}$.
+  We conclude using the second premise of \textsc{Constant} and
+  monotonicity of typing with respect to constraint entailment.
+
+  For conversion, we must check that it is invariant under
+  $δ$-normalization. Most rules follow easily. For example, for
+  \lrule{R-δ-left}, we have by induction
+  $\tconv{ψ}{(t~\vec{a})\nfdelta}{\nfdelta{u}}$, and by definition
+  $(\cstu{c}{\vec{i}}~\vec{a})\nfdelta = (t~\vec{a})\nfdelta$.
+
+  For \lrule{R-FO}, we get
+  $\tgenconv{R}{\phi}{\vec{as}\nfdelta}{\vec{bs}\nfdelta}$
+  by induction. We have $(c : \vec{i} \vdash^{d}_{ψ_c} t : τ) \in Σ$.
+  By induction $\tcheck{}{ψ_c[\vec{u/i}]}{(t[\vec{u/i}])\nfdelta}{(τ[\vec{u/i}])\nfdelta}$.
+  By substitutivity of universes and the premise
+  $\tconstreq{\phi}{\vec{u}}{\vec{v}}$,
+  we deduce $\tgenconv{R}{\phi}{t[\vec{u/i}]\nfdelta}{t[\vec{v/i}]\nfdelta}$. We conclude by
+  substitutivity of conversion.  
+\end{proof}
+
+The converse implication is straightforward as only one rule has been
+added to the original calculus. 
+
+% \subsection{Shapes of universes and constraints}
+% \label{sec:shapes}
+% There are important subtleties regarding the form of universes and
+% constraints appearing in derivations. Not all universes appearing in a
+% derivation are levels: indeed when typechecking a product $Π x : A. B$,
+% we get as type the sort $\lub{u}{v}$ where $u$ and $v$ are the sorts of
+% $A$ and $B$ respectively. However, the form of universes considered in
+% this system is not the free algebra on $i + n$ and $\sqcup$, instead we
+% consider only universes which are universes levels $i$ or formal least
+% upper bounds of levels and successors of levels: $\max(\vec{i},
+% \vec{j+1})$. This subset is called the algebraic universes, and they
+% were introduced by \citet{HerbelinTypes} as a compact representation for
+% universes. We recall in appendix \ref{sec:algunivs} the definitions
+% needed to show that this subset of the universes is enough to typecheck
+% terms and that the kernel need only handle atomic constraints.
+% We have setup our basic framework for
+% polymorphic definitions. A separate elaboration phase, described in \S
+% \ref{sec:type-theory-with} produces terms annotated with universes to
+% be checked by the kernel. It takes a source level expression written
+% using typical ambiguity (anonymous \Type{} occurences) and produces an
+% annotated term with the set of constraints its typing entails. This
+% can be finally be fed to the kernel as a monomorphic or polymorphic
+% definition.
+
+% \subsection{Shapes of universes and constraints}
+% \label{sec:shapes}
+% There are important subtleties regarding the form of universes and
+% constraints appearing in derivations. Not all universes appearing in a
+% derivation are levels: indeed when typechecking a product $Π x : A. B$,
+% we get as type the sort $\lub{u}{v}$ where $u$ and $v$ are the sorts of
+% $A$ and $B$ respectively. However, the form of universes considered in
+% this system is not the free algebra on $i + n$ and $\sqcup$, instead we
+% consider only universes which are universes levels $i$ or formal least
+% upper bounds of levels and successors of levels: $\max(\vec{i},
+% \vec{j+1})$. This subset is called the algebraic universes, and they
+% were introduced by \citet{HerbelinTypes} as a compact representation for
+% universes. We recall in appendix \ref{sec:algunivs} the definitions
+% needed to show that this subset of the universes is enough to typecheck
+% terms and that the kernel need only handle atomic constraints.
+
+\subsection{Elaboration}
+\label{sec:elaboration}
+
+Elaboration takes a source level expression and produces a corresponding
+core term together with its inferred type. In doing so, it might use
+arbitrary heuristics to fill in the missing parts of the
+source expression and produce a complete core term. A canonical example
+of this is the inference of implicit arguments in dependently-typed
+languages: for example, applications of the $\cst{id}$ constant defined
+above do not necessarily need to be annotated with their first argument
+(the type $A$ at which we want the identity $A → A$), as it can be
+inferred from the type of the second argument, or the typing constraint
+at the point this application occurs. Other examples include the
+insertion of coercions and the inference of dictionaries.
+
+Most elaborations do not go from the source level to the core terms
+directly, instead they go through an intermediate language that 
+extends the core language with \emph{existential variables},
+representing holes to be filled in the term. Existential variables are
+declared in a context: 
+\[Σ_e ::= ε ~`|~ Σ_e \cup (?_n : Γ \vdash body : τ)\]
+where $body$ is empty or a term $t$ which is then called the \emph{value} of the
+existential.
+
+In the term, they appear applied to an instance $σ$ of their local
+context $Γ$, which is written $?_n[σ]$. The corresponding typing rule
+for the intermediate language is:
+\begin{mathpar}
+\irule{Evar}
+{(?_n : Γ \vdash \_ : τ) \in Σ_e\\
+Σ_e; Γ' \vdash σ : Γ}
+{Σ_e; Γ' \vdash\,?_n[σ] : τ[σ]}
+\end{mathpar}
+
+For polymorphic universes, elaboration keeps track of the new variables,
+that may be subject to unification, in a \emph{universe context}:
+\[Σ_u, Φ ::= \vec{u_s} \models \mathcal{C}\] Universe levels are
+annotated by a flag $s ::= \mathsf{r} `| \mathsf{f}$ during elaboration,
+to indicate their rigid or flexible status.  Elaboration expands any
+occurrence of the anonymous $\Type{}$ into a $\Type{i}$ for a fresh,
+rigid $i$ and every occurrence of the constant $\cst{c}$ into a fresh
+instance $\cstu{c}{u}$ ($\vec{u}$ being all fresh flexible levels). The
+idea behind this terminology is that rigid universes may not be tampered
+with during elaboration, they correspond to universes that must appear
+and possibly be quantified over in the resulting term. The flexible
+variables, on the other hand, do not appear in the source term and might
+be instantiated during unification, like existential variables. We will
+come back to this distinction when we apply minimization to universe
+contexts. The $Σ_u$ context subsumes the context of constraints $Ψ$ we
+used during typechecking.
+
+The elaboration judgment is written: \[Σ; Σ_e; Σ_u ; Γ \vdash_e t "<=" τ
+"~>" Σ_{e'}; Σ_{u'}; Γ \vdash t' : τ\]
+%
+It takes the global environment $Σ$, a set of existentials $Σ_e$, a
+universe context $Σ_u$, a variable context $Γ$, a source-level term $t$
+and a typing constraint $τ$ (in the intermediate language) and produces
+new existentials and universes along with an (intermediate-level) term
+whose type is guaranteed to be $τ$.
+
+Most of the contexts of this judgment are folded around in the obvious
+way, so we won't mention them anymore to recover lightweight notations.
+The important thing to note here is that we work at the intermediate
+level only, with existential variables, so instead of doing pure
+conversion we are actually using a unification algorithm when applying
+the conversion/cumulativity rules.
+
+Typing constraints come from the type annotation (after the $:$) of a
+definition, or are inferred from the type of a constant, variable or
+existential variable declared in the context. If no typing constraint is
+given, it is generated as a fresh existential variable of type
+$\Type{i}$ for a fresh $i$ ($i$ is flexible in that case).
+
+For example, when elaborating an application $\cst{f}~t$, under a typing
+constraint $τ$, we first elaborate the constant $\cst{f}$ to a term of
+functional type $\cstu{f}{i} : Π A : \Type{i}. B$, then we elaborate $t
+"<=" \Type{i} "~>" t', Σ_{u'}$. We check cumulativity
+$\icumul{Σ_{u'}}{B[t'/A]}{τ}{Σ_{u''}}$, generating constraints and
+returning $Σ_{u''} \vdash \cstu{f}{i}~t' : τ$.
+
+At the end of elaboration, we might apply some more inference to resolve
+unsolved existential variables. When there are no remaining unsolved
+existentials, we can simply unfold all existentials to their values in 
+the term and type to produce a well-formed typing derivation of the core
+calculus, together with its set of universe constraints.
+
+\subsubsection{Unification}
+\label{sec:unification}
+
+Most of the interesting work performed by the elaboration actually
+happens in the unification algorithm that is used in place of conversion
+during refinement. The refinement rule firing cumulativity is:
+\begin{mathpar}
+\irule{Sub}
+{Σ; Σ_e; Σ_u ; Γ \vdash_e t "~>" Σ_{e'}; Σ_{u'}; Γ \vdash t' : τ' \\
+  Σ_{e'}; Σ_{u'} := (\vec{u_s} \models ψ); Γ \vdash
+  \icumul{}{τ'}{τ}{Σ_{e''}, ψ'}}
+{Σ; Σ_e; Σ_u ; Γ \vdash_e t "<=" τ "~>" Σ_{e''}; (\vec{u_s} \models ψ'); Γ \vdash t' : τ}
+\end{mathpar}
+%
+If checking a term $t$ against a typing constraint $τ$ and $t$ is 
+a neutral term (variables, constants and casts), then we infer its 
+type $τ'$ and unify it with the assigned type $τ$.
+
+Contrary to the conversion judgment $\tcumul{ψ}{T}{U}$ which only checks
+that constraints are implied by $ψ$, unification and conversion during
+elaboration (Figure \ref{fig:icumul}) can additionally \emph{produce} a substitution of
+existentials and universe constraints, hence we have the judgment $Σ_e';
+Σ_{u'} := (\vec{u_s} \models ψ); Γ \vdash \icumul{}{T}{U}{Σ_{e''}, ψ'}$
+which unifies $T$ and $U$ with subtyping, refining the set of
+existential variables and universe constraints to $Σ_{e''}$ and $ψ'$,
+ so that $\tcumul{ψ'}{T[Σ_{e''}]}{U[Σ_{e''}]}$
+is derivable.  We abbreviate this judgment
+$\icumul{ψ}{T}{U}{ψ'}$, the environment of existentials $Σ_e$, the set
+of universe variables $\vec{u_s}$ and the local environment $Γ$ being
+inessential for our presentation.
+
+\begin{figure}
+\begin{mathpar}
+\irule{Elab-R-Type}
+{\tconsistent{ψ \cup u \relR v}}
+{\igenconv{\relR}{ψ}{\Type{u}}{\Type{v}}{ψ \cup u \relR v}}
+
+\irule{Elab-R-Prod}
+{\igenconv{=}{ψ}{A}{A'}{ψ'}  \\
+ \igenconv{\relR}{ψ'}{B}{B'}{ψ''}}
+{\igenconv{\relR}{ψ}{\Pi \vdecl{x}{A}\mdot B}{\Pi \vdecl{x}{A'}\mdot B'}{ψ''}}
+
+\irule{Elab-R-Red}
+{\igenconv{\relR}{ψ}{\whdb{A}}{\whdb{B}}{ψ'}} %\\ \text{$A$ or $B$ not in whnf}}
+{\igenconv{\relR}{ψ}{A}{B}{ψ'}}
+\end{mathpar}
+\caption{Conversion/cumulativity inference $\igenconv{\relR}{\_}{\_}{\_}{\_}$}\label{fig:icumul}
+\end{figure}
+
+The rules concerning universes follow the conversion judgment, building
+up a most general, consistent set of constraints according to the
+conversion problem. For the definition/existential fragment of the
+intermediate language, things get a bit more involved. Indeed, in
+general, higher-order unification of terms in the calculus of
+constructions is undecidable, so we cannot hope for a complete
+unification algorithm. Barring completeness, we might want to ensure
+correctness in the sense that a unification problem $t \equiv u$ is
+solved only if there is a most general unifier $σ$ (a substitution of
+existentials by terms) such that $t[σ] \equiv u[σ]$, like the one
+defined in \cite{Abel:2011fk}. This is however not the case in \Coq's
+unification algorithm, because of the use of a first-order unification
+heuristic. The next section presents a generalization of this
+algorithm to polymorphic universes.
+
+\subsubsection{First-Order unification}
+
+Consider unification of polymorphic constants. Suppose we are unifying
+the same polymorphic constant applied to different universe instances:
+$\cstu{c}{\vec{u}} \equiv \cstu{c}{\vec{v}}$. We would like to avoid
+having to unfold the constant each time such a unification
+occurs. What should be the relation on the universe levels then? A
+simple solution is to force $u$ and $v$ to be equal, as in the
+following example:
+\[\cstu{id}{j}~\Type{i} \equiv \cstu{id}{m}~((λ A : \Type{l}, A)~\Type{i})\]
+
+The at-typing generated constraints give $i < j, l ≤ m, i < l$. If we
+add the constraint $j = m$, then the constraints reduce to $i < m, i <
+l, l ≤ m "<=>" i < l, l ≤ m$. The unification didn't add any
+constraint, so it looks most general. However, if a constant hides an
+arity, we might be too strict here, for example consider the definition
+$\cstu{fib}{i,j} := λ A : \Type{i}, A → \Type{j}$ with no constraints and the
+unification problem:
+\[\icumul{}{\cstu{fib}{i,\Prop}}{\cstu{fib}{i',j}}{i = i' \cup \Prop =
+  j}\]
+Identifying $j$ and $\Prop$ is too restrictive, as unfolding would only
+add a (trivial) constraint $\Prop ≤ j$. The issue also comes up with
+universes that appear equivariantly. Unifying $\cstu{id}{i}~t \equiv
+\cstu{id}{i'}~t'$ should succeed as soon as $t \equiv t'$, as the normal
+forms $\cstu{id}{i}~t →_{\beta\delta}^* t$ and $\cstu{id}{i'}~t'
+→_{\beta\delta}^* t'$ are convertible, but $i$ does not have to be
+equated with $i'$, again due to cumulativity.
+
+To ensure that we make the least commitment and generate the most
+general constraints, there are two options. Either we find a static
+analysis that tells us for each constant which constraints are to be
+generated for a self-unification with different instances, or we do
+without that information and restrict ourselves to unifications that add
+no constraints.
+
+The first option amounts to decide for each universe variable
+appearing in a term, if it appears only in covariant position (the term
+is an arity and the universe appears only in its conclusion), in which
+case adding an inequality between the two instances would reflect
+exactly the result of unification on the expansions. In general this is
+expensive as it involves computing (head)-normal forms. Indeed consider
+the definition $\cstu{idtype}{i,j} := \cstu{id}{j}~\Type{j}~\Type{i},$
+with associated constraint $i < j$. Deciding that $i$ is used
+covariantly here requires to take the head normal form of the
+application, which reduces to $\Type{i}$ itself. Recursively, this
+$\Type{i}$ might come from another substitution, and deciding covariance
+would amount to do βδ-normalization, which defeats the purpose of having
+definitions in the first place!
+
+The second option---the one that has been implemented---is to
+restrict first-order unification to avoid arbitrary choices as much as
+possible. To do so, unification of constant applications is allowed only
+when their universe instances are themselves unifiable in a restricted
+sense. The inference rules related to constants are:
+
+\begin{mathpar}
+\irule{Elab-R-FO}
+{\igenconv{=}{ψ}{\vec{as}}{\vec{bs}}{ψ'} \\
+  \iconstreq{ψ'}{\vec{u}}{\vec{v}}{ψ''}}
+{\igenconv{R}{ψ}{\cstu{c}{\vec{u}}~\vec{as}}{\cstu{c}{\vec{v}}~\vec{bs}}{ψ'}}
+
+\irule{Elab-R-δ-left}
+{\cstu{c}{\vec{i}} "->"_\delta t \hspace {-0.7em} \\
+  \igenconv{R}{ψ}{t~\vec{a}}{u}{ψ'}}
+{\igenconv{R}{ψ}{\cstu{c}{\vec{i}}~\vec{a}}{u}{ψ'}}
+
+\irule{Elab-R-δ-right}
+{\cstu{c}{\vec{i}} "->"_\delta u \hspace {-0.7em} \\
+  \igenconv{R}{ψ}{t}{u~\vec{a}}{ψ'}}
+{\igenconv{R}{ψ}{t}{\cstu{c}{\vec{i}}~\vec{a}}{ψ'}}
+\end{mathpar}
+
+The judgment $\iconstreq{ψ}{i}{j}{ψ'}$ formalizes the unification of
+universe instances:
+\begin{mathpar}
+\irule{Elab-Univ-Eq}
+{\tconstreq{ψ}{i}{j}}
+{\iconstreq{ψ}{i}{j}{ψ}}
+
+\irule{Elab-Univ-Flexible}
+{{i_{\mathsf{f}} `V j_{\mathsf{f}}} \in \vec{u_s} \\
+{\tconsistent{ψ ∧ i = j}}}
+{\iconstreq{ψ}{i}{j}{ψ ∧ i = j}}
+\end{mathpar}
+If the universe levels are already equal according to the constraints,
+unification succeeds (\lrule{Elab-Univ-Eq}). Otherwise, we allow
+identifying universes if at least one of them is flexible. This might
+lead to overly restrictive constraints on fresh universes, but this is
+the price to pay for automatic inference of universe instances. 
+
+% \subsubsection{Explicit Universes}
+% \def\uflex#1{#1_{\mathsf{f}}}
+% \def\urig#1{#1_{\mathsf{r}}}
+
+% To allow explicit instantiation of universe-polymorphic definitions, we
+% can introduce new syntax in our source language. Declaring universes can be
+% done using syntax \verb|Type l| where $l$ is an identifier, which will
+% be considered rigid in the universe context. To explicitely instantiate
+% a universe-polymorphic definition, we overload the usual syntax of \Coq
+% for explicitely giving implicit arguments. For example, the user can
+% specify a fibration at level $l$ using syntax: \[\cst{fib}~\{j = l\}~: Π
+% A : \Type{k} "->" \Type{\lub{k}{l+1}}\] According to the rules of
+% unification for universe instances:
+% \[\icumul{\uflex{k},\urig{l}
+%   \models}{\cstu{fib}{k,\Prop}~T}{\cstu{fib}{k,l}~T}{\uflex{k},\urig{l}
+%   \models \Prop \leq l}\]
+% Indeed as \lrule{Elab-Univ-Flexible}'s first premise isn't satisfied, We will
+% fall back to \lrule{Elab-R-δ-left}, \lrule{Elab-R-δ-right} and \lrule{Elab-R-Red}
+% in the end using \lrule{Elab-R-Prod} and \lrule{Elab-R-Type} to
+% derive: \[\icumul{\uflex{k},\urig{l}\models}{T "->" \Prop}{T "->"
+%   \Type{l}}{\Prop \leq l}\]
+
+
+\paragraph{Local Type Inference}
+This way of separating the rigid and flexible universe variables
+allows to do a kind of local type inference \cite{pierce-turner-00},
+restricted to the flexible universes. Elaboration does not generate
+the most general constraints, but heuristically tries to instantiate
+the flexible universe variables to sensible values that make the term
+type-check. Resorting to explicit universes would alleviate this
+problem by letting the user be completely explicit, if necessary. As
+explicitly manipulated universes are rigid, the heuristic part of
+inference does not apply to them. In all practical cases we
+encountered, no explicitation was needed though.
+
+\subsubsection{Abstraction and simplification of constraints}
+
+After computing the set of constraints resulting from type-checking a
+term, we get a set of universe constraints referring to
+\emph{undefined}, flexible universe variables as well as global, rigid
+universe variables. The set of flexible variables can grow very quickly
+and keeping them along with their constraints would result in overly
+general and unmanageable terms. Hence we heuristically simplify the
+constraints by instantiating undefined variables to their most precise
+levels. Again, this might only endanger generality, not consistency. In
+particular, for level variables that appear only in types of parameters
+of a definition (a very common case), this does not change
+anything. Consider for example: $\cstu{id}{u}~\Prop~\coqdocind{True} :
+\Prop$ with constraint $\Prop \leq u$. Clearly, identifying $u$ with
+$\Prop$ does not change the type of the application, nor the normal form
+of the term, hence it is harmless.
+
+We work under the restriction that some undefined variables can
+be substituted by algebraic universes while others cannot, as they
+appear in the term as explained in Section~\ref{sec:type-theory-with}. We also
+categorize variables according to their global or local status. Global
+variables are the ones declared through monomorphic definitions in the
+global universe context $Ψ$.
+
+Simplification of constraints works in two steps. We first normalize the
+constraints and then minimize them.
+
+\paragraph{Normalization}
+Variables are partitioned according to equality constraints. This
+is a simple application of the Union-Find algorithm. We canonicalize
+the constraints to be left with only inequality ($<, \le$) constraints
+between distinct universes.  There is a subtlety here, due to the
+global/local and rigid/flexible distinctions of variables. We choose
+the canonical element $k$ in each equivalence class $C$ to be global
+if possible, if not rigid, and build a canonizing substitution of the
+form $\vec{u/k}, u \in C \setminus k$ that is applied to the remaining
+constraints. We also remove the substituted variables from the
+flexible set $\theta$.
+
+\def\Le{\mathsf{Le}}
+\def\Lt{\mathsf{Lt}} 
+\def\Left#1{\mathsf{L}_{#1}}
+\def\Right#1{\mathsf{R}_{#1}} 
+\def\max#1#2{\mathsf{max}(#1, #2)}
+\def\lubalgo#1{\mathsf{lub}~#1}
+\def\LUB#1{\sqcup_#1}
+\def\order{\mathrel{R}}
+
+\paragraph{Minimization}
+For each flexible variable $u$, we compute its instance as a
+combination of the least upper bound (l.u.b.) of the universes below it
+and the constraints above it. This is done using a recursive, memoized
+algorithm, denoted $\lubalgo{u}$, that incrementally builds a substitution σ
+from levels to universes and a new set of constraints. As we start with
+a consistent set of constraints, it contains no cycle, we rely on this
+for termination. We can hence start the computation with an arbitrary
+undefined variable.
+
+We first compute the set of direct lower constraints involving the
+variable, recursively:
+\[\begin{array}{lcl}
+  \Left{u} & \eqdef & \{ (\lubalgo{l}, \order, u) `| (l, \order, u) \in Ψ \}
+\end{array}\]
+  
+If $\Left{u}$ is empty, we directly return $u$. Otherwise, the l.u.b. of
+the lower universes is computed as:
+\[\LUB{u} \eqdef
+\lub{\{ x `| (x, \Le, \_) \in \Left{u} \}}{\{ x+1 `| (x, \Lt, \_) \in \Left{u}\}}\]
+
+The l.u.b. represents the minimal level of $u$, and we can lower $u$ to
+it. It does not affect the satisfiability of constraints, but it can
+make them more restrictive. If $\LUB{u}$ is a level $j$, we update the
+constraints by setting $u = j$ in $Ψ$ and $σ$. Otherwise, we check if
+$\LUB{u}$ has been recorded as the l.u.b. of another flexible universe
+$j$ in $σ$, in which case we also set $u = j$ in $Ψ$ and $σ$. This
+might seem dangerous if $j$ had different upper constraints than
+$u$. However, if $j$ has been set equal to its l.u.b. then by definition
+$j = \LUB{u} \leq u$ is valid. Otherwise we only remember the equality
+$u = \LUB{u}$ in $σ$, leaving $Ψ$ unchanged.  The computation
+continues until we have computed the lower bounds of all variables.
+
+This procedure gives us a substitution $σ$ of the undefined universe
+variables by (potentially algebraic) universes and a new set of
+constraints. We then turn the substitution into a well-formed one
+according to the algebraic status of each undefined variable. If a
+substituted variable is not algebraic and the substitutend is algebraic
+or an algebraic level, we remove the pair from the substitution and
+instead add a constraint of the form $\max{\ldots}{\ldots} \le u$ to
+$Ψ$. This ensures that only algebraic universe variables are
+instantiated with algebraic universes. In the end we get a substitution
+$σ$ from levels to universes to be applied to the term under
+consideration and a universe context $\vec{us'} \models Ψ[σ]$
+containing the variables that have not been substituted and an
+associated set of constraints $Ψ[σ]$ that are sufficient to typecheck
+the substituted term. We directly give that information to the
+kernel, which checks that the constraints are consistent with the
+global ones and that the term is well-typed.
+
+\paragraph{Polymorphic abstraction}
+The polymorphism considered here is prenex in essence and very similar
+to the usual ML-style polymorphism.  The kernel itself is in charge of
+making the new definition polymorphic or not according to a user given
+flag. Polymorphic definitions are just stored with their universe
+context, with the set of local variables serialized as a list of
+universes. Note that the set of constraints can still refer to global
+variables, but only the local ones are subject to
+abstraction.
+
+\subsection{Inductive types}
+\label{sec:inductive-types}
+
+Polymorphic inductive types and their constructors are treated in much
+the same way as constants. Each occurrence of an inductive or
+constructor comes with a universe instance used to typecheck them.
+Conversion and unification for them forces equality of the instances, as
+there is no unfolding behavior to account for. This behavior implies
+that a polymorphic inductive type instantiated at the same type but in
+two different universes will force their identification, e.g.:
+$\coqdocind{list}_{i}~\coqdocind{True} =
+\coqdocind{list}_{\Prop}~\coqdocind{True}$ will force $i = \Prop$, even
+though $i$ might be strictly higher (in which case it would be
+inconsistent). These conversions mainly happen when mixing polymorphic
+and monomorphic code though, and can always be avoided with explicit uses
+of $\Type{}$. Conservativity over a calculus with monomorphic
+inductives carries over straightforwardly by making copies of the
+inductive type for each particular instantiation.
+
+\subsection{Implementation and future work}
+\label{sec:poly-impl}
+
+This extension of \Coq
+%\footnote{Available at \url{http://www.pps.univ-paris-diderot.fr/~sozeau/repos/CoqUnivs}}
+supports the formalization of the Homotopy Type Theory library from the
+Univalent Foundations project and is able to check for example
+Voevodsky's proof that Univalence implies Functional Extensionality.
+The system simply adds a polymorphic flag for switching on the implicit
+generalization. The change from universe inference to checking and the
+addition of universe instances on constants required important changes
+in the tactic and elaboration subsystems to properly keep track of
+universes. As minimization happens as part of elaboration, it sits
+outside the kernel and does not have to be trusted. There is a
+performance penalty to the use of polymorphism, which is at least linear
+in the number of fresh universe variables produced during a proof. On
+the standard library of \Coq, with all primitive types made polymorphic,
+we can see a mean 10\% increase in time and some pathological cases
+taking twice as much time. The main issues come from the redundant
+annotations on the constructors of polymorphic inductive types
+(e.g. $\coqdocind{list}$) which could be solved by representing
+type-checked terms using bidirectional judgments, and the choice of the
+concrete representation of universe constraints during elaboration,
+which could be improved by working directly on the graph.
+
+At the time of writing, we can only check the basic model structures
+in reasonable time, i.e., the definitions in
+Section~\ref{sec:formalization} take about 10 minutes to check while
+it takes 10 minutes already to check the definition of
+\coqdocdefinition{LamT} in Section~\ref{sec:interpretation}. We had to
+  deactivate universes completely to develop that part. The model
+  indeed stresses the universe polymorphism due to the large number of
+  variables involved. For example, the \coqdocdefinition{\_Type} definition
+  alone is abstracted on 20 variables and twice as many
+  constraints. This is due notably to the fact that we only allow
+  levels as universe instances so any potential instanciation by an
+  algebraic universe (even simply $l + 1$) is turned into a variable
+  and a constraint. To tame this problem, we will have to extend the
+  graph structure and constraint checking algorithm.
+
+Once we resolve this issue we hope to make the translation more robust
+and easy to use so that we can effectively apply it in developments that
+require extensional principles, i.e., formalizations of monads or the
+forcing translation discussed earlier.
+
+\subsection{Related work}
+\label{sec:universe-systems}
+
+Other designs for working with universes have been developed in systems
+based on Martin-Löf type theory. The Agda programming language provides
+fully explicit universe polymorphism, making level quantification
+first-class. This requires explicit quantification and lifting of
+universes (no cumulativity), but instantiation can often be handled
+solely by unification. The main difficulty in this setting is that
+explicit levels can obfuscate definitions and make development and
+debugging arduous.
+
+The Matita proof assistant based on CIC lets users declare universes and
+constraints explicitly\cite{AspertiCompact} and its kernel only checks
+that user-given constraints are sufficient to typecheck terms. It has a
+notion of polymorphism at the library level only: one can explicitly
+make copies of a module with fresh universes. In
+\cite{DBLP:conf/tphol/Courant02}, a similar extension of the \Coq system
+is proposed, with user declarations and a notion of polymorphism at the
+module level. Our elaboration system could be adapted to handle these
+modes of use, by restricting inference.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 

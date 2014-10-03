@@ -1,0 +1,73 @@
+\documentclass[12pt]{report}
+\usepackage[]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fullpage}
+\usepackage{coqdoc}
+\usepackage{amsmath,amssymb}
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% This file has been automatically generated with the command
+%% /Applications/CoqIdE_8.4pl2.app/Contents/Resources/bin/coqdoc --latex -o test.tex test.v 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\coqlibrary{test}{Library }{test}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+
+
+\subsection{Definition of weak groupoids}
+
+
+ \label{sec:w2gpds}
+ We formalize weak groupoids using type classes. 
+ 
+ Contrarily to what is done in the usual Setoid translation,
+ the basic notion of morphisms is given as inhabitants of a relation in [Type]:
+
+*)
+
+Definition HomT (A : Type) := A -> A -> Type.
+
+(**
+  Homs are relation, that is inhabitants of type [HomT T] for a particular [T], 
+  and morphisms are inhabitants of a hom.
+
+  Given a hom, we define type classes that represents that the
+  [Hom]-set of morphisms on a [Type A] is reflexive (which corresponds
+  to the identity morphism), symmetric (which corresponds to the
+  existence of an inverse morphism for every morphism) and transitive
+  (which corresponds to morphisms composition).
+
+*)
+  
+Class Identity {A} (Hom : HomT A) :=
+  identity : ∀ x, Hom x x.
+
+Class Inverse {A} (Hom : HomT A) :=
+  inverse : ∀ x y:A, Hom x y -> Hom y x.
+
+Class Composition {A} (Hom : HomT A) :=
+  composition : ∀ {x y z:A}, Hom x y -> Hom y z -> Hom x z.
+
+Notation  "g ° f" := (composition f g) (at level 50). 
+
+(* begin hide *)
+Class Equivalence {T} (Eq : HomT T):= {
+  Equivalence_Identity :> Identity Eq ;
+  Equivalence_Inverse :> Inverse Eq ;
+  Equivalence_Composition :> Composition Eq 
+}.
+(* end hide *)
+
+(**
+
+  In a weak groupoid, all morphisms up-to level 2 are invertible and
+higher equalities are trivial. Thus the set of 2-Homs denoted by [~2]
+corresponds to an equivalence relation.
+
+*)
+\begin{coqdoccode}
+\end{coqdoccode}
+\end{document}

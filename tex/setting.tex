@@ -1,0 +1,111 @@
+\section{Setting of the translation}
+\label{sec:setting-translation}
+
+\input{corett}
+
+
+\subsection{The proof assistant}
+\label{sec:proof-assistant}
+We use an extension of the \Coq proof assistant to formally define
+our translation. Vanilla features of \Coq allow us to define overloaded
+notations and hierarchies of structures through type classes
+\cite{sozeau.Coq/classes/fctc}, and to separate definitions and proofs
+using the \Program extension \cite{sozeau.Coq/FingerTrees/article}, they
+are both documented in \Coq's reference manual \cite{coq:refman:8.4}.
+We also use the recent extension to polymorphic universes~\cite{sozeau.Coq/univs/ITP14}.
+
+\subsubsection{Classes and projections.}
+The formalization makes heavy use of type classes and sigma types, both
+defined internally as parameterized records. We also have modified the
+representation of record projections, making them primitive to allow a
+more economical representation, leaving out the parameters of the record
+type they are applied to. This change, which is justified by
+bidirectional presentations of type theory, makes typechecking
+exponentially faster in the case of nested structures (see
+\cite{garillot:pastel-00649586} for a detailed explanation of this phenomenon).
+
+
+
+% not including In the usual Calculus of
+% Inductive Constructions, records are encoded as non-recursive inductive
+% types with a single constructor and their projections are defined by
+% pattern-matching. While this representation is adequate, it is
+% inefficient in terms of space and time consumption as projection
+% $\coqdocvar{p}$ from a parameterized record
+% $\coqdocind{R}~(\coqdocvar{A} : \Type{}) := \{ \coqdoccst{p} :
+% \coqdocvar{A} \}$ have type $Π A : \Type{},
+% \coqdocind{R}~\coqdocvar{A} → \coqdocvar{A}$. Every application of a
+% projection hence repeats the parameters of the record, which in the
+% nested case results in a exponential blowup in the size of terms,
+% and typechecking likewise repeats work unnecessarily . We
+% modified the representation of record projections to skip parameters,
+% which is also justified by bidirectional presentations of type theory,
+% to recover a workable formalization.
+
+One peculiarity of \Coq's class system we use is the ability to nest
+classes. We use the \coqdoccst{A\_of\_B} \coqcode{:>} \coqdocind{A} notation in a type class
+definition \coqdockw{Class} \coqdocind{B} as an abbreviation for
+defining \coqdoccst{A\_of\_B} as an instance of \coqdocind{A}.
+
+\subsubsection{Polymorphic Universes.}
+\label{sec:polym-univ}
+\def\Types{\coqdockw{Type}s\xspace}
+
+  % Type theories such as the Calculus of Inductive Constructions maintain
+  % a universe hierarchy to prevent paradoxes that naturally appear if one
+  % is not careful about the sizes of types that are manipulated in the
+  % language. To ensure consistency while not troubling the user with 
+  % this necessary information, systems using typical ambiguity were
+  % designed. We present an elaboration from terms using typical ambiguity 
+  % into explicit terms which also accomodates universe polymorphism, i.e.
+  % the ability to write a term once and use it at different universe
+  % levels. Elaboration relies on an enhanced type inference algorithm to 
+  % provide the freedom of typical ambiguity while also supporting
+  % polymorphism, in a fashion similar to usual Hindley-Milner polymorphic
+  % type inference. This elaboration is implemented as a drop-in
+  % replacement for the existing universe system of Coq and has been
+  % benchmarked favorably against the previous version. We demonstrate how
+  % it provides a solution to a number of formalization issues present in
+  % the original system.
+
+To typecheck our formalization, we also need a stronger universe system
+than what vanilla \Coq offers. Indeed, if we are to give a uniform
+(shallow) translation of type theory in type theory, we have to define a
+translation of the \type{} universe (a groupoid) as a term of
+the calculus and equip type constructors like $Π$ and $Σ$ with
+\interp{\type{}} structures as well. As \interp{\type{}} itself contains
+a \Type{}, the following situation occurs when we define the translation
+of, e.g. sums: we should have \interp{Σ~U~T\ \type{}} = \interp{Σ} \interp{U}
+\interp{T} : \interp{\type}. To ensure consistency of the
+interpretations of types inside \interp{U}, \interp{T} and the outer
+one, they must be at different levels, with the outer one at least as
+large as the inner ones. A universe polymorphic extension of \Coq has
+been designed to allow such highly generic
+developments~\cite{sozeau.Coq/univs/ITP14}.  The design was implemented
+by the first author and is already in use to check the \name{HoTT}
+library in \Coq \cite{HoTT/HoTT}.
+
+% This is however not supported in the current
+% version of \Coq, as the universe system does not allow a definition to
+% live at different levels. Hence, there could be only one universe level
+% assigned to the translation of any \Type{} and they couldn't be nested,
+% as this would result in an obvious inconsistency: the usual \Type{} :
+% \Type{} inconsistency would show up as \interp{\Type{}} :
+% \interp{\Type{}}. One solution to this problem would be to have $n$
+% different interpretations of \Type{} to handle $n$ different levels of
+% universes.  This is clearly unsatisfactory, as this would mean
+% duplicating every lemma and every structure depending on the translation
+% of types, and the numer of duplications would depend on the use of
+% universes at the source level. Instead, we can extend the system with
+% universe polymorphic definitions that are parametric on universe levels
+% and instantiate them at different ones, just like parametric
+% polymorphism is used to instantiate a definition at different
+% types. This can be interpreted as building fresh instances of the
+% constant that can be handled by the core type checker without
+% polymorphism.  We give a detailed presentation of this system in 
+% Section \ref{sec:type-theory-with}, but as the handling of universes stays
+% entirely implicit at the source level, we just present here the core
+% calculus on which the universe polymorphism system and our
+% interpretation rests.
+
+
