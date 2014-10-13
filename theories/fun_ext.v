@@ -224,8 +224,7 @@ Defined.
         (F : TypDep A) (M N : Elt (Prod (LamT F)))
         (α : ↑M @@ Var A ~1 ↑N @@ Var A): M ~1 N.]
 
-  %\noindent% where [↑M] is the weakening for terms. This rule corresponds 
-  to the introduction of equality on dependent functions in %\cite{DBLP:conf/popl/LicataH12}%.
+  %\noindent% where [↑M] is the weakening for terms. 
 *)
 
 (* begin hide *)
