@@ -4,7 +4,6 @@
 *.aux
 *.bbl
 *.out
-*.pdf
 *.log
 *.blg
 theories/defU.tex
