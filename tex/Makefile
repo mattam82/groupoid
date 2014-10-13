@@ -23,7 +23,7 @@ all: ${TARGETS}
 clean:
 	rm -f ${TARGETS}
 
-main.pdf: introduction.tex setting.tex  ${THEORIES}/groupoid.tex ${THEORIES}/groupoid_interpretation_def.tex ${THEORIES}/groupoid_interpretation.tex
+main.pdf: introduction.tex setting.tex  ${THEORIES}/groupoid.tex ${THEORIES}/groupoid_interpretation_def.tex ${THEORIES}/groupoid_interpretation.tex ${THEORIES}/fun_ext.tex
 
 # groupoid_interpretation.tex
 

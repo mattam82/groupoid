@@ -12,6 +12,5 @@ theories/groupoid.tex
 theories/groupoid_interpretation.tex
 theories/groupoid_interpretation_def.tex
 theories/notations.tex
-
-
-
+Makefile.bak
+theories/fun_ext.tex

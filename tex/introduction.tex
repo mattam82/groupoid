@@ -57,7 +57,7 @@ n-groupoids) or infinite (weak ω-groupoids)
 Our work here concentrates on the internalization in \Coq of Hofmann and
 Streicher's groupoid model where we can have a self-contained definition
 of the structures involved.
-
+%
 Our first motivation to implement this translation is to explore the
 interpretation of type theory in groupoids in a completely
 intensional setting and in the type theoretic language, leaving no space
@@ -66,22 +66,54 @@ also hope to give with this translation a basic exposition of the
 possible type theoretic implications of the groupoid/homotopy models,
 bridging a gap in the literature. 
 %
-On the technical side, the definition of the groupoid model actually
-requires to reason at a 2-dimensional level. This is due to the way we
-interpret the strictness in the definition of groupoids. 
+On the technical side, we nevertheless have to slightly move away from
+Hofmann and Streicher interpretation for 2 important reasons.
+
+
+
+\paragraph{\bf A univalent model that makes no use of univalence.}
+
+
+Our long term goal is to provide an interpretation of homotopy type
+theory into type theory (without extensional principle).
 %
-Indeed, interpreting strictness by propositional equality seems to fail
-when it comes to define for instance the groupoid on the function
-space. Our interpretation of strictness is closer to the idea that a
+This would allow to give a meaning to all extensionality
+principles without relying on them in the target theory.
+
+However, if we use a traditional approach and formalize groupoid laws
+using the identity type, it turns out that the type of isomorphisms
+between to object $x$ and $y$ of a groupoid, noted $x \sim_1 y$, must
+also be formalized using the identity type. Or, putting it in the
+homotopy type theoretic language, we have to consider univalent
+groupoids.
+%
+This is because, in the groupoid interpretation, we need isomorphisms
+between groupoids to satisfy groupoids laws using the identity
+type as notion of equality between isomorphisms. Then, using
+functional extensionality, this amounts to compare the two functions
+pointwise, but again using the identity type, and not the correct
+notion of equality in the groupoid, given by $\sim_1$.
+%
+This means that $\sim_1$ has to coincide with the identity type, which
+is precisely the property  of being a univalent groupoid.
+%
+But then, this means that isomorphisms between groupoids should be
+reflected in the identity type, which forces the target theory to
+satisfy univalence already\ldots
+
+ 
+To avoid this issue in our internalization of groupoids, the groupoid
+laws are imposed using a notion of 2-dimensional equality that does
+not have to be the identity type, but just to be an equivalence relation.
+%
+Then, to enforce that the types of isomorphisms constitute
+(homotopical) sets, we still use the identity type, but to express triviality of higher
+dimensions, not coherences themselves. 
+%
+This interpretation of strictness is closer to the idea that a
 groupoid is a weak ω-groupoid for which all equalities at dimension 2
-are the same. 
+are the same.
 %
-That is, we only use identity types to express triviality of higher
-dimension, not coherences themselves. 
-%
-As the model that we use does not have the uniqueness of identity proof
-principle, the two ways of formalizing groupoids mentionned above are
-different.
 %
 Our presentation requires less properties on identity types,
 but we still need the axiom of functional extensionality.
@@ -94,6 +126,33 @@ Thus, this paper can be seen as a proof of concept that it is possible
 to interpret homotopy type theory into type theory without identity
 types.
 
+
+\paragraph{\bf Taking size issue into account.}
+%
+
+In Hofmann and Streicher groupoid model, a type $A$ depending on
+context $\Gamma$ is interpreted as a functor 
+$$
+\sem{A} \ : \ \sem{\Gamma} \longrightarrow \GPD
+$$
+%
+where $\GPD$ is said to be \emph{``the groupoid of groupoids''}. But
+this interpretation does not take into account that groupoids form a
+2-groupoids and not a groupoid, because the type of isomorphisms is
+not a set. That is groupoids are not enriched over themselves.
+%
+This means that, using an internalization of groupoids, one can only
+interpret types as setoids, and not as groupoids. This is what we do
+in this paper, which prevent use to give a complete formulation of
+univalence in the source theory. That is, the invariance by
+isomorphism principle, also respecting in the model, as no counterpart
+in the source theory. 
+
+To solve this size issue, we could have formalized the notion of
+2-groupoids instead but we do not think that the interpretation would
+have gained much. We believe that the real challenge is to interpret
+$\omega$-groupoids which is the proper notion of self-enriched 
+groupoid-like structure and is the subject of on-going work.
 
 % coherences even limited at
 % groupoids, the the structures are already quite tedious to manipulate and we
@@ -125,8 +184,10 @@ types.
 %   type theory into type theory without identity types.
 % \end{enumerate}
 
-The paper is organized as follows: Section \ref{sec:setting-translation}
-introduces the source type theory of the translation and some features of the proof assistant
+\paragraph{\bf Outline of the paper.}
+% The paper is organized as follows: 
+Section \ref{sec:setting-translation} introduces the source type
+theory of the translation and some features of the proof assistant
 that are used in the formalization. The formal model includes a
 formalization of groupoids and associated structures
 (\S\ref{sec:w2gpds}-\ref{sec:rew}) and a construction of the groupoids

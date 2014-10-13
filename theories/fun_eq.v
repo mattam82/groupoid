@@ -201,7 +201,7 @@ Next Obligation.
                  apply inverse. eapply composition. apply Equiv_ajoint_map_id.
                  eapply composition. eapply inverse. apply (map_comp t).
                  apply (map2 t). trunc1_eq_expl (A @ x).
-                 exists X. red; intros. trunc1_eq_expl (t @ t0). 
+                 exists X. red; intros. trunc1_eq_expl (t @ t0).
 Defined.
 
 Definition Equiv_adjoint_map_comp {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ])  (x y z :[Γ])

@@ -2166,13 +2166,14 @@ Definition right_simplify'' (T:SetoidType) (x y z: [T]) (f : x ~1 y)
   and equality at level 2 is given by dependent modifications.
 *)
 
+(* begin hide *)
+
 Class DNaturalTransformation T (U:[T --> _Type]) {f g: Prod_Type U} (α : ∀ t, f @ t ~1 g @ t)
  := _α_Dmap : ∀ {t t'} e, α t' ° Dmap f e ~ Dmap g e ° transport_map U e (α t).
 
 Definition Dnat_trans T (U:[T --> _Type]) (f g: Prod_Type U)  
   := {α : ∀ t : [T], f @ t ~1 g @ t & DNaturalTransformation α}.
 
-(* begin hide *)
 
 Hint Extern 0 (DNaturalTransformation [?f]) => exact (proj2 f) : typeclass_instances.
 Notation α_Dmap f := (@_α_Dmap (proj2 f) _ _).
@@ -2227,10 +2228,10 @@ Defined.
 Program Instance Dnat_transHom T (U:[T --> _Type]) : HomT1 (Prod_Type U) := 
   {eq1 := Dnat_trans (T:=T) (U:=U)}.
 
-(* end hide *)
-
 Definition Dmodification T U (f g : Prod_Type U) : HomT (f ~1 g)
   := λ α β , ∀ t : [T], α @ t ~ β @ t.
+
+(* end hide *)
 
 (* begin hide *)
 

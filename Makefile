@@ -90,7 +90,8 @@ endif
 #                    #
 ######################
 
-VFILES:=theories/groupoid_interpretation.v\
+VFILES:=theories/fun_ext.v\
+  theories/groupoid_interpretation.v\
   theories/sum_eq.v\
   theories/prod_eq.v\
   theories/sum_id.v\
@@ -99,6 +100,7 @@ VFILES:=theories/groupoid_interpretation.v\
   theories/groupoid_interpretation_def.v\
   theories/fun_eq.v\
   theories/groupoid.v\
+  theories/HoTT_light2.v\
   theories/HoTT_light.v
 
 -include $(addsuffix .d,$(VFILES))

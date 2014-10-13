@@ -169,7 +169,7 @@ Opaque map_inv.
 (** 
 
   We now organize our formalization of groupoids into a model of the dependent 
-  type theory with univalence introduced in Section%\ref{sec:definitions}%.
+  type theory with univalence introduced in Section~%\ref{sec:definitions}%.
   The interpretation is based on the notion of categories with families 
   introduced by Dybjer%~\cite{dybjer:internaltt}% later used in %\cite{groupoid-interp}%.
   This interpretation can also be seen as an extension of the Takeuti-Gandy interpretation of simple type theory, recently generalized to dependent type theory by Coquand et al. using Kan semisimplicial sets or cubical sets%~\cite{barras:_gener_takeut_gandy_inter}%. 

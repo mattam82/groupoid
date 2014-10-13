@@ -4,6 +4,7 @@
 \def\Equiv#1#2{\texttt{Equiv}\ \Elt{#1}\ \Elt{#2}}
 \def\Eq#1#2#3{\texttt{Eq}_{#1}\ #2\ #3}
 \def\refl#1#2{\texttt{refl}_{#1}\ #2}
+\def\funext#1{\texttt{fun\_ext}(#1)}
 \def\zeroType{\ensuremath{\mathbb{O}}\xspace}
 \def\oneType{\ensuremath{\mathbb{1}}\xspace}
 \def\twoType{\ensuremath{\mathbb{2}}\xspace}
@@ -11,7 +12,7 @@
 \def\honeType{\ensuremath{\mathbb{1}}}
 \def\htwoType{\ensuremath{\mathbb{2}}}
 
-\subsection{Martin-Löf Type Theory with One Universe}
+\subsection{Martin-Löf Type Theory with Functional Extensionality}
 \label{sec:definitions}
 
 
@@ -24,9 +25,10 @@ various objects at hand.  We start with the term language of a dependent
 λ-calculus: we have a countable set of variables $x, y, z$, and the
 usual typed λ-abstraction $λ x : τ, b$, à la Church, application $t~u$,
 the dependent product and sum types $Π/Σ x : A. B$, and an identity type
-$\Id{T}{t}{u}$. There is a single universe $\Univ$. For $T$ and $U$ in
-$\Univ{}$, the type of (Set)-isomorphisms $T `= U$, is definable
-directly using the other type constructors (see \ref{sec:universe}).
+$\Id{T}{t}{u}$. 
+% There is a single universe $\Univ$. For $T$ and $U$ in
+% $\Univ{}$, the type of (Set)-isomorphisms $T `= U$, is definable
+% directly using the other type constructors (see \ref{sec:universe}).
 
 The typing judgment for this calculus is written $\tcheck{Γ}{ψ}{t}{T}$
 (Figure \ref{fig:emltt}) where $Γ$ is a context of declarations $Γ ::=
@@ -48,41 +50,45 @@ introduction rule for reflexivity with the usual \texttt{J} eliminator
 and its \emph{propositional} reduction rule. The \texttt{J} reduction 
 rule will actually be valid definitionally in the model for \emph{closed} terms.
 
-\subsubsection{Type equivalence.} 
+\subsubsection{Functional Extensionality.} 
 %
-The new, proof-relevant type equivalence in the source theory for which we want to
-give a computational model appears in rule \lrule{Equiv-Intro},
-extending the formation rules of identity types on $\Univ$. Type equivalences
-are introduced by giving a witness of $A ` = B$ for some $A, B$ \emph{in
-  the universe} $\Univ$. The \texttt{J} rule for type equivalences
-witnesses the invariance under isomorphism principle of the source type
+The proof-relevant equality of functions in the source theory for which we want to
+give a computational model appears in rule \lrule{Fun-Ext},
+extending the formation rules of identity types on dependent product. 
+%
+Equality of dependent functions $f$ and $g$ of type $\Pi \vdecl{x}{A}\mdot B$ are
+introduced by giving a witness of $\Pi t : A, \Id{B \{\subs x {t}\}}
+{(f \ t)}{(g \ t)}$.
+%
+The \texttt{J} rule for dependent functions witnesses the
+\emph{naturality} of every predicate constructed in the source type
 theory.
 
 \def\hFin#1{\mathtt{\hat Fin}\ #1}
 \def\Fin#1{\texttt{Fin}\ #1}
 \def\fin#1#2{\underline{#1}_{#2}}
 
-\subsubsection{Universe.} The universe $\Univ$ is closed under Σ, Π,
-\zeroType, \oneType, \twoType and $\texttt{Id}$ in elements of $\Univ$, 
-\emph{not} type equivalences. The
-constructors are circumflexed, e.g. $\hat \Pi$ and $\hat \Sigma$ are
-introduced with the rules:
-%
-%\vspace{-1em} 
-\begin{mathpar}
-\irule{Univ-$\hat \Pi$, -$\hat \Sigma$}
-{\tcheck{\Gamma}{ψ}{A}{\Univ} \\
-\tcheck{\Gamma, x : \Elt{A}}{ψ}{B}{\Univ}}
-{\tcheck{\Gamma}{ψ}{\hat \Pi/\hat \Sigma x : A. B}{\Univ}}
-\end{mathpar}
+% \subsubsection{Universe.} The universe $\Univ$ is closed under Σ, Π,
+% \zeroType, \oneType, \twoType and $\texttt{Id}$ in elements of $\Univ$, 
+% \emph{not} type equivalences. The
+% constructors are circumflexed, e.g. $\hat \Pi$ and $\hat \Sigma$ are
+% introduced with the rules:
+% %
+% %\vspace{-1em} 
+% \begin{mathpar}
+% \irule{Univ-$\hat \Pi$, -$\hat \Sigma$}
+% {\tcheck{\Gamma}{ψ}{A}{\Univ} \\
+% \tcheck{\Gamma, x : \Elt{A}}{ψ}{B}{\Univ}}
+% {\tcheck{\Gamma}{ψ}{\hat \Pi/\hat \Sigma x : A. B}{\Univ}}
+% \end{mathpar}
 
-\noindent 
-For presentation purposes, we do not detail here the treatment of finite
-types (see \cite{altenkirch-mcbride-wierstra:ott-now} for a standard treatment).
-The extension to W-types would be straightforward.
-%
-\texttt{Elt} is a $\type{}$-forming map from $\Univ$ that acts as a
-homomorphism, e.g. its action on products is: $$\Elt{\hat \Pi x : A. B} = Π x : \Elt{A}. \Elt{B}$$
+% \noindent 
+% For presentation purposes, we do not detail here the treatment of finite
+% types (see \cite{altenkirch-mcbride-wierstra:ott-now} for a standard treatment).
+% The extension to W-types would be straightforward.
+% %
+% \texttt{Elt} is a $\type{}$-forming map from $\Univ$ that acts as a
+% homomorphism, e.g. its action on products is: $$\Elt{\hat \Pi x : A. B} = Π x : \Elt{A}. \Elt{B}$$
 % \begin{mathpar}
 % \begin{array}{lcll}
 %   \texttt{Elt} : \Univ & → & \Type{} & \\
@@ -131,11 +137,11 @@ homomorphism, e.g. its action on products is: $$\Elt{\hat \Pi x : A. B} = Π x :
 
 \irule{Proj1}
 {\tcheck{\Gamma}{ψ}{t}{\Sigma \vdecl{x}{A}\mdot B}}
-{\tcheck{\Gamma}{ψ}{\ensuremath{π_1\ t}}{A}}
+{\tcheck{\Gamma}{ψ}{\ensuremath{π_1 t}}{A}}
 
 \irule{Proj2}
 {\tcheck{\Gamma}{ψ}{t}{\Sigma \vdecl{x}{A}\mdot B}}
-{\tcheck{\Gamma}{ψ}{π_2\ t}{B\{\subs x {π_1\ t}\}}}
+{\tcheck{\Gamma}{ψ}{π_2 t}{B\{\subs x {π_1 t}\}}}
 % \irule{Fin}
 % {n \in \{ 0, 1, 2 \}}
 % {\tcheck{\Gamma}{ψ}{\Fin{n}}{\Type{}}}
@@ -154,6 +160,7 @@ homomorphism, e.g. its action on products is: $$\Elt{\hat \Pi x : A. B} = Π x :
 {\tcheck{\Gamma}{ψ}{t}{A} \hspace{-1em} \\ \ttcheck{Γ}{ψ}{B}{\Type{}} \hspace{-1em} \\ \tconv{ψ}{A}{B}}
 {\tcheck{\Gamma}{ψ}{t}{B}}
 
+
 \irule{Lam}
 {\tcheck{\Gamma, \vdecl{x}{A}}{ψ}{t}{B}}
 {\tcheck{\Gamma}{ψ}{\lambda \vdecl{x}{A}\mdot t}{\Pi \vdecl{x}{A}\mdot B}}
@@ -163,20 +170,23 @@ homomorphism, e.g. its action on products is: $$\Elt{\hat \Pi x : A. B} = Π x :
  \tcheck{\Gamma}{ψ}{t'}{A}}
 {\tcheck{\Gamma}{ψ}{t\ t'}{B\{\subs x {t'}\}}}
 
+\irule{Id}
+{\ttcheck{\Gamma}{ψ}{T}{\Type{}}\quad
+\tcheck{\Gamma}{ψ}{A, B}{T}}
+{\ttcheck{\Gamma}{ψ}{\Id{T}{A}{B}}{\Type{}}}
+\qquad
 \irule{Id-Intro}
 {\tcheck{\Gamma}{ψ}{t}{T}}
 {\tcheck{\Gamma}{ψ}{\refl{T}{t}}{\Id{T}{t}{t}} }
+\qquad
+\irule{Fun-Ext}
+{\tcheck{\Gamma}{ψ}{e}{ \Pi t : A, \Id{B \{\subs x {t}\}} {(f \ t)}{(g \ t)}}}
+{\tcheck{\Gamma}{ψ}{\funext{e}}{\Id{\Pi \vdecl{x}{A}\mdot B}{f}{g} }}
 
 
-\irule{Id}
-{\ttcheck{\Gamma}{ψ}{T}{\Type{}}\\
-\tcheck{\Gamma}{ψ}{A, B}{T}}
-{\ttcheck{\Gamma}{ψ}{\Id{T}{A}{B}}{\Type{}}}
-
-
-\irule{Equiv-Intro}
-{\tcheck{\Gamma}{ψ}{i}{ \Elt{A} ` = \Elt{B}}}
-{\tcheck{\Gamma}{ψ}{\texttt{equiv}\ i}{\Id{\Univ}{A}{B}}}
+% \irule{Equiv-Intro}
+% {\tcheck{\Gamma}{ψ}{i}{ \Elt{A} ` = \Elt{B}}}
+% {\tcheck{\Gamma}{ψ}{\texttt{equiv}\ i}{\Id{\Univ}{A}{B}}}
 
 
 \irule{Id-Elim (J)}
