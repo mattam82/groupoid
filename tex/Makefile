@@ -1,4 +1,4 @@
-COQDOCOPTS=--utf8 -g --interpolate -coqlib http://coq.inria.fr/stdlib/
+COQDOCOPTS=--utf8 -g --interpolate -coqlib http://coq.inria.fr/stdlib/ -R ../theories Groupoid
 COQOPTS=
 TARGETS=${THEORIES}/notations.vo ${THEORIES}/notations.tex ${THEORIES}/defU.vo ${THEORIES}/defU.tex ${THEORIES}/groupoid.vo ${THEORIES}/groupoid.tex main.pdf
 COQBIN=
