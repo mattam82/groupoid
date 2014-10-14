@@ -191,9 +191,9 @@ Opaque map_inv.
   ** Dependent types
 
   The judgment context $\Gamma \vdash$ of Section
-  %\ref{sec:definitions}% is represented in %\Coq% as a groupoid, noted
-  [Context := GroupoidType]. The empty context (Rule %\textsc{Empty}%)
-  is interpreted as the groupoid with exactly one element at each
+  %\ref{sec:definitions}% is represented in %\Coq% as a setoid, noted
+  [Context := SetoidType]. The empty context (Rule %\textsc{Empty}%)
+  is interpreted as the setoid with exactly one element at each
   dimension.  Types in a context [Γ], noted [Typ Γ], are (context)
   functors from [Γ] to the groupoid of setoids [Type0].  Thus, a
   judgment $\Gamma \vdash A : \Type{}$ is represented as a term [A] of
@@ -428,3 +428,4 @@ Defined.
 
 Definition TypFam {Γ : Context} (A: Typ Γ) := 
   [_Prod (λ γ, [[ (A @ γ) ]] -||-> Type0; TypFam_1 _)]. 
+
