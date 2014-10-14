@@ -34,6 +34,14 @@
 
 \newcommand{\aidememoire}[1]{\textcolor{red}{[[ #1 ]]}}
 \def\interp#1{\ensuremath{\llbracket #1 \rrbracket}}
+
+\newcommand{\mynote}[2]{
+    \fbox{\bfseries\sffamily\scriptsize#1}
+    {\small$\blacktriangleright$\textsf{\emph{#2}}$\blacktriangleleft$}~}
+
+\newcommand\nt[1]{\mynote{\textcolor{magenta}{NT}}{#1}}
+\newcommand\ms[1]{\mynote{\textcolor{blue}{MS}}{#1}}
+
 \usepackage{url}
 
 \input{univmacros}
@@ -102,7 +110,7 @@ Laboratoire d'Informatique de Nantes Altantique (LINA)
   notion of equality requires to move to higher-dimensional structures
   where equality reasoning is explicit. In this paper, we follow this
   idea and develop an internalization of a model of Martin-Löf type
-  theory with functional equality based on groupoids and respecting
+  theory with functional extensionality based on groupoids and respecting
   the invariance by isomorphism principle.
   %
   % Talk about definitional vs propositional equality ? 

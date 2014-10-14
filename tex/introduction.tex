@@ -67,8 +67,10 @@ possible type theoretic implications of the groupoid/homotopy models,
 bridging a gap in the literature. 
 %
 On the technical side, we nevertheless have to slightly move away from
-Hofmann and Streicher interpretation for 2 important reasons.
-
+Hofmann and Streicher interpretation.  In
+particular, it is not possible to interpret a univalent universe in the
+internalization of their model; and this for two important reasons
+that we now discuss.
 
 
 \paragraph{\bf A univalent model that makes no use of univalence.}
@@ -91,7 +93,7 @@ This is because, in the groupoid interpretation, we need isomorphisms
 between groupoids to satisfy groupoids laws using the identity
 type as notion of equality between isomorphisms. Then, using
 functional extensionality, this amounts to compare the two functions
-pointwise, but again using the identity type, and not the correct
+pointwise, but again using the identity type, and not the internal
 notion of equality in the groupoid, given by $\sim_1$.
 %
 This means that $\sim_1$ has to coincide with the identity type, which
@@ -100,23 +102,27 @@ is precisely the property  of being a univalent groupoid.
 But then, this means that isomorphisms between groupoids should be
 reflected in the identity type, which forces the target theory to
 satisfy univalence already\ldots
-
+%
+So the first conclusion is that an internalization of the groupoid
+interpretation in the style of formalization of categories presented
+in~\cite{hottbook} would require the target theory to be univalent already.
  
 To avoid this issue in our internalization of groupoids, the groupoid
 laws are imposed using a notion of 2-dimensional equality that does
 not have to be the identity type, but just to be an equivalence relation.
 %
 Then, to enforce that the types of isomorphisms constitute
-(homotopical) sets, we still use the identity type, but to express triviality of higher
-dimensions, not coherences themselves. 
+(homotopical) sets, we still use the identity type, but only to
+express triviality of higher dimensions, not coherences themselves.
 %
 This interpretation of strictness is closer to the idea that a
 groupoid is a weak ω-groupoid for which all equalities at dimension 2
 are the same.
 %
 %
-Our presentation requires less properties on identity types,
-but we still need the axiom of functional extensionality.
+Note that our presentation requires less properties on identity types,
+but we still need the axiom of functional extensionality to prove
+triviality of higher dimensions for the groupoid of functors.
 %
 Also, this indicates that if we scale to ω-groupoids, the presence of
 identity types in the core type theory will
@@ -136,23 +142,32 @@ $$
 \sem{A} \ : \ \sem{\Gamma} \longrightarrow \GPD
 $$
 %
-where $\GPD$ is said to be \emph{``the groupoid of groupoids''}. But
-this interpretation does not take into account that groupoids form a
-2-groupoids and not a groupoid, because the type of isomorphisms is
-not a set. That is groupoids are not enriched over themselves.
+where $\GPD$ is said to be \emph{``the groupoid of groupoids''}. 
+%
+But groupoids form actually a 2-groupoids and not a groupoid, because
+the type of isomorphisms is not a set. That is groupoids are not
+enriched over themselves.
+%
+Hofmann and Streicher have solves this issue as we usually do in
+category theory, by considering small groupoids, that is groupoids for
+which the type of objects is also a set. This is fine as long as we
+consider set theory.
+%
+But when moving to homotopy type theory, small groupoids actually
+correspond to setoids. \nt{expand on this ?}
 %
 This means that, using an internalization of groupoids, one can only
 interpret types as setoids, and not as groupoids. This is what we do
 in this paper, which prevent use to give a complete formulation of
 univalence in the source theory. That is, the invariance by
-isomorphism principle, also respecting in the model, as no counterpart
+isomorphism principle, also respected in the model, as no counterpart
 in the source theory. 
 
-To solve this size issue, we could have formalized the notion of
+Another way to solve this size issue would be to formalize the notion of
 2-groupoids instead but we do not think that the interpretation would
 have gained much. We believe that the real challenge is to interpret
 $\omega$-groupoids which is the proper notion of self-enriched 
-groupoid-like structure and is the subject of on-going work.
+groupoid-like structure and is the subject of on-going works.
 
 % coherences even limited at
 % groupoids, the the structures are already quite tedious to manipulate and we
