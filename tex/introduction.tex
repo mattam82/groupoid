@@ -67,10 +67,10 @@ possible type theoretic implications of the groupoid/homotopy models,
 bridging a gap in the literature. 
 %
 On the technical side, we nevertheless have to slightly move away from
-Hofmann and Streicher interpretation.  In
-particular, it is not possible to interpret a univalent universe in the
-internalization of their model; and this for two important reasons
-that we now discuss.
+Hofmann and Streicher's interpretation.  In particular, it is not
+possible to interpret a univalent universe in our type-theoretic
+formalization of their model; and this for two important reasons that we
+now discuss.
 
 
 \paragraph{\bf A univalent model that makes no use of univalence.}
@@ -84,7 +84,7 @@ principles without relying on them in the target theory.
 
 However, if we use a traditional approach and formalize groupoid laws
 using the identity type, it turns out that the type of isomorphisms
-between to object $x$ and $y$ of a groupoid, noted $x \sim_1 y$, must
+between two objects $x$ and $y$ of a groupoid, noted $x \sim_1 y$, must
 also be formalized using the identity type. Or, putting it in the
 homotopy type theoretic language, we have to consider univalent
 groupoids.
@@ -142,19 +142,22 @@ $$
 \sem{A} \ : \ \sem{\Gamma} \longrightarrow \GPD
 $$
 %
-where $\GPD$ is said to be \emph{``the groupoid of groupoids''}. 
+where $\GPD$ is said to be \emph{``the (large) category of groupoids''}. 
 %
-But groupoids form actually a 2-groupoids and not a groupoid, because
-the type of isomorphisms is not a set. That is groupoids are not
-enriched over themselves.
+But groupoids form naturally a 2-category/groupoid and not a
+category/groupoid, because isomorphisms together with iso-natural
+transformations do not form a set but a richer structure. Otherwise
+said, groupoids are not enriched over themselves.
 %
-Hofmann and Streicher have solves this issue as we usually do in
+Hofmann and Streicher have solved this issue as we usually do in
 category theory, by considering small groupoids, that is groupoids for
-which the type of objects is also a set. This is fine as long as we
-consider set theory.
+which the type of objects is also a set, and by ignoring the natural
+transformations between groupoid isomorphisms. This is fine as long as we consider set theory.
 %
-But when moving to homotopy type theory, small groupoids actually
-correspond to setoids. \nt{expand on this ?}
+But when moving to type theory, small groupoids actually correspond to
+setoids: to impose this smallness condition internally, we have
+to enforce that the type of objects of this large object is a set, 
+which means that its equalities are trivial. \ms{Ou un groupoid discret?}
 %
 This means that, using an internalization of groupoids, one can only
 interpret types as setoids, and not as groupoids. This is what we do
@@ -167,7 +170,7 @@ Another way to solve this size issue would be to formalize the notion of
 2-groupoids instead but we do not think that the interpretation would
 have gained much. We believe that the real challenge is to interpret
 $\omega$-groupoids which is the proper notion of self-enriched 
-groupoid-like structure and is the subject of on-going works.
+groupoid-like structure and is the subject of on-going work.
 
 % coherences even limited at
 % groupoids, the the structures are already quite tedious to manipulate and we
