@@ -842,7 +842,6 @@ Next Obligation. apply equiv_eq_nat_trans. simpl.
 (* end hide *)
 (** 
   ** Identity Types
-  %\label{sec:extprinc}%
   One of the main interest of the groupoid interpretation is that it
   allows to interpret a type directed notion of equality which validates 
   the J eliminator of identity types but also various extensional principles.

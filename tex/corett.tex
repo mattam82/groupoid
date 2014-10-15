@@ -50,22 +50,22 @@ introduction rule for reflexivity with the usual \texttt{J} eliminator
 and its \emph{propositional} reduction rule. The \texttt{J} reduction 
 rule will actually be valid definitionally in the model for \emph{closed} terms.
 
-\subsubsection{Functional Extensionality.} 
-%
-The proof-relevant equality of functions in the source theory for which we want to
-give a computational model appears in rule \lrule{Fun-Ext},
-extending the formation rules of identity types on dependent product. 
-%
-Equality of dependent functions $f$ and $g$ of type $\Pi \vdecl{x}{A}\mdot B$ are
-introduced by giving a witness of $\Pi t : A, \Id{B \{\subs x {t}\}}
-{(f \ t)}{(g \ t)}$.
-%
-The \texttt{J} rule for dependent functions witnesses the
-\emph{naturality} of every predicate constructed in the source type
-theory.
-%
-This rule corresponds 
-  to the introduction of equality on dependent functions in~\cite{DBLP:conf/popl/LicataH12}.
+% \subsubsection{Functional Extensionality.} 
+% %
+% The proof-relevant equality of functions in the source theory for which we want to
+% give a computational model appears in rule \lrule{Fun-Ext},
+% extending the formation rules of identity types on dependent product. 
+% %
+% Equality of dependent functions $f$ and $g$ of type $\Pi \vdecl{x}{A}\mdot B$ are
+% introduced by giving a witness of $\Pi t : A, \Id{B \{\subs x {t}\}}
+% {(f \ t)}{(g \ t)}$.
+% %
+% The \texttt{J} rule for dependent functions witnesses the
+% \emph{naturality} of every predicate constructed in the source type
+% theory.
+% %
+% This rule corresponds 
+%   to the introduction of equality on dependent functions in~\cite{DBLP:conf/popl/LicataH12}.
 
 \def\hFin#1{\mathtt{\hat Fin}\ #1}
 \def\Fin#1{\texttt{Fin}\ #1}
@@ -118,9 +118,9 @@ This rule corresponds
  x \not \in \Gamma }
 {\WFc{Γ, \vdecl{x}{T}}{ψ}}
 
-\irule{Univ}
-{}
-{\ttcheck{\Gamma}{ψ}{\Univ}{\Type{}}}
+% \irule{Univ}
+% {}
+% {\ttcheck{\Gamma}{ψ}{\Univ}{\Type{}}}
 
 \irule{Var}
 {\WFc{\Gamma}{ψ} \hspace{-1em}\\ 
@@ -173,18 +173,19 @@ This rule corresponds
  \tcheck{\Gamma}{ψ}{t'}{A}}
 {\tcheck{\Gamma}{ψ}{t\ t'}{B\{\subs x {t'}\}}}
 
+
 \irule{Id}
 {\ttcheck{\Gamma}{ψ}{T}{\Type{}}\quad
 \tcheck{\Gamma}{ψ}{A, B}{T}}
 {\ttcheck{\Gamma}{ψ}{\Id{T}{A}{B}}{\Type{}}}
-\qquad
+
 \irule{Id-Intro}
 {\tcheck{\Gamma}{ψ}{t}{T}}
 {\tcheck{\Gamma}{ψ}{\refl{T}{t}}{\Id{T}{t}{t}} }
-\qquad
-\irule{Fun-Ext}
-{\tcheck{\Gamma}{ψ}{e}{ \Pi t : A, \Id{B \{\subs x {t}\}} {(f \ t)}{(g \ t)}}}
-{\tcheck{\Gamma}{ψ}{\funext{e}}{\Id{\Pi \vdecl{x}{A}\mdot B}{f}{g} }}
+% \qquad
+% \irule{Fun-Ext}
+% {\tcheck{\Gamma}{ψ}{e}{ \Pi t : A, \Id{B \{\subs x {t}\}} {(f \ t)}{(g \ t)}}}
+% {\tcheck{\Gamma}{ψ}{\funext{e}}{\Id{\Pi \vdecl{x}{A}\mdot B}{f}{g} }}
 
 
 % \irule{Equiv-Intro}

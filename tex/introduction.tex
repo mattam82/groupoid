@@ -154,12 +154,20 @@ category theory, by considering small groupoids, that is groupoids for
 which the type of objects is also a set, and by ignoring the natural
 transformations between groupoid isomorphisms. This is fine as long as we consider set theory.
 %
-But when moving to type theory, small groupoids actually correspond to
-setoids: to impose this smallness condition internally, we have
-to enforce that the type of objects of this large object is a set, 
-which means that its equalities are trivial. \ms{Ou un groupoid discret?}
+But when moving to type theory, small groupoids that form a
+category/groupoid actually correspond to setoids. Indeed, to impose the
+smallness condition internally, we have choose to impose (i) either that
+the identity type on the type of objects is an h-prop, (ii) or that $x
+\sim_1 y$ is an h-prop for all objects $x$ and $y$. But
+condition (i) does not give rise to a category as it is not possible to prove that
+functors form an h-set because we have an hypothesis on the identity type
+where we need an hypothesis on $\sim_1$. 
 %
-This means that, using an internalization of groupoids, one can only
+This means that only condition (ii) is valid, so that the
+correct notion of small groupoids in type theory is the notion of
+setoids.
+%
+In other words, using an internalization of groupoids, one can only
 interpret types as setoids, and not as groupoids. This is what we do
 in this paper, which prevent use to give a complete formulation of
 univalence in the source theory. That is, the invariance by
@@ -211,10 +219,9 @@ formalization of groupoids and associated structures
 (\S\ref{sec:w2gpds}-\ref{sec:rew}) and a construction of the groupoids
 interpreting the standard type constructors
 (\S\ref{sec:depprod}-\ref{sec:sigma}). Section
-\ref{sec:interpretation} presents a semi-formal interpretation of the
+\ref{sec:interpretation} presents a formal interpretation of the
 dependent type theory in the groupoid model and gives proofs that our
-interpretation validates a univalence principle at the level of sets
-(\S\ref{sec:extprinc}).
+interpretation validates functional extensionality~(\S\ref{sec:extprinc}).
  % and conclude (Section \ref{sec:conclusion}).
 %
 

@@ -214,11 +214,15 @@ Defined.
 
 (** 
   ** Functional Extensionality 
+  %\label{sec:extprinc}%
 
   As the whole interpretation is functorial with respect to a context,
   the naturality condition required on equality between dependent
-  functors can be deduced from the existence of a transformation. 
-  This allows to state dependent functional extensionality. 
+  functors can be deduced from the existence of a transformation.
+  This allows to state dependent functional extensionality, which
+  corresponds to the introduction of equality on dependent functions
+  in~\cite{DBLP:conf/popl/LicataH12}.
+
 
 [Definition FunExt Γ (A : Typ Γ)
         (F : TypDep A) (M N : Elt (Prod (LamT F)))
