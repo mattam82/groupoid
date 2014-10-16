@@ -144,15 +144,16 @@ $$
 %
 where $\GPD$ is said to be \emph{``the (large) category of groupoids''}. 
 %
-But groupoids form naturally a 2-category/groupoid and not a
-category/groupoid, because isomorphisms together with iso-natural
-transformations do not form a set but a richer structure. Otherwise
-said, groupoids are not enriched over themselves.
+But groupoids form naturally a 2-category/2-groupoid and not a
+category/groupoid, because functors/isomorphisms between (large)
+groupoids do not form a set but an arbitrary collection (a type in type
+theory). Otherwise said, groupoids are not enriched over themselves.
 %
 Hofmann and Streicher have solved this issue as we usually do in
 category theory, by considering small groupoids, that is groupoids for
-which the type of objects is also a set, and by ignoring the natural
-transformations between groupoid isomorphisms. This is fine as long as we consider set theory.
+which the type of objects is also a set, and relying on set-theoretic
+extensional equality to witness natural isomorphisms between groupoid 
+isomorphisms. This is fine as long as we consider set theory.
 %
 But when moving to type theory, small groupoids that form a
 category/groupoid actually correspond to setoids. Indeed, to impose the
