@@ -12,15 +12,12 @@
 \def\honeType{\ensuremath{\mathbb{1}}}
 \def\htwoType{\ensuremath{\mathbb{2}}}
 
-\subsection{Martin-Löf Type Theory with Functional Extensionality}
+\subsection{Martin-Löf Type Theory}
 \label{sec:definitions}
 
-
-For the purpose of this paper we study a restricted source theory
-resembling a cut-down version of the core language of the \Coq system,
-with only one \Type{} universe (see \cite{DBLP:bibsonomy_cupart} for an
-in-depth study of this system). This is basically Martin-Löf Type Theory
-(without \Type{} : \Type{}). First we introduce the definitions of the
+For the purpose of this paper we study an intensional type theory
+resembling a cut-down version of the core language of the \Coq system
+(see \cite{DBLP:bibsonomy_cupart}, \S 2 for an in-depth study of this system). This is basically Martin-Löf Type Theory. First we introduce the definitions of the
 various objects at hand.  We start with the term language of a dependent
 λ-calculus: we have a countable set of variables $x, y, z$, and the
 usual typed λ-abstraction $λ x : τ, b$, à la Church, application $t~u$,
@@ -38,7 +35,7 @@ of this judgment, we say $t$ has type $T$ in $Γ$.
 % not $\Type{}$ unless explicilty stated (this just allows us to do
 % without a separate judgment for carving out the types).
 
-Most of the rules are standard. The definitional equality $A = B$ is
+The rules are entirely standard. The definitional equality $A = B$ is
 defined as the congruence on type and term formers compatible with
 β-reductions for abstractions and projections.
 
@@ -48,7 +45,10 @@ The identity type in the source theory is the standard
 Martin-Löf identity type $\Id{T}{t}{u}$, generated from an
 introduction rule for reflexivity with the usual \texttt{J} eliminator
 and its \emph{propositional} reduction rule. The \texttt{J} reduction 
-rule will actually be valid definitionally in the model for \emph{closed} terms.
+rule will actually be valid definitionally in the model for
+\emph{closed} terms only, as it relies on the potentially abstract
+functorial action of the elimination predicate, as in Hofmann \&
+Streicher's interpretation.
 
 % \subsubsection{Functional Extensionality.} 
 % %
@@ -145,19 +145,6 @@ rule will actually be valid definitionally in the model for \emph{closed} terms.
 \irule{Proj2}
 {\tcheck{\Gamma}{ψ}{t}{\Sigma \vdecl{x}{A}\mdot B}}
 {\tcheck{\Gamma}{ψ}{π_2 t}{B\{\subs x {π_1 t}\}}}
-% \irule{Fin}
-% {n \in \{ 0, 1, 2 \}}
-% {\tcheck{\Gamma}{ψ}{\Fin{n}}{\Type{}}}
-% \irule{Fin-Intro}
-% {k, n \in \{ 0, 1, 2 \}, k < n}
-% {\tcheck{\Gamma}{ψ}{\fin{k}{n}}{\Fin{n}}}
-% \irule{Fin-Elim}
-% {n \in \{ 0, 1, 2 \} \\
-%   \tcheck{\Gamma, x : \Fin{n}}{ψ}{P}{\Type{}} \\
-%   ∀ k < n. \tcheck{\Gamma}{ψ}{p_k}{P\ \fin{k}{n}} \\
-%   \tcheck{\Gamma}{ψ}{f}{\Fin{n}}}
-% {\tcheck{\Gamma}{ψ}{\texttt{felim}_{P}\ \overrightarrow{p_k}\ f}{P\
-% f}}
 
 \irule{Conv}
 {\tcheck{\Gamma}{ψ}{t}{A} \hspace{-1em} \\ \ttcheck{Γ}{ψ}{B}{\Type{}} \hspace{-1em} \\ \tconv{ψ}{A}{B}}
@@ -186,12 +173,9 @@ rule will actually be valid definitionally in the model for \emph{closed} terms.
 % \irule{Fun-Ext}
 % {\tcheck{\Gamma}{ψ}{e}{ \Pi t : A, \Id{B \{\subs x {t}\}} {(f \ t)}{(g \ t)}}}
 % {\tcheck{\Gamma}{ψ}{\funext{e}}{\Id{\Pi \vdecl{x}{A}\mdot B}{f}{g} }}
-
-
 % \irule{Equiv-Intro}
 % {\tcheck{\Gamma}{ψ}{i}{ \Elt{A} ` = \Elt{B}}}
 % {\tcheck{\Gamma}{ψ}{\texttt{equiv}\ i}{\Id{\Univ}{A}{B}}}
-
 
 \irule{Id-Elim (J)}
 {\tcheck{\Gamma}{ψ}{i}{\Id{T}{t}{u}} \\
