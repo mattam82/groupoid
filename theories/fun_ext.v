@@ -147,6 +147,8 @@
 (** printing UId $≡$*)
 (** printing UType $\Univ$*)
 (** printing Elt $\mathsf{Tm}$*)
+(** printing FunExt_comp $\mathsf{FunExt}_\mathsf{comp}$*)
+
 (* begin hide *)
 
 Require Export Unicode.Utf8_core.
@@ -182,13 +184,6 @@ Lemma eq_Prod_ctxt {T Γ} (A:Typ Γ) (F:TypFam A) (f: [T -|-> Γ]) :
 Defined.
 
 Notation "↑ t" := (t °° Sub with eq_Prod_ctxt _ _) (at level 9, t at level 9).
- 
-(* Definition Dmap_id_adjoint {Γ} {A:Typ Γ} (F:TypFam A) {γ : [Γ]} *)
-(*   {x y : [A @ γ]} (e : x ~1 y) : [Dmap F (identity γ)] y ° *)
-(*           (map ([F] γ) (equiv_adjoint (Var A) (sum_id_left e))) *)
-(*  ~ map ([F] γ) e. *)
-(* admit. *)
-(* Defined. *)
 
 Definition apType (Γ: Context) (A : Typ Γ)
   (F : TypDep A) (M N : Elt (Prod (LamT F))) :=
@@ -198,17 +193,16 @@ Definition apType (Γ: Context) (A : Typ Γ)
 (* Definition FunExt (Γ: Context) (A : Typ Γ) *)
 (*   (F : TypDep A) (M N : Elt (Prod (LamT F))) *)
 (*   (* (α : ↑M @@ Var A ~1 ↑N @@ Var A) : *) *)
-(*   (α : apType M N) : *)
 (*   M ~1 N. *)
   
-Definition FunExt_1 (Γ: Context) (A : Typ Γ) 
-        (F : TypDep A) (M N : Elt (Prod (LamT F))) 
-        (* (α : ↑M @@ Var A ~1 ↑N @@ Var A) : *)
-        (α : apType M N) : 
-  ∀ γ : [Γ], M @ γ ~1 N @ γ. 
-intro γ. exists (fun t => α (γ ; t)). 
-intros t t' e. trunc1_eq.
-Defined.
+(* Definition FunExt_1 (Γ: Context) (A : Typ Γ)  *)
+(*         (F : TypDep A) (M N : Elt (Prod (LamT F)))  *)
+(*         (* (α : ↑M @@ Var A ~1 ↑N @@ Var A) : *) *)
+(*         (α : apType M N) : *)
+(*   ∀ γ : [ [[ Γ]] ], M @ γ ~1 N @ γ.  *)
+(* intro γ. exists (fun t => α  (γ ; t)).  *)
+(* intros t t' e. trunc1_eq. *)
+(* Defined. *)
 
 (* end hide *)
 
@@ -221,31 +215,51 @@ Defined.
   functors can be deduced from the existence of a transformation.
   This allows to state dependent functional extensionality, which
   corresponds to the introduction of equality on dependent functions
-  in~\cite{DBLP:conf/popl/LicataH12}.
+  in%~\cite{DBLP:conf/popl/LicataH12}%.
 
 
-[Definition FunExt Γ (A : Typ Γ)
+[Lemma FunExt Γ (A : Typ Γ)
         (F : TypDep A) (M N : Elt (Prod (LamT F)))
-        (α : ↑M @@ Var A ~1 ↑N @@ Var A): M ~1 N.]
+        (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A)))))
+  : Elt (Id M N).]
 
   %\noindent% where [↑M] is the weakening for terms. 
 *)
 
+
 (* begin hide *)
-Definition FunExt (Γ: Context) (A : Typ Γ)
-           (F : TypDep A) (M N : Elt (Prod (LamT F)))
-        (* (α' : ↑M @@ Var A ~1 ↑N @@ Var A)  *)
-        (α : apType M N) : 
-  M ~1 N.
-Proof.
-  exists (FunExt_1 α). intros t t' e a. trunc1_eq. 
-Defined.
+
+
+
+(* Definition FunExt_1 (Γ: Context) (A : Typ Γ) *)
+(*            (F : TypDep A) (M N : Elt (Prod (LamT F))) *)
+(*         (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))) *)
+(*   : ∀ t : [Γ], Dnat_trans (M @ t) (N @ t).  *)
+(* intro t. exists (α @ t).1. intros a a' e. trunc1_eq. Defined. *)
+
+(* Definition FunExt (Γ: Context) (A : Typ Γ) *)
+(*            (F : TypDep A) (M N : Elt (Prod (LamT F))) *)
+(*            (α : ∀ t : [Γ], [([[[Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A)))]]]) @ t]) *)
+(*            (* (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))) *) *)
+(*   : Elt (Id M N). *)
+(*   admit. *)
+(* Defined. *)
+(*   pose (α.1). simpl in p.  @@  *)
+(* (* : ∀ t : [Γ], Dnat_trans (M @ t) (N @ t). *) *)
+(*   exists (fun t => ((α @ t).1 ; fun a a' e => trunc1_eq)). *)
+(*   simpl in *. red. simpl. red. simpl. *)
+(*   red in α. simpl in α. red in α. simpl in α .  *)
+(*   pose (α.1). simpl in p. exists α.1. *)
+(* destruct α as [f H]. *)
+(*   pose (foo := ↑M @@  Var A). *)
+(*   pose (bar := Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A)))). *)
+  
 
 Definition FunExt_Elim (Γ: Context) (A : Typ Γ)
-        (F :  TypDep A) (M N : Elt (Prod (LamT F))) (a : Elt A) (α : M ~1 N)
-        : M @@ a ~1 N @@ a.
-exists (fun γ => ((α @ γ) @ (a @ γ))). 
-intros t t' e. trunc1_eq. 
+        (F :  TypDep A) (M N : Elt (Prod (LamT F))) (a : Elt A) (α : Elt (Id M N))
+        :  Elt (Id (M @@ a) (N @@ a)).
+exists (fun γ => ((α @ γ) @ (a @ γ))).
+admit.
 Defined.
 
 Definition Conversion_Eq (Γ: Context) (A B: Typ Γ) 
