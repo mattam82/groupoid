@@ -770,21 +770,18 @@ Definition Proj2 {Γ} {A:Typ Γ} {B:TypFam A} (t: Elt (Sigma B))
 
 (**
   %\paragraph{\lrule{Conv}.}%
-  It is not possible to prove in %\Coq% that the conversion rule is
-  preserved because the application of this rule is implicit and
-  can not be reified. Nevertheless, to witness this preservation, 
-  we show that beta conversion is valid as a definitional equality
-  on the first projection. The other beta rules and the equational theory of 
-  explicit substitutions can be validated in the same way, showing that
-  this forms a CwF.
+  %$\beta$%-reduction for abstraction is valid as a definitional equality,
+  where [SubExtId] is a specialization of [SubExt] with the identity substitution.
 *)
 
 Definition Beta {Γ} {A:Typ Γ} {F:TypDep A} (b:Elt F) (a:Elt A) 
   : [Lam b @@ a] = [b °° SubExtId a] := eq_refl _.
 
 (**
- %\noindent% where [SubExtId] is a specialization of [SubExt] with 
-  the identity substitution.
+ %\noindent% 
+  The other beta rules and the equational theory of 
+  explicit substitutions can be validated in the same way, showing that
+  this forms a CwF.
 *)
 
 (* begin hide *)
