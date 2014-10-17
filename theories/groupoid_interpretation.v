@@ -776,10 +776,9 @@ Definition Proj2 {Γ} {A:Typ Γ} {B:TypFam A} (t: Elt (Sigma B))
   preserved because the application of this rule is implicit and
   can not be reified. Nevertheless, to witness this preservation, 
   we show that beta conversion is valid as a definitional equality
-  on the first projection. As conversion is only done on 
-  types and interpretation of types is always projected, this is 
-  enough to guarantee that the conversion rule is also admissible.
-
+  on the first projection. The other beta rules and the equational theory of 
+  explicit substitutions can be validated in the same way, showing that
+  this forms a CwF.
 *)
 
 Definition Beta {Γ} {A:Typ Γ} {F:TypDep A} (b:Elt F) (a:Elt A) 
@@ -844,7 +843,8 @@ Next Obligation. apply equiv_eq_nat_trans. simpl.
   ** Identity Types
   One of the main interests of the groupoid interpretation is that it
   allows to interpret a type directed notion of equality which validates 
-  the J eliminator of identity types but also various extensional principles.
+  the J eliminator of identity types but also various extensional principles,
+  including functional extensionality. 
   For any terms [a] and [b] of a dependent type [A:Typ Γ], we note [Id a b] the equality type
   between [a] and [b] obtained by lifting [~1] to get a type depending on [Γ].
 *)
