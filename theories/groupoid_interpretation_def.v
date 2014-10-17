@@ -184,8 +184,7 @@ Opaque map_inv.
   on fibrations).
 
   We only present the computational part of the interpretation, the
-  proofs of functoriality and naturality are not detailled but most of
-  them are available in the %\Coq% development.
+  proofs of functoriality and naturality are available in the %\Coq% development.
 
 
   ** Dependent types

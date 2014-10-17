@@ -15,7 +15,7 @@ theory, in the manner of Altenkirch et al.~\cite{altenkirch-mcbride-wierstra:ott
 extensionality principle coming from homotopy theory is univalence,
 whose first instance is the idea that isomorphic types are
 equal~\cite{Voevodsky:2011yq,Pelayo:2012uq}. All these principles
-should be imposable on a type theory like MLTT because, intuitively,
+should be imposeable on a type theory like MLTT because, intuitively,
 no term can distinguish between isomorphic types, pointwise equal
 functions, logically equivalent propositions or two proofs of the same
 proposition. This hints at the idea that there ought to exist an
@@ -77,9 +77,9 @@ now discuss.
 
 
 Our long term goal is to provide an interpretation of homotopy type
-theory into type theory (without extensional principle).
+theory into type theory (without extensional principles).
 %
-This would allow to give a meaning to all extensionality
+This would give a meaning to all extensionality
 principles without relying on them in the target theory.
 
 However, if we use a traditional approach and formalize groupoid laws
@@ -91,7 +91,7 @@ groupoids.
 %
 This is because, in the groupoid interpretation, we need isomorphisms
 between groupoids to satisfy groupoids laws using the identity
-type as notion of equality between isomorphisms. Then, using
+type as the notion of equality between isomorphisms. Then, using
 functional extensionality, this amounts to compare the two functions
 pointwise, but again using the identity type, and not the internal
 notion of equality in the groupoid, given by $\sim_1$.
@@ -109,7 +109,7 @@ in~\cite{hottbook} would require the target theory to be univalent already.
  
 To avoid this issue in our internalization of groupoids, the groupoid
 laws are imposed using a notion of 2-dimensional equality that does
-not have to be the identity type, but just to be an equivalence relation.
+not have to be the identity type, just an equivalence relation.
 %
 Then, to enforce that the types of isomorphisms constitute
 (homotopical) sets, we still use the identity type, but only to
@@ -136,7 +136,7 @@ types.
 \paragraph{\bf Taking size issue into account.}
 %
 
-In Hofmann and Streicher groupoid model, a type $A$ depending on
+In Hofmann and Streicher's groupoid model, a type $A$ depending on
 context $\Gamma$ is interpreted as a functor 
 $$
 \sem{A} \ : \ \sem{\Gamma} \longrightarrow \GPD
@@ -157,10 +157,10 @@ isomorphisms. This is fine as long as we consider set theory.
 %
 But when moving to type theory, small groupoids that form a
 category/groupoid actually correspond to setoids. Indeed, to impose the
-smallness condition internally, we have to impose (i) either that
-the identity type on the type of objects is an h-prop, (ii) or that $x
+smallness condition internally, we have to impose either that (i)
+the identity type on the type of objects is an h-prop, or that (ii) $x
 \sim_1 y$ is an h-prop for all objects $x$ and $y$. But
-condition (i) does not give rise to a category as it is not possible to prove that
+condition (i) does not give rise to a category: it is not possible to prove that
 functors form an h-set because we have an hypothesis on the identity type
 where we need an hypothesis on $\sim_1$. 
 %
@@ -169,10 +169,10 @@ correct notion of small groupoids in type theory is the notion of
 setoids.
 %
 In other words, using an internalization of groupoids, one can only
-interpret types as setoids, and not as groupoids. This is what we do
-in this paper, which prevent use to give a complete formulation of
+interpret types as functors into the groupoid of setoids. This is what we do
+in this paper, which prevents us from giving a complete formulation of
 univalence in the source theory. That is, the invariance by
-isomorphism principle, also respected in the model, as no counterpart
+isomorphism principle is respected in the model but has no counterpart
 in the source theory. 
 
 Another way to solve this size issue would be to formalize the notion of
