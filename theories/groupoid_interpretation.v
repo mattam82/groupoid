@@ -528,8 +528,9 @@ Instance Var_1 {Γ:Context} (A:Typ Γ) :
   ** Interpretation of the typing judgment
   %\label{sec:interp}%
 
-  The typing rules of Figure %\ref{fig:emltt}% are
-  interpreted in the groupoid model as described below.
+  The explicit substitution versions of the typing rules of Figure
+  %\ref{fig:emltt}% are interpreted in the groupoid model as described
+  below.
 
   %\paragraph{\textsc{Var}.}% 
 
@@ -537,9 +538,7 @@ Instance Var_1 {Γ:Context} (A:Typ Γ) :
   that the projection is dependently functorial. Note the explicit
   weakening of [A] in the returned type. This is because we need to
   make explicit that the context used to type [A] is extended with an
-  term of type [A]. The rule of Figure %\ref{fig:emltt}% is more general 
-  as it performs an implicit weakening. We do not interpret this part of 
-  the rule as weakening is explicit in our model. 
+  term of type [A].
 
 *)
 
