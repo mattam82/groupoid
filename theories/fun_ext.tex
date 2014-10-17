@@ -1,0 +1,21 @@
+\coqlibrary{Groupoid.fun ext}{Library }{Groupoid.fun\_ext}
+
+
+  Propositional functional extensionality is a direct consequence of the definition
+  of equality at product types. It is simply witnessed by a natural transformation
+  between the (dependent) functions, that is a pointwise equality. This corresponds 
+  to the introduction of equality on dependent functions in~\cite{DBLP:conf/popl/LicataH12}.
+
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Lemma} \coqdocvar{FunExt} \coqdocvariable{Γ} (\coqdocvariable{A} : \coqdocdefinition{Typ} \coqdocvariable{Γ})
+        (\coqdocvariable{F} : \coqdocvar{TypDep} \coqdocvariable{A}) (\coqdocvar{M} \coqdocvar{N} : \coqdocvar{$\mathsf{Tm}$} (\coqdocdefinition{Prod} (\coqdocvar{$\Lambda$} \coqdocvariable{F}))) \coqdoceol
+        (\coqdocvar{α} : \coqdocvar{$\mathsf{Tm}$} (\coqdocdefinition{Prod} (\coqdocvar{$\Lambda$} (\coqdocvar{Id} ($\shortdownarrow$\coqdocvar{M} $\star$ \coqdocvar{Var} \coqdocvariable{A}) ($\shortdownarrow$\coqdocvar{N} $\star$ \coqdocvar{Var} \coqdocvariable{A})))))
+  : \coqdocvar{$\mathsf{Tm}$} (\coqdocvar{Id} \coqdocvar{M} \coqdocvar{N}).
+\coqdocemptyline
+\end{coqdoccode}
+
+
+  \noindent where $\shortdownarrow$\coqdocvar{M} is the weakening for terms. 
