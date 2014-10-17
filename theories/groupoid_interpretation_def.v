@@ -311,7 +311,7 @@ Definition Elt (Γ:Context) (A:Typ Γ) := [Prod0 A].
 Definition TypDep {Γ : Context} (A: Typ Γ) := Typ (_Sum0 A).
 
 (* end hide *)
-(** Terms of [A] introduced by a sequent $\Gamma \vdash x:A$ are
+(** Terms of [A] introduced by a sequent $\Gamma \vdash t:A$ are
   dependent (context) functors from [Γ] to [A] that return for each
   context valuation [γ], an object of [A @ γ] respecting equality of
   contexts.  The type of terms of [A] is noted [Elt A := [_Prod A]]

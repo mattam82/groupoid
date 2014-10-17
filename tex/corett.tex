@@ -17,12 +17,15 @@
 
 For the purpose of this paper we study an intensional type theory
 resembling a cut-down version of the core language of the \Coq system
-(see \cite{DBLP:bibsonomy_cupart}, \S 2 for an in-depth study of this system). This is basically Martin-Löf Type Theory. First we introduce the definitions of the
-various objects at hand.  We start with the term language of a dependent
-λ-calculus: we have a countable set of variables $x, y, z$, and the
+(see \cite{DBLP:bibsonomy_cupart}, \S 2 for an in-depth study of this
+system). This is basically the first published version of Martin-Löf
+Type Theory \cite{MLTTpred}, also known as weak simple type theory
+\cite{barras:_gener_takeut_gandy_inter}. We have the term language of
+a dependent λ-calculus: a countable set of variables $x, y, z$, and the
 usual typed λ-abstraction $λ x : τ, b$, à la Church, application $t~u$,
 the dependent product and sum types $Π/Σ x : A. B$, and an identity type
-$\Id{T}{t}{u}$. 
+$\Id{T}{t}{u}$. We do not consider a universe here but could add
+inductive datatypes.
 % There is a single universe $\Univ$. For $T$ and $U$ in
 % $\Univ{}$, the type of (Set)-isomorphisms $T `= U$, is definable
 % directly using the other type constructors (see \ref{sec:universe}).
@@ -35,9 +38,13 @@ of this judgment, we say $t$ has type $T$ in $Γ$.
 % not $\Type{}$ unless explicilty stated (this just allows us to do
 % without a separate judgment for carving out the types).
 
-The rules are entirely standard. The definitional equality $A = B$ is
+The rules are almost entirely standard. The definitional equality $A = B$ is
 defined as the congruence on type and term formers compatible with
-β-reductions for abstractions and projections.
+β-reductions for abstractions and projections. We give a version of the
+theory with named variables for presentation purposes but the
+interpretation is actually defined on the explicit substitution version of
+the system, without the xi rule allowing to push substitutions under
+abstractions (see op.cit.). 
 
 \subsubsection{Identity type.} 
 %
@@ -180,7 +187,7 @@ Streicher's interpretation.
 \irule{Id-Elim (J)}
 {\tcheck{\Gamma}{ψ}{i}{\Id{T}{t}{u}} \\
 \ttcheck{\Gamma, x : T, e : \Id{T}{t}{x}}{ψ}{P}{\Type{}} \\
-\tcheck{\Gamma}{ψ}{p}{P\{\subs x t\}\{\refl{T}{t}/e\}}}
+\tcheck{\Gamma}{ψ}{p}{P\{\subs x t, \refl{T}{t}/e\}}}
 {\tcheck{\Gamma}{ψ}{\texttt{J}_{λx\ e. P}~i~p}{P\{\subs x u, \subs e i\}}}
 \end{mathpar}
 \caption{Typing judgments for our extended MLTT}\label{fig:emltt}
