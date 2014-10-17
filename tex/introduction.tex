@@ -138,8 +138,10 @@ types.
 
 In Hofmann and Streicher's groupoid model, a type $A$ depending on
 context $\Gamma$ is interpreted as a functor 
+\hspace{-1em}
 $$
 \sem{A} \ : \ \sem{\Gamma} \longrightarrow \GPD
+\hspace{-1em}
 $$
 %
 where $\GPD$ is said to be \emph{``the (large) category of groupoids''}. 
@@ -167,6 +169,9 @@ where we need an hypothesis on $\sim_1$.
 This means that only condition (ii) is valid, so that the
 correct notion of small groupoids in type theory is the notion of
 setoids.
+%
+Note that this is also true for the notion of univalent groupoids
+introduced above as in that case, $\sim_1$ coincides with the identity type.
 %
 In other words, using an internalization of groupoids, one can only
 interpret types as functors into the groupoid of setoids. This is what we do

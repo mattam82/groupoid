@@ -165,6 +165,14 @@ Set Universe Polymorphism.
 Opaque Equiv_adjoint.
 Opaque map_inv.
 
+(* Second, we provide an *)
+(*   interpretation in a model where structures that are definitionally *)
+(*   equal for Kan semisimplicial sets are only homotopically equal, which *)
+(*   requires more care in the definitions (see for instance the definition *)
+(*   of [Lam] in Section %\ref{sec:interp}% which mixes two points of view *)
+(*   on fibrations). *)
+
+
 (* end hide *)
 (** 
 
@@ -173,16 +181,9 @@ Opaque map_inv.
   The interpretation is based on the notion of categories with families 
   introduced by Dybjer%~\cite{dybjer:internaltt}% later used in %\cite{groupoid-interp}%.
   This interpretation can also be seen as an extension of the Takeuti-Gandy interpretation of simple type theory, recently generalized to dependent type theory by Coquand et al. using Kan semisimplicial sets or cubical sets%~\cite{barras:_gener_takeut_gandy_inter}%. 
-
-  There are two main novelties in our interpretation. First, we
+  The main novelty of our interpretation is to
   take advantage of universe polymorphism to interpret dependent types
-  directly as functors into [Type0]. Second, we provide an
-  interpretation in a model where structures that are definitionally
-  equal for Kan semisimplicial sets are only homotopically equal, which
-  requires more care in the definitions (see for instance the definition
-  of [Lam] in Section %\ref{sec:interp}% which mixes two points of view
-  on fibrations).
-
+  directly as functors into [Type0]. 
   We only present the computational part of the interpretation, the
   proofs of functoriality and naturality are available in the %\Coq% development.
 

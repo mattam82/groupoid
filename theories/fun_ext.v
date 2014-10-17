@@ -185,10 +185,48 @@ Defined.
 
 Notation "↑ t" := (t °° Sub with eq_Prod_ctxt _ _) (at level 9, t at level 9).
 
-Definition apType (Γ: Context) (A : Typ Γ)
-  (F : TypDep A) (M N : Elt (Prod (LamT F))) :=
-  ∀ t : sum_type A,
-    (M @ [t]) @ eq_section t ~1 (N @ [t]) @ eq_section t.
+(* Program Instance Sub_1 (Γ: Context) (T : Typ Γ) *)
+(*          : Functor (T:=[[_Sum0 T]]) (U := [[Γ]]) (λ γt , [γt]). *)
+(* Next Obligation. apply [X]. Defined. *)
+(* Next Obligation. apply identity. Defined. *)
+(* Next Obligation. apply comp; apply identity. Defined. *)
+(* Next Obligation. apply [X]. Defined. *)
+
+Program Instance Sub_lift_1 {Δ Γ} {A:Typ Γ} (σ: [Δ -|-> Γ]): 
+  Functor (T:=[[_Sum0 (A ⋅⋅ σ)]]) (U:=[[_Sum0 A]])  (λ γt, (σ @ [γt]; eq_section γt)).
+Next Obligation. exists (map σ X.1). apply X. Defined.
+Next Obligation. exists (map_id σ). simpl_id. Defined.
+Next Obligation. exists (map_comp σ _ _). trunc1_eq. Defined.
+Next Obligation. exists (map2 σ X.1). trunc1_eq. Defined.
+
+
+Program Definition Sub_lift {Δ Γ} {A:Typ Γ} (σ: [Δ -|-> Γ]): [_Sum0 (A⋅⋅σ) -|-> _Sum0 A] 
+  :=  (λ γt:[ [[_Sum0 (A⋅⋅σ)]] ], (σ @ γt.1 ;γt.2)  ; Sub_lift_1 _).
+
+
+Definition Sub_Elt {Δ Γ} {A:Typ Γ} (σ: [Δ -|-> Γ]) (b:Elt A)
+            : Elt (A ⋅⋅ σ).
+Admitted.
+
+Definition Prod_lamT_eq {Δ Γ} {A:Typ Γ} (σ: [Δ -|-> Γ]) {F:TypDep A}:
+           Prod (LamT (F ⋅⋅ Sub_lift σ)) ~1 Prod (LamT F) ⋅⋅ σ.
+  simpl. red. simpl. 
+  match goal with | [ |- sigma (λ α : ?H, _)]
+                  => assert H end.
+  intro. simpl. red. simpl. apply prod_eqT. simpl. red. simpl.
+  exists (fun _ => identity _). intros  a a' e. simpl_id_bi.
+  apply (map2 
+  trunc1_eq.
+  reflexivity.
+  exists (fun t => identity (Prod0 ([F] ([σ] t)))).
+
+
+Definition Beta2 {Δ Γ} {A:Typ Γ} (σ: [Δ -|-> Γ]) {F:TypDep A} (b:Elt F)
+ : [Sub_Elt σ (Lam b)] = [Lam (Sub_Elt (Sub_lift σ) b)].
+
+
+Definition Beta2 {Δ Γ} {A:Typ Γ} (σ: [Δ -|-> Γ]) {F:TypDep A} (b:Elt F) 
+  : [Lam b ⋅σ  ] = [Lam b ⋅ σ  ]. [b °° SubExtId a] := eq_refl _.
 
 (* Definition FunExt (Γ: Context) (A : Typ Γ) *)
 (*   (F : TypDep A) (M N : Elt (Prod (LamT F))) *)
@@ -236,6 +274,10 @@ Definition apType (Γ: Context) (A : Typ Γ)
 (*         (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))) *)
 (*   : ∀ t : [Γ], Dnat_trans (M @ t) (N @ t).  *)
 (* intro t. exists (α @ t).1. intros a a' e. trunc1_eq. Defined. *)
+
+(* Definition FunExt_Type (Γ: Context) (A : Typ Γ) *)
+(*            (F : TypDep A) (M N : Elt (Prod (LamT F))) *)
+(*            := Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A)))). *)
 
 (* Definition FunExt (Γ: Context) (A : Typ Γ) *)
 (*            (F : TypDep A) (M N : Elt (Prod (LamT F))) *)
