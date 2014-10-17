@@ -842,7 +842,7 @@ Next Obligation. apply equiv_eq_nat_trans. simpl.
 (* end hide *)
 (** 
   ** Identity Types
-  One of the main interest of the groupoid interpretation is that it
+  One of the main interests of the groupoid interpretation is that it
   allows to interpret a type directed notion of equality which validates 
   the J eliminator of identity types but also various extensional principles.
   For any terms [a] and [b] of a dependent type [A:Typ Γ], we note [Id a b] the equality type
