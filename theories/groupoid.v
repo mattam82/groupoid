@@ -322,7 +322,7 @@ Class Propoid T := { P :> Setoid T ;
        in homotopy type theory. In the same way,  
        we note [SetoidType] 
        for the types that form a [Setoid].
-       We define [ [[T]] ] the lifting of setoids to groupoids.
+       We define [ [[T]] ] the lifting of setoids (inhabitants of [SetoidType]) to groupoids.
 *)
 (* begin hide *)
 
@@ -615,10 +615,10 @@ Program Instance comp_fun : Composition Fun_Type :=
 (* end hide *)
 (** Equivalence between functors is given by natural transformations.
   We insist here that this naturality condition in the definition of
-  functional equality is crucial in a higher setting.  It is usually
-  omitted in formalizations of homotopy theory in Coq because there they
-  only consider the 1-groupoid case where the naturality becomes
-  trivial, see for instance%~\cite{coq_unival_axiom}%.  *)
+  functor equality is crucial in a higher setting.  It is usually
+  derivable in formalizations of homotopy theory in Coq because there they
+  only consider the 1-groupoid case where the naturality comes for
+  free from functional extensionality, see for instance%~\cite{coq_unival_axiom}%.  *)
 
 Class NaturalTransformation T U {f g : T ---> U} (α : ∀ t : [T], f @ t ~1 g @ t) := 
   _α_map : ∀ {t t'} (e : t ~1 t'), α t' ° map f e ~ map g e ° α t.
@@ -1088,7 +1088,7 @@ Defined.
 (* end hide *)
 (** 
    It is well known that any equivalence can be turned into an adjoint
-   equivalence by slighty modifying the section. While available in
+   equivalence by slightly modifying the section. While available in
    our formalization, this result should be used with care as it
    opacifies the underlying notion of homotopy and can harden proofs.
 *)
@@ -1173,7 +1173,7 @@ Instance _Type_comp : Composition Equiv :=
 
 (* end hide *)
 (** Equality of homotopy equivalences is given by equivalence of
-  adjunctions. Two adjunctions are equivalent if their left adjoint are
+  adjunctions. Two adjunctions are equivalent if their left adjoints are
   equivalent and they agree on their sections (up-to the isomorphism).
   Note that equivalence of the right adjoints and agreement on their
   retractions can be deduced so they are not part of the definition.  *)
@@ -1843,8 +1843,8 @@ Definition Type0 : GroupoidType := (SetoidType ; Equiv_Groupoid).
 (** %\noindent% In the definition above, [Equiv_Groupoid] is a proof
 that [Equiv] and [Equiv_eq] form a groupoid. It makes again use of
 functional extensionality to prove contractibility of higher cells.  As
-[GroupoidType] appears both in the term and in the type, the use of
-polymorphic universe is crucial here to avoid an inconsistency. *)
+the type of pre-groupoids appears both in the term and the type, the use of
+polymorphic universes is crucial here to avoid an inconsistency. *)
 (* begin hide *)
 
 (* Notation equiv_assoc := (@assoc Equiv_cat). *)

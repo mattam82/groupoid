@@ -272,7 +272,7 @@ Definition LamT {Γ: Context} {A : Typ Γ} (B: TypDep A)
   noted [A ⋅ σ], with the same computational content but with new universe indices 
   to avoid universe inconsistency.
 
-  A substitution σ can be extended by an term [a: Elt (A ⋅ σ)] 
+  A substitution σ can be extended by a term [a: Elt (A ⋅ σ)] 
   of [A : Typ Δ].
 
 *)
@@ -529,8 +529,7 @@ Instance Var_1 {Γ:Context} (A:Typ Γ) :
   %\label{sec:interp}%
 
   The explicit substitution versions of the typing rules of Figure
-  %\ref{fig:emltt}% are interpreted in the groupoid model as described
-  below.
+  %\ref{fig:emltt}% are modelled as described below.
 
   %\paragraph{\textsc{Var}.}% 
 

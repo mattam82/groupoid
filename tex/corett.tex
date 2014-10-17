@@ -187,7 +187,7 @@ Streicher's interpretation.
 \irule{Id-Elim (J)}
 {\tcheck{\Gamma}{ψ}{i}{\Id{T}{t}{u}} \\
 \ttcheck{\Gamma, x : T, e : \Id{T}{t}{x}}{ψ}{P}{\Type{}} \\
-\tcheck{\Gamma}{ψ}{p}{P\{\subs x t\}\{\refl{T}{t}/e\}}}
+\tcheck{\Gamma}{ψ}{p}{P\{\subs x t, \refl{T}{t}/e\}}}
 {\tcheck{\Gamma}{ψ}{\texttt{J}_{λx\ e. P}~i~p}{P\{\subs x u, \subs e i\}}}
 \end{mathpar}
 \caption{Typing judgments for our extended MLTT}\label{fig:emltt}
