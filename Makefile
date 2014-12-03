@@ -100,7 +100,6 @@ VFILES:=theories/fun_ext.v\
   theories/groupoid_interpretation_def.v\
   theories/fun_eq.v\
   theories/groupoid.v\
-  theories/HoTT_light2.v\
   theories/HoTT_light.v
 
 -include $(addsuffix .d,$(VFILES))

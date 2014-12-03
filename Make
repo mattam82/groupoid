@@ -1,6 +1,5 @@
 -R theories Groupoid
 theories/HoTT_light.v
-theories/HoTT_light2.v
 theories/groupoid.v
 theories/fun_eq.v
 theories/groupoid_interpretation_def.v
