@@ -4,7 +4,7 @@ Copyright 2013-2014 Matthieu Sozeau & Nicolas Tabareau <first.last@inria.fr>
 Distributed under the terms of the LGPL.
 
 To compile the development, simply run [coq_makefile -f Make -o Makefile; make]
-in the toplevel directory, with coqc in your path. You need to use 
-the polyproj branch of Coq available at github.com/mattam82/coq.git 
-(commit 0442ed0b8e7239c61661acbe31c05f26a8e109e4, compile with -no-native-compiler) 
+in the toplevel directory, with coqc in your path. You need to Coq's development
+version (github.com/coq/coq.git branch master, 
+commit c4ecec191130a51975bf97d067472e0e5bd744f5, compile with -no-native-compiler) 
 to compile this code, as it makes use of universe polymorphism and fast projections.
