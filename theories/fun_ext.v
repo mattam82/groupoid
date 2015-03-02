@@ -204,29 +204,27 @@ Notation "↑ t" := (t °° Sub with eq_Prod_ctxt _ _) (at level 9, t at level 9
 
 (* begin hide *)
 
-
-
-(* Definition FunExt_1 (Γ: Context) (A : Typ Γ) *)
-(*            (F : TypDep A) (M N : Elt (Prod (LamT F))) *)
-(*         (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))) *)
-(*   : ∀ t : [Γ], Dnat_trans (M @ t) (N @ t).  *)
-(* intro t. exists (α @ t).1. intros a a' e. trunc1_eq. Defined. *)
-
-(* Definition FunExt_Type (Γ: Context) (A : Typ Γ) *)
-(*            (F : TypDep A) (M N : Elt (Prod (LamT F))) *)
-(*            := Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A)))). *)
-
-(* Definition FunExt_1 (Γ: Context) (A : Typ Γ) *)
-(*            (F : TypDep A) (M N : Elt (Prod (LamT F))) *)
-(*            (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))): *)
-(*   ∀ t : [Γ], [([[[Id M N]]]) @ t]. *)
-(*   intro. exists ((α @ t).1). intros a a' e. trunc1_eq. *)
+Definition FunExt_1 (Γ: Context) (A : Typ Γ)
+           (F : TypDep A) (M N : Elt (Prod (LamT F)))
+           (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))):
+  ∀ t : [Γ], [([[[Id M N]]]) @ t].
+  exact (fun t => ((α @ t).1; fun a a' e =>
+                                   eq_is_eq2 _ (@HoTT_light.center _ (Trunc_1 _ _ _ _ _)))).
+Abort.
 (* Defined. *)
 
-(* Definition FunExt (Γ: Context) (A : Typ Γ) *)
-(*            (F : TypDep A) (M N : Elt (Prod (LamT F))) *)
-(*            (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))) *)
-(*   : Elt (Id M N). *)
-(*   assert (∀ t : [Γ], [([[[Id M N]]]) @ t]). *)
-(*   intro. exists ((α @ t).1). intros a a' e. trunc1_eq. *)
-(*   exists X. econstructor. intros. simpl. a a' e e'. *)
+Definition FunExt_comp (Γ: Context) (A : Typ Γ)
+           (F : TypDep A) (M N : Elt (Prod (LamT F)))
+           (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))):
+           DependentFunctor ([[[Id M N]]])
+           (fun t => ((α @ t).1; fun a a' e =>
+                                   eq_is_eq2 _ (@HoTT_light.center _ (Trunc_1 _ _ _ _ _)))).
+  apply Build_DependentFunctor.
+
+Definition FunExt (Γ: Context) (A : Typ Γ)
+           (F : TypDep A) (M N : Elt (Prod (LamT F)))
+           (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A)))))
+  : Elt (Id M N).
+  exists (fun t => ((α @ t).1; fun a a' e => 
+                          eq_is_eq2 _ (@HoTT_light.center _ (Trunc_1 _ _ _ _ _)))).
+  simpl. econstructor. intros. simpl. a a' e e'.

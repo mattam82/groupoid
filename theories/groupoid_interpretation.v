@@ -219,12 +219,9 @@ Defined.
 
 Next Obligation.
   intro. apply equiv_eq_nat_trans. 
-  unfold transport_id. simpl. unfold id. unfold nat_trans. simpl.
-  apply (map2 B). eapply composition. Focus 2.
-  apply sum_id_left_map. 
-  simpl_id_bi. apply identity.
-  exists (identity _). trunc1_eq.
-  
+  refine [(map2 B) _]. eapply composition. Focus 2.
+  apply sum_id_left_map.  
+  simpl_id_bi. exists (identity _). trunc1_eq.
 Defined.
 
 Next Obligation.
@@ -232,9 +229,8 @@ Next Obligation.
   eapply composition. Focus 2.
   eapply (@comp _ category_fun).
   apply identity. apply (map_comp B). 
-  eapply composition. Focus 2. 
-  unfold transport_id. simpl. unfold id. unfold nat_trans. simpl.
-  apply (map_comp B). apply (map2 B). 
+  eapply composition. Focus 2.
+  refine [map_comp B _ _]. refine [map2 B _]. 
   exists (inverse (id_R _ _ _)). 
   trunc1_eq.
 Defined.
@@ -243,11 +239,10 @@ Next Obligation.
 Proof.
   intro. apply equiv_eq_nat_trans. 
   eapply composition. Focus 2.
-  apply (map_comp B). apply (map2 B).
+  refine [map_comp B _ _]. apply (map2 B).
   exists (inverse (id_R _ _ _) ° H).  
   trunc1_eq.
 Defined.
-
 
 (* end hide *)
 (** 
@@ -327,13 +322,13 @@ Next Obligation. intro. apply equiv_eq_nat_trans.
                  eapply composition. eapply nat_comp'.
                  apply identity. eapply composition. apply (Dmap_id F). 
                  apply identity. eapply composition. simpl.
-                 eapply inverse. apply (map_comp (F @ (f @ x))).
-                 apply (map2 (F @ (f@x))). 
+                 eapply inverse. refine [map_comp (F @ (f @ x)) _ _].
+                 refine [map2 (F @ (f@x)) _ ]. 
                  trunc1_eq.
 Defined.
 Next Obligation. intro. apply equiv_eq_nat_trans.                  
   eapply composition. apply (Dmap2 F (map_comp f e e')).
-  eapply composition. apply equiv_comp. apply identity.
+  eapply composition. apply groupoid.Equiv_cat_obligation_4. apply identity.
   apply (Dmap_comp F (map f e) (map f e') t).
   unfold substF_1_obligation_1, transport_comp, transport_map, transport_eq.
   eapply composition. apply nat_assoc. 
@@ -342,17 +337,9 @@ Next Obligation. intro. apply equiv_eq_nat_trans.
   eapply composition. apply nat_assoc.
   apply nat_comp'; [idtac | apply identity].
   apply nat_comp'; [idtac | apply identity].
-  eapply composition.
-  eapply inverse. 
-  simpl; unfold id. 
-  (* should work here *)
-
-  (* apply (map_comp (F @ (f @ x))). *)
-  
-  match goal with | [ |- nat_trans _ (fun x0 => [map (F @ (f @ x)) ?P] @ 
-                                                ([map (F @ (f @ x)) ?Q] @ x0); _)] => 
-                    apply (map_comp (F @ (f @ x)) Q P) end.
-  simpl; unfold id. apply (map2 (F @ (f @ x))). trunc1_eq.
+  eapply composition. eapply inverse. 
+  refine [map_comp (F @ (f @ x)) _ _ ].
+  refine [map2 (F @ (f @ x)) _]. trunc1_eq.
 Defined.
 Next Obligation.
   intro. apply (Dmap2 F (map2 f H) t).
@@ -393,7 +380,7 @@ Next Obligation. apply [X]. Defined.
 Definition Sub {Γ: Context} {T : Typ Γ} : [_Sum0 T -|-> Γ] 
   :=  (λ γt:[ [[_Sum0 T]] ], [γt] ; Sub_1 _ _).
 
-Notation "⇑ A" := (A ⋅⋅ Sub) (at level 9, t at level 9).
+Notation "⇑ A" := (A ⋅⋅ Sub) (at level 9).
 (* end hide *)
 (**
   
@@ -421,33 +408,32 @@ Defined.
                   eapply composition. apply nat_comp'. 
                   apply identity. apply (Dmap_id F (a @ x)). 
                   eapply composition. eapply inverse. 
-                  unfold transport_id. simpl. unfold id.
-                  apply (map_comp (F @ x)). 
+                  refine [map_comp (F @ x) _ _]. 
                   eapply composition. eapply (map2 (F @ x)).
                   apply Equiv_adjoint_identity. apply (map_id (F @ x)).
  Defined.
  Next Obligation.
    unfold SubstT_1_obligation_1.
    apply equiv_eq_nat_trans. 
-  eapply composition. apply nat_comp'. apply identity.
-  apply (Dmap_comp F e e' (a @ z)).
-  eapply composition. 
-  eapply nat_assoc. eapply composition. eapply nat_assoc.
-  eapply inverse. eapply composition. apply nat_assoc.
-  apply nat_comp'; try apply identity.
-  unfold transport_map, transport_comp.
-  apply inverse. eapply composition. apply nat_comp'.
-  eapply composition.
-  simpl; unfold id. eapply inverse.
-  match goal with | [ |- nat_trans _ (fun x0 => [map (F @ x) ?P] @ 
-                                               ([map (F @ x) ?Q] @ x0); _)] => 
-                    apply (map_comp (F @ x) Q P) end.
-  eapply composition. eapply (map2 (F @ x)). apply Equiv_adjoint_comp. 
-  apply (map_comp (F @ x)). apply identity.
-  eapply composition. eapply inverse. apply nat_assoc.
-  apply inverse. eapply composition. eapply inverse. apply nat_assoc.
-  apply nat_comp'; try apply identity. apply inverse.
-  apply (α_map (Dmap F e)).
+   eapply composition. apply nat_comp'. apply identity.
+   apply (Dmap_comp F e e' (a @ z)).
+   eapply composition. 
+   eapply nat_assoc. eapply composition. eapply nat_assoc.
+   eapply inverse. eapply composition. apply nat_assoc.
+   apply nat_comp'; try apply identity.
+   unfold transport_map, transport_comp.
+   apply inverse. eapply composition. apply nat_comp'.
+   eapply composition. eapply inverse.
+   refine [map_comp (F @ x) _ _]. 
+   eapply composition. eapply (map2 (F @ x)).
+   (* the following raises a wird error *)
+   (* apply  Equiv_adjoint_comp. *)
+   refine (Equiv_adjoint_comp _ _ _ _ _ _).
+   apply (map_comp (F @ x)). apply identity.
+   eapply composition. eapply inverse. apply nat_assoc.
+   apply inverse. eapply composition. eapply inverse. apply nat_assoc.
+   apply nat_comp'; try apply identity. apply inverse.
+   apply (α_map (Dmap F e)).
 Defined.
 Next Obligation. 
   unfold SubstT_1_obligation_1.
@@ -456,15 +442,11 @@ Next Obligation.
   apply (Dmap2 F X (a @ y)).
   eapply composition. apply nat_assoc.
   apply nat_comp'; [idtac | apply identity].
-  eapply composition. eapply inverse. 
-  simpl; unfold id.
-  match goal with | [ |- nat_trans _ (fun x0 => [map (F @ x) ?P] @ 
-                                               ([map (F @ x) ?Q] @ x0); _)] => 
-                    apply (map_comp (F @ x) Q P) end.
+  eapply composition. eapply inverse.
+  refine [map_comp (F @ x) _ _]. 
   apply (map2 (F @ x)). apply Equiv_adjoint_eq.
 Defined.
  
-
 Definition SubstT {Γ:Context} {A:Typ Γ} (F:TypFam A) (a:Elt A) : Typ Γ :=
   (λ γ, (F @ γ) @ (a @ γ) ; SubstT_1 _ _).
 Obligation Tactic := intros.
@@ -486,7 +468,7 @@ Instance BetaT_1 {Δ Γ : Context} {A:Typ Γ} (B:TypDep A) (σ:[Δ -|-> Γ]) (a:
   Defined.
 (* end hide *)
 
-Definition BetaT Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]) (a:Elt (A ⋅⋅ σ)) 
+Program Definition BetaT Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]) (a:Elt (A ⋅⋅ σ)) 
   : LamT B °°° σ {{a}} ~1 B ⋅⋅ (SubExt σ a) := (λ _, identity _ ; BetaT_1 _ _ _).
 
 (* begin hide *)
@@ -511,7 +493,6 @@ Next Obligation. intros. unfold Var_0_obligation_1. simpl.
                                                 || (simpl in *; destruct H; apply identity))
 
                    end.
-                 (* trunc_eq. *)
                  apply X.
 Defined.
 Next Obligation. intros. apply (Π2 H). Defined.
@@ -811,28 +792,29 @@ Program Instance Id_1 {Γ} (A: Typ Γ) (a b : Elt A) : Functor (T := [[Γ]]) (U 
 Next Obligation. intros. apply IsoToEquiv. exists (Id_functor a b y x (X^-1)).
                  apply (@Build_Iso_struct _ _ _ (Id_functor a b x y X)).
                  red. red. simpl. 
-                 match goal with | [ |- sigma (λ α : ?H, _)]
-                                   => assert H; try (intro ; red; trunc1_eq) end.
-                 exists X0. red. intros. exact tt.
+                 refine (Build_sigma _ _ _).
+                 intro. trunc1_eq.
+                 red. intros. exact tt.
                  red. red. simpl.
-                 match goal with | [ |- sigma (λ α : ?H, _)]
-                                   => assert H; try (intro ; red; trunc1_eq) end.
-                 exists X0. red. intros. exact tt. 
+                 refine (Build_sigma _ _ _).
+                 intro ; trunc1_eq.
+                 red. intros. exact tt. 
 Defined.
 Next Obligation. apply equiv_eq_nat_trans. simpl. 
-                 unfold Id_functor. red. simpl. 
-                 match goal with | [ |- sigma (λ α : ?H, _)]
-                                              => assert H; try (intro ; red; trunc1_eq) end.
-                 exists X. red. intros. exact tt. Defined.
-Next Obligation.  apply equiv_eq_nat_trans. simpl. 
                  unfold Id_functor. red. simpl.
-                 match goal with | [ |- sigma (λ α : ?H, _)]
-                                   => assert H; try (intro ; red; trunc1_eq) end.      exists X. red. intros. exact tt. Defined.
+                 refine (Build_sigma _ _ _).
+                 intro. trunc1_eq.
+                 red. intros. exact tt. Defined.
 Next Obligation. apply equiv_eq_nat_trans. simpl. 
                  unfold Id_functor. red. simpl.
-                 match goal with | [ |- sigma (λ α : ?H, _)]
-                                   => assert H; try (intro ; red; trunc1_eq) end.
-                 exists X0. red. intros. exact tt. Defined.
+                 refine (Build_sigma _ _ _).
+                 intro. trunc1_eq.
+                 red. intros. exact tt. Defined.
+Next Obligation. apply equiv_eq_nat_trans. simpl. 
+                 unfold Id_functor. red. simpl.
+                 refine (Build_sigma _ _ _).
+                 intro. trunc1_eq.
+                 red. intros. exact tt. Defined.
 (* end hide *)
 (** 
   ** Identity Types
@@ -851,7 +833,7 @@ Definition Id {Γ} (A: Typ Γ) (a b : Elt A)
 
 Program Instance Refl_1 Γ (A: Typ Γ) (a : Elt A) :
 DependentFunctor ([[[Id a a]]]) (λ γ : [Γ], identity (a @ γ)).
-Next Obligation. simpl. red. trunc1_eq. Defined.
+Next Obligation. simpl. trunc1_eq. Defined.
 Next Obligation. exact tt. Defined.
 Next Obligation. exact tt. Defined.
 Next Obligation. exact tt. Defined.
@@ -870,9 +852,8 @@ Definition BetaT2 Γ (A:Typ Γ) (a b:Elt A) : LamT (Id (a °°°° Sub) (Var A))
 simpl. red. simpl. exists (fun _ => identity _).
 intros t t' e.
 simpl_id_bi. apply equiv_eq_nat_trans. simpl. red. simpl.
-match goal with | [ |- sigma (λ α : ?H, _)]
-                  => assert H end.
-intros. red. Focus 1.
+refine (Build_sigma _ _ _).
+intro. 
 apply comp. apply identity. 
 eapply composition. eapply inverse. 
 apply (comp_inv _ _ _ _ ((retraction (map A e ^-1) @ (b @ t')) ^-1)).
@@ -880,10 +861,8 @@ apply inverse. eapply composition. eapply inverse.
 apply (comp_inv _ _ _ _ ((retraction (map A e ^-1) @ (b @ t')) ^-1)).
 apply comp; try apply identity. eapply inv. 
 apply (map2 (adjoint (map A e ^-1))). trunc1_eq. 
-exists H. red. intros. exact tt.
+red. intros. exact tt.
 Defined.
-
-(****** To Be Removed Once prod_eq.v Is OK ******)
 
 Definition prod_comp Γ (A: Typ Γ) (a b : Elt A) (P : TypFam A) (e:P{{a}} ~1 P{{b}}) :  [Prod0 (P{{a}}) -|-> Prod0 (P{{b}})] := @prod_eq _ (P{{a}}) (P{{b}}) e.
 
@@ -895,7 +874,7 @@ Definition J_Pair Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam (depEq a)
            (γ : [Γ]) : 
   Pair (prod_eq (BetaT2 a a) ^-1 @ Refl a) @ γ ~1
   Pair (e with (inverse (BetaT2 _ _)))@ γ.
-  exists (e @ γ). simpl. red. trunc1_eq.
+  exists (e @ γ). simpl. trunc1_eq.
 Defined.
 
 Instance J_1 Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam (depEq a)) :

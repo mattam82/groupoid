@@ -174,13 +174,13 @@ Definition HomT (T : Type) := T -> T -> Type.
 *)
 
 Class HomT1 T := {eq1 : HomT T}.
-Infix "~1" := eq1 (at level 80).
+Infix "~1" := (_.(eq1)) (at level 80).
 
 Class HomT2 {T} (Hom : HomT T) := {eq2 : ∀ {x y : T}, HomT (Hom x y)}.
 Infix "~2" := eq2 (at level 80).
 
 (* begin hide *)
-Infix "~" := eq2 (at level 80). 
+Infix "~" := (_.(eq2)) (at level 80). 
 (* end hide *)
 
 (** Given a [HomT], we define type classes: [Identity] that gives the
@@ -308,7 +308,7 @@ Class Groupoid T := { G :> GroupoidP T ;
 *)
 
 Class Setoid T := { S :> Groupoid T ; 
-  is_Trunc_1 : ∀ (x y : T) (e e' : x ~1 y) , Contr (e = e')}.
+  is_Trunc_1 : ∀ (x y : T) (e e' : x = y) , Contr (e = e')}.
 
 (* begin hide *)
 (* and [Propoid] at dimension 0.  *)
@@ -322,7 +322,7 @@ Class Propoid T := { P :> Setoid T ;
        in homotopy type theory. In the same way,  
        we note [SetoidType] 
        for the types that form a [Setoid].
-       We define [ [[T]] ] the lifting of setoids (inhabitants of [SetoidType]) to groupoids.
+       We define [ [[T]] ] the lifting of setoids to groupoids.
 *)
 (* begin hide *)
 
@@ -365,7 +365,7 @@ Definition GroupoidTypeToUGroupoidType (T : GroupoidType) : UGroupoidType :=
 Coercion GroupoidTypeToUGroupoidType : GroupoidType >-> UGroupoidType. 
 
 Definition SetoidTypeToGroupoidType (T : SetoidType) : GroupoidType := 
-  (T.1 ; S).
+  (T.1 ; T.2.(S)).
 
 Coercion SetoidTypeToGroupoidType :SetoidType >-> GroupoidType. 
 
@@ -380,9 +380,9 @@ Notation "| x '|g'" := (GroupoidTypeToUGroupoidType x) (at level 50).
 
 Notation "[[ x ']]'" := (SetoidTypeToUGroupoidType x) (at level 50).
 
-Definition setoid_irr2 (S :SetoidType) (x y : [S]) (e e' : x ~1 y) : e ~2 e'.
-  pose (@center _ (is_Trunc_1 x y e e')). destruct e0. apply identity.
-Defined.
+(* Definition setoid_irr2 (S :SetoidType) (x y : [S]) (e e' : x ~1 y) : e ~2 e'. *)
+(*   pose (@center _ (@is_Trunc_1 _ _ x y e e')). destruct e0. apply identity. *)
+(* Defined. *)
 
 Definition proposition_irr1 (P :PropoidType) (x y : [P]) : x ~1 y.
   pose (@center _ (is_Trunc_0 x y)). destruct e. apply identity.
@@ -401,7 +401,7 @@ Proof.
   apply inverse. apply comp. auto. apply identity. 
   eapply composition in X.  
   Focus 2.
-  apply comp. apply identity. eapply inverse. apply inv_L.
+  apply comp. apply identity. apply inverse, inv_L.
   eapply inverse in X.
   eapply composition in X.
   Focus 2.
@@ -554,10 +554,10 @@ Definition Fun_Type (T U : UGroupoidType) := {f : [T] -> [U] & Functor f}.
 
 Infix "--->" := Fun_Type (at level 55). 
 
-Notation map f := (@_map _ _ _ f.2 _ _).
-Notation map_id f := (@_map_id _ _ _ f.2 _).
-Notation map_comp f := (@_map_comp _ _ _ f.2 _ _ _ ).
-Notation map2 f := (@_map2 _ _ _ f.2 _ _ _ _).
+Notation "'map' f" := ((proj2 f).(_map)) (at level 0, f at level 0).
+Notation map_id f := ((proj2 f).(_map_id)).
+Notation map_comp f := ((proj2 f).(_map_comp)).
+Notation map2 f := ((proj2 f).(_map2)).
 
 Hint Extern 0 (Functor [?f]) => exact (proj2 f) : typeclass_instances.
 
@@ -615,16 +615,16 @@ Program Instance comp_fun : Composition Fun_Type :=
 (* end hide *)
 (** Equivalence between functors is given by natural transformations.
   We insist here that this naturality condition in the definition of
-  functor equality is crucial in a higher setting.  It is usually
-  derivable in formalizations of homotopy theory in Coq because there they
-  only consider the 1-groupoid case where the naturality comes for
-  free from functional extensionality, see for instance%~\cite{coq_unival_axiom}%.  *)
+  functional equality is crucial in a higher setting.  It is usually
+  omitted in formalizations of homotopy theory in Coq because there they
+  only consider the 1-groupoid case where the naturality becomes
+  trivial, see for instance%~\cite{coq_unival_axiom}%.  *)
 
-Class NaturalTransformation T U {f g : T ---> U} (α : ∀ t : [T], f @ t ~1 g @ t) := 
-  _α_map : ∀ {t t'} (e : t ~1 t'), α t' ° map f e ~ map g e ° α t.
+Class NaturalTransformation T U {f g : T ---> U} (α : ∀ t : [T], f @ t = g @ t) :=  {}.
+  (* _α_map : ∀ {t t'} (e : t ~1 t'), α t' ° map f e ~ map g e ° α t. *)
 
 Definition nat_trans T U : HomT (T ---> U) 
- := λ f g, {α : ∀ t : [T], f @ t ~1 g @ t & NaturalTransformation α}.
+ := λ f g, {α : ∀ t : [T], f @ t = g @ t & NaturalTransformation α}.
 
 (* begin hide *)
 Hint Extern 0 (NaturalTransformation [?f]) => exact (proj2 f) : typeclass_instances.
@@ -638,7 +638,7 @@ Instance nat_transHom T U : HomT1 (T ---> U) := {eq1 := nat_trans (T:=T) (U:=U)}
 
 Definition modification T U (f g : T ---> U) : HomT (f ~1 g) 
   := λ α β, ∀ t : [T], α @ t ~ β @ t.
-
+Next Obligation. 
 (* begin hide *)
 
 Instance modificationHom T U : HomT2 eq1 := {eq2 := modification (T:=T) (U:=U)}.
@@ -794,10 +794,10 @@ Defined.
 Program Instance _eq : ∀ (T U : UGroupoidType), 
                          Equivalence (nat_trans (T:=T) (U:=U)).
  
-Definition nat_id_R  := (@id_R _ category_fun).
-Definition nat_id_L  := (@id_L _ category_fun).
-Definition nat_assoc := (@assoc _ category_fun).
-Definition nat_comp'  := (@comp _ category_fun).
+Definition nat_id_R  := (category_fun.(id_R)).
+Definition nat_id_L  := category_fun.(id_L).
+Definition nat_assoc := category_fun.(assoc).
+Definition nat_comp'  := category_fun.(comp).
 
 Lemma nat_comp2 A B C (f f': A ~1 B) (g g' : B ~1 C) 
       (H H': f ~1 f') (G G' : g ~1 g') (e: H ~2 H') (e':G ~2 G') :
@@ -833,31 +833,62 @@ Definition Fun_Type_Setoid (T U : SetoidType) := [[T]] ---> [[U]].
 
 Infix "-S->" := Fun_Type_Setoid (at level 55). 
 
-Definition _Fun_Setoid_ T U (f g : T -S-> U) (e e' : nat_trans f g) : e = e'.
-  assert (e.1 = e'.1).
-  apply path_forall. intros z.
-  apply is_Trunc_1.
-  apply (path_sigma _ _ X). 
-  apply NaturalTransformationEq2.
-Defined.
+(* Definition _Fun_Setoid_ T U (f g : T -S-> U) (e e' : nat_trans f g) : e = e'. *)
+(*   assert (e.1 = e'.1). *)
+(*   apply path_forall. intros z. *)
+(*   apply (is_Trunc_1 (e @ z) (e' @ z)). *)
+(*   apply (path_sigma _ _ X).  *)
+(*   apply NaturalTransformationEq2. *)
+(* Defined. *)
 
+Definition FunctorType {T U : UGroupoidType} (f : [T] -> [U]) : Type :=
+sigma (fun map' : ∀ {x y}, x ~1 y -> f x ~1 f y =>
+  prod (∀ {x}, map' (identity x) ~ identity (f x))
+  (prod (∀ {x y z} (e:x ~1 y) (e':y ~1 z), map' (e' ° e) ~2 map' e' ° map' e)
+        (∀ {x y} {e e' : x ~1 y}, (e ~2 e') -> map' e ~2 map' e'))
+).
+
+(* { map' : ∀ {x y}, x ~1 y -> f x ~1 f y & *)
+(*   prod (∀ {x}, map' _ _ (identity x) ~ identity (f x)) *)
+(*   (∀ {x y z} (e:x ~1 y) (e':y ~1 z), map' _ _ (e' ° e) ~2 map' _ _ e' ° map' _ _ e) *)
+(* }. *)
+
+Definition FunctorIsFunctorType {T U : UGroupoidType} 
+           (f : [T] -> [U]) (H : Functor f) :
+  FunctorType f
+ := (@_map T U f H; (@_map_id T U f H,
+                     (@_map_comp T U f H,
+                      @_map2 T U f H))).
+
+Definition FunctorTypeIsFunctor {T U : UGroupoidType} 
+           (f : [T] -> [U]) (H : FunctorType f) :
+  Functor f := {| _map := H.1; 
+                  _map_id := fst H.2; 
+                  _map_comp := fst (snd H.2);
+                  _map2 := snd (snd H.2)|}.
+
+Definition FunctorTypeEquiv {T U : UGroupoidType} (f : [T] -> [U])  : 
+  IsEquiv (@FunctorTypeIsFunctor T U f). 
+Admitted.
 
 Instance _Fun_Setoid (T U : SetoidType) : Setoid (T -S-> U).
 Next Obligation. 
-  apply (@contr_equiv _ _ _ (path_sigma_equiv e e')).
-  apply (@contr_sigma _ (fun p => p # e.2 = e'.2)).
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ [e] [e']))).
-  apply contr_forall. intros z.
-  apply (@is_Trunc_1 _ _ _ _ (e @ z) (e' @ z)).
-  intros.   destruct e, e'. simpl in *. destruct a. simpl. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
-  apply contr_forall. intros t. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
-  apply contr_forall. intros t'. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
-  apply contr_forall. intros e. 
-  apply (@is_Trunc_2 _ _ _ _ _ _ _ _).
-Defined.
+Admitted.
+(*   red in x.  *)
+(*   apply (@contr_equiv _ _ _ (path_sigma_equiv e e')). *)
+(*   apply (@contr_sigma _ (fun p => p # e.2 = e'.2)). *)
+(*   apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ [e] [e']))). *)
+(*   apply contr_forall. intros z. *)
+(*   apply (@is_Trunc_1 _ _ _ _ (e @ z) (e' @ z)). *)
+(*   intros.   destruct e, e'. simpl in *. destruct a. simpl.  *)
+(*   apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))). *)
+(*   apply contr_forall. intros t.  *)
+(*   apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))). *)
+(*   apply contr_forall. intros t'.  *)
+(*   apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))). *)
+(*   apply contr_forall. intros e.  *)
+(*   apply (@is_Trunc_2 _ _ _ _ _ _ _ _). *)
+(* Defined. *)
 
 Definition Fun_Setoid (T U : SetoidType) := (T -S-> U; _Fun_Setoid T U) : SetoidType.
 
@@ -876,9 +907,9 @@ Definition Iso A B := {f : A ---> B & Iso_struct f}.
 
 (* Notations for [Iso] projections. *)
 
-Notation adjoint' f := (@_adjoint _ _ _ f.2).
-Notation section' f := (@_section _ _ _ f.2).
-Notation retraction' f := (@_retraction _ _ _ f.2).
+Notation adjoint' f := f.(proj2).(_adjoint).
+Notation section' f := f.(proj2).(_section).
+Notation retraction' f := f.(proj2).(_retraction).
 
 (* end hide *)
 (** This type class defines usual equivalences. To get an adjoint
@@ -889,7 +920,7 @@ Notation retraction' f := (@_retraction _ _ _ f.2).
     condition implies the other.  *)
 
 Class Equiv_struct T U (f : T ---> U) := 
-{ iso :> Iso_struct f;
+{ iso : Iso_struct f;
   _triangle : ∀ t, _section @ (f @ t) ~ map f (_retraction @ t)}.
 
 Definition Equiv A B := {f : A ---> B & Equiv_struct f}.
@@ -902,10 +933,10 @@ Hint Extern 0 (Equiv_struct [?f]) => exact (proj2 f) : typeclass_instances.
 Hint Extern 0 (Iso_struct [?f]) => exact (@iso (proj2 f)) : typeclass_instances.
 
 (* Notations for [Equiv] projections. *)
-Notation adjoint f := (@_adjoint _ _ _ (@iso _ _ _ f.2)).
-Notation section f := (@_section _ _ _ (@iso _ _ _ f.2)).
-Notation retraction f := (@_retraction _ _ _ (@iso _ _ _ f.2)).
-Notation triangle f := (@_triangle _ _ _ f.2).
+Notation adjoint f := f.(proj2).(iso).(_adjoint).
+Notation section f := f.(proj2).(iso).(_section).
+Notation retraction f := f.(proj2).(iso).(_retraction).
+Notation triangle f := f.(proj2).(_triangle).
 
 Program Definition map_trans A B (f : [A --> B]) : f ~1 f :=
   ((fun t => map f (identity t)); _).
@@ -1088,7 +1119,7 @@ Defined.
 (* end hide *)
 (** 
    It is well known that any equivalence can be turned into an adjoint
-   equivalence by slightly modifying the section. While available in
+   equivalence by slighty modifying the section. While available in
    our formalization, this result should be used with care as it
    opacifies the underlying notion of homotopy and can harden proofs.
 *)
@@ -1173,7 +1204,7 @@ Instance _Type_comp : Composition Equiv :=
 
 (* end hide *)
 (** Equality of homotopy equivalences is given by equivalence of
-  adjunctions. Two adjunctions are equivalent if their left adjoints are
+  adjunctions. Two adjunctions are equivalent if their left adjoint are
   equivalent and they agree on their sections (up-to the isomorphism).
   Note that equivalence of the right adjoints and agreement on their
   retractions can be deduced so they are not part of the definition.  *)
@@ -1183,7 +1214,7 @@ Definition Equiv_adjoint {A B} {f f': Equiv A B} :
   [f] ~1 [f'] -> adjoint f ~1 adjoint f'.
 Proof.
   intro.
-  eapply composition. eapply inverse. apply nat_id_L.
+  eapply composition. apply inverse, id_L.
   eapply composition. apply nat_comp'. apply identity. 
   apply (inverse (retraction f')). eapply composition. apply nat_assoc. 
   eapply composition. apply nat_comp'. 
@@ -1360,10 +1391,10 @@ Proof.
   apply comp; [apply identity | idtac]. apply (α_map [α]).
 Defined.
 
-Definition AllEquivEq_Setoid : forall (T U : SetoidType) (f g : T <~> U) 
-                               (α : nat_trans [f] [g]),
-                     EquivEq α.
-  intros. intro u. apply setoid_irr2. Defined.
+(* Definition AllEquivEq_Setoid : forall (T U : SetoidType) (f g : T <~> U)  *)
+(*                                (α : nat_trans [f] [g]), *)
+(*                      EquivEq α. *)
+(*   intros. intro u. apply setoid_irr2. Defined. *)
 
 Lemma ExLawComp_nat A B C (f f' f'': A ~1 B) (g g' g'' : B ~1 C) 
       (H:f ~1 f') (H': f' ~1 f'') (G : g ~1 g') (G': g' ~1 g'') :
@@ -1819,6 +1850,21 @@ Next Obligation. exact (Equiv_grp_obligation_3 X). Defined.
 Program Instance Equiv_Groupoid : Groupoid SetoidType.
 Next Obligation.  apply (@contr_equiv _ _ _ (path_sigma_equiv E E')).
   apply (@contr_sigma _ (fun p => p # E.2 = E'.2)).
+  apply (@contr_equiv _ _ _ (path_sigma_equiv E.1 E'.1)).
+  apply (@contr_sigma _ (fun p => p # E.1.2 = E'.1.2)).
+  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ [E.1] [E'.1]))).
+  apply contr_forall. intros z.
+  apply (@is_Trunc_1 _ _ _ _ (E.1 @ z) (E'.1 @ z)).
+  intros.   destruct e, e'. simpl in *. destruct a. simpl.
+  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+  apply contr_forall. intros t.
+  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+  apply contr_forall. intros t'.
+  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+  apply contr_forall. intros e.
+  apply (@is_Trunc_2 _ _ _ _ _ _ _ _).
+
+  destruct E, E', e, e'. simpl in *.
   apply _Fun_Setoid_obligation_1. destruct E, E'. intro X. simpl in *. destruct X.
   apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
   apply contr_forall. intros a'.
@@ -1843,26 +1889,22 @@ Definition Type0 : GroupoidType := (SetoidType ; Equiv_Groupoid).
 (** %\noindent% In the definition above, [Equiv_Groupoid] is a proof
 that [Equiv] and [Equiv_eq] form a groupoid. It makes again use of
 functional extensionality to prove contractibility of higher cells.  As
-the type of pre-groupoids appears both in the term and the type, the use of
-polymorphic universes is crucial here to avoid an inconsistency. *)
+[GroupoidType] appears both in the term and in the type, the use of
+polymorphic universe is crucial here to avoid an inconsistency. *)
 (* begin hide *)
 
-Notation equiv_assoc := (@assoc _ Equiv_cat).
-Notation equiv_comp  := (@comp  _ Equiv_cat).
-Notation equiv_id_R  := (@id_R  _ Equiv_cat).
-Notation equiv_id_L  := (@id_L  _ Equiv_cat).
-Notation equiv_inv_R  := (@inv_R _ Equiv_grp).
-Notation equiv_inv_L  := (@inv_L _ Equiv_grp).
-Notation equiv_inv  := (@inv _ Equiv_grp).
+(* Notation equiv_assoc := (@assoc Equiv_cat). *)
+(* Notation equiv_comp  := (@comp  Equiv_cat). *)
+(* Notation equiv_id_R  := (@id_R  Equiv_cat).  *)
+(* Notation equiv_id_L  := (@id_L  Equiv_cat). *)
+Notation equiv_assoc := Equiv_cat.(assoc).
+Notation equiv_comp  := Equiv_cat.(comp).
+Notation equiv_id_R  := Equiv_cat.(id_R).
+Notation equiv_id_L  := Equiv_cat.(id_L).
 
-(* Notation equiv_assoc := Equiv_cat.(assoc). *)
-(* Notation equiv_comp  := Equiv_cat.(comp). *)
-(* Notation equiv_id_R  := Equiv_cat.(id_R). *)
-(* Notation equiv_id_L  := Equiv_cat.(id_L). *)
-
-(* Notation equiv_inv_R  := Equiv_grp.(inv_R). *)
-(* Notation equiv_inv_L  := Equiv_grp.(inv_L). *)
-(* Notation equiv_inv  := Equiv_grp.(inv). *)
+Notation equiv_inv_R  := Equiv_grp.(inv_R).
+Notation equiv_inv_L  := Equiv_grp.(inv_L).
+Notation equiv_inv  := Equiv_grp.(inv).
 
 Ltac compose := eapply composition.
 
@@ -2155,10 +2197,10 @@ Definition Prod_Type T (U:[T --> _Type]) := {f : ∀ t, [U @ t] & DependentFunct
 
 Hint Extern 0 (DependentFunctor _ [?f]) => exact (proj2 f) : typeclass_instances.
 
-Notation Dmap f := (@_Dmap _ _ _ f.2 _ _).
-Notation Dmap_id f := (@_Dmap_id _ _ _ f.2 _).
-Notation Dmap_comp f := (@_Dmap_comp _ _ _ f.2 _ _ _).
-Notation Dmap2 f := (@_Dmap2 _ _ _ f.2 _ _ _ _).
+Notation "'Dmap' f" := ((proj2 f).(_Dmap)) (at level 0, f at level 0).
+Notation "'Dmap_id' f" := ((proj2 f).(_Dmap_id) _) (at level 0, f at level 0).
+Notation "'Dmap_comp' f" := ((proj2 f).(_Dmap_comp) _ _ _) (at level 0, f at level 0).
+Notation "'Dmap2' f" := ((proj2 f).(_Dmap2) _ _ _ _) (at level 0, f at level 0).
 
 Definition right_simplify'' (T:SetoidType) (x y z: [T]) (f : x ~1 y)
            (g g' : y ~1 z)
@@ -2283,10 +2325,10 @@ Program Instance Dmodification_equiv T (U:[T --> _Type]) (f g : Prod_Type U) :
 (* begin hide *)
 
 Instance Type1_Type_ T (f: [T --> Type1]) : @Functor T _Type (λ X : [T], f @ X ) := 
-  {| _map x y := map f ; 
-     _map_id x := map_id f ; 
-     _map_comp x y z := map_comp f;
-     _map2 x y e e' := map2 f |}.
+  {| _map x y := f.(proj2).(_map) ; 
+     _map_id x := f.(proj2).(_map_id) ; 
+     _map_comp x y z := f.(proj2).(_map_comp);
+     _map2 x y e e' := f.(proj2).(_map2) |}.
 
 Definition Type1_Type T : [T --> Type1] -> [T --> _Type] := 
   fun f => (fun X => f @ X ; Type1_Type_ f).
@@ -2306,10 +2348,10 @@ Definition Prod1 T (U:[|T|g --> Type1]) := (Prod_Type (Type1_Type U) ; prod_Grou
 Notation "[[ x ']]'" := (SetoidTypeToGroupoidType x) (at level 50).
 
 Instance Type0_Type_ T (f: [T --> Type0]) : @Functor T _Type (λ X : [T], [[ f @ X]]) := 
-  {| _map x y := map f ; 
-     _map_id x := map_id f ; 
-     _map_comp x y z := map_comp f;
-     _map2 x y e e' := map2 f |}.
+  {| _map x y := f.(proj2).(_map) ; 
+     _map_id x := f.(proj2).(_map_id) ; 
+     _map_comp x y z := f.(proj2).(_map_comp);
+     _map2 x y e e' := f.(proj2).(_map2) |}.
 
 Definition Type0_Type T : [T --> Type0] -> [T --> _Type] := 
   fun f => (fun X => [[f @ X]] ; Type0_Type_ f).
@@ -2332,9 +2374,9 @@ Definition Prod_Type0 T (U:[T --> Type0]) := {f : ∀ t, [U @ t] & DependentFunc
 
 Hint Extern 0 (DependentFunctor0 _ [?f]) => exact (proj2 f) : typeclass_instances.
 
-Notation Dmap0 f := (@_Dmap0 _ _ _ f.2 _ _).
-Notation Dmap_comp0 f := (@_Dmap_comp0 _ _ _ f.2 _ _ _).
-Notation Dmap20 f := (@_Dmap20 _ _ _ f.2 _ _ _ _).
+Notation "'Dmap0' f" := ((proj2 f).(_Dmap0)) (at level 0, f at level 0).
+Notation "'Dmap_comp0' f" := ((proj2 f).(_Dmap_comp0) _ _ _) (at level 0, f at level 0).
+Notation "'Dmap20' f" := ((proj2 f).(_Dmap20) _ _ _ _) (at level 0, f at level 0).
 
 Definition Dmap_id0 {T} {U:[T --> Type0]} (f: Prod_Type0 U) {x: [T]} :
   Dmap0 f (identity x) ~ transport_id ([[[U]]]) @ (f @ x).

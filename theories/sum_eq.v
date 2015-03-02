@@ -152,7 +152,7 @@ Definition Sum_eq_comp' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
   pose  ((retraction (map A e') @ ([map A e] @ [t])) ^-1).
   pose (map (adjoint (map A e')) ([(map_comp A) e e'] @ [t])).
   simpl in *. unfold id in e0. 
-  pose (category_fun.(comp) _ _ _ _ _ _ _ (identity (adjoint (map A e'))) (Dmap F e)). 
+  pose (@comp _ category_fun _ _ _ _ _ _ _ (identity (adjoint (map A e'))) (Dmap F e)). 
   pose ([@_α_map _ _ _ _ _ e2.2 _ _ ([(map_comp A) e e'] @ [t])].1). 
   eapply composition. eapply (map [map (F @ y) e0]). apply (map_id (F @ y)). simpl; unfold id.
   eapply composition. eapply inverse. apply (α_map (Dmap F e)).

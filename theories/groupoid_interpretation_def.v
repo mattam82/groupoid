@@ -239,12 +239,13 @@ Definition IrrRelInverse T (Hom : HomT T) (x y : T) : Inverse (Hom_irr (Hom x y)
 Definition IrrRelEq T (Hom : HomT T) (x y : T) : Equivalence (Hom_irr (Hom x y)). 
   econstructor; econstructor; firstorder. Defined.
 
-Program Definition IrrRelGroupoid T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1) : Groupoid T := 
-  {| G := IrrRelGrp id comp inv|}.
-Next Obligation.
-  unfold IrrRelGrp in E, E'. simpl in E, E'. red in E, E'. 
-  destruct E, E'. apply contr_paths_contr. apply contr_unit.
-Defined.
+Definition IrrRelGroupoid T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1) : Groupoid T := 
+  {| G := IrrRelGrp id comp inv; is_Trunc_2 := λ (x y : T) (e e' : x ~1 y) (E E' : e ~ e'),
+              contr_paths_contr (e ~ e') E E'|}.
+(* Next Obligation. *)
+(*   unfold IrrRelGrp in E, E'. simpl in E, E'. red in E, E'.  *)
+(*   destruct E, E'. apply contr_paths_contr. apply contr_unit. *)
+(* Defined. *)
 
 Arguments IrrRelGroupoid {T} Hom {id comp inv}.
 
@@ -284,10 +285,9 @@ Next Obligation. apply (@contr_equiv _ _ _ isequiv_path_prod).
                  apply contr_forall. intros t. apply is_Trunc_0.
 Defined.
 
-Next Obligation. exact (@contr_paths_contr _ contr_unit e e'). Defined.
+(* Next Obligation. exact (@contr_paths_contr _ contr_unit e e'). Defined. *)
 
 Obligation Tactic := simpl; intros.
-
 
 Definition Context := [Type0].
 
@@ -372,11 +372,14 @@ Defined.
 
 Notation "[[ x ']]'" := (SetoidTypeToGroupoidType x) (at level 50).
 
-Program Instance TypFam_1 {Γ : Context} (A: Typ Γ) : Functor (T := [[Γ]]) (U:=_Type) (λ s : [Γ], [[A @ s]] -||-> Type0)
-:=
-  {| _map := λ (x y : [Γ]) (X : x ~1 y), fun_eqT (map A X) (identity (|Type0|g)) ;
+Definition TypFam_1_map {Γ : Context} (A: Typ Γ) (x y : [Γ]) (X: x ~1 y)
+  : ([[A @ x]] -||-> Type0) ~1 ([[A @ y]] -||-> Type0) :=
+  fun_eqT (map A X) (identity (|Type0|g)).
+
+Program Instance TypFam_1 {Γ : Context} (A: Typ Γ) : Functor (T := [[Γ]]) (U:=_Type) (λ s : [Γ], [[A @ s]] -||-> Type0) :=
+  {| _map :=  TypFam_1_map A; 
      _map_id := fun X => fun_eq_idT A X;
-     _map_comp := fun x y z e e' => fun_eq_compT A x y z e e';
+     _map_comp := fun x y z e e' => fun_eq_compT A x y z e e' ;
      _map2 := fun x y e e' X => fun_eq_map2T A x y e e' X
   |}.
 
@@ -398,12 +401,13 @@ Program Instance ActionType : Action (T:=Context) (fun Γ => Typ Γ) :=
 Next Obligation.
 Proof. 
   exists (λ t , identity _). intros t t' e.
-  eapply composition. apply equiv_id_L. eapply inverse. refine (equiv_id_R _ _ _). Defined.
+  eapply composition. apply equiv_id_L. eapply inverse.
+  apply equiv_id_R. Defined.
 
 Next Obligation. 
   exists (λ t , identity _).  intros t t' e.
-  eapply composition. refine (equiv_id_L _ _ _). 
-  eapply inverse. refine (equiv_id_R _ _ _).
+  eapply composition. apply equiv_id_L.
+  eapply inverse. apply equiv_id_R.
 Defined.
 
 Program Instance ActionType2 : Action (T:=Context) (fun T => [ [[T]] --> _Type]) :=
@@ -414,18 +418,17 @@ Program Instance ActionType2 : Action (T:=Context) (fun T => [ [[T]] --> _Type])
 Next Obligation. 
 Proof.
   exists (λ t , identity _). intros t t' e.
-  eapply composition. apply equiv_id_L. eapply inverse. refine (equiv_id_R _ _ _).
+  eapply composition. apply equiv_id_L. eapply inverse. apply equiv_id_R.
 Defined.
 
 Next Obligation. 
 Proof.
   exists (λ t , identity _).  intros t t' e.
-  eapply composition. refine (equiv_id_L _ _ _). eapply inverse. 
-  refine (equiv_id_R _ _ _).
+  eapply composition. apply equiv_id_L. eapply inverse. 
+  apply equiv_id_R.
 Defined.
 
 (* end hide *)
 
 Definition TypFam {Γ : Context} (A: Typ Γ) := 
   [_Prod (λ γ, [[ (A @ γ) ]] -||-> Type0; TypFam_1 _)]. 
-

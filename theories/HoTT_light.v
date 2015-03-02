@@ -90,7 +90,7 @@ Defined.
 
 Definition path_prod_uncurried {A B : Type} (z z' : A * B)
   (pq : (fst z = fst z') * (snd z = snd z')): (z = z').
-  destruct pq. destruct z, z'. simpl in *. destruct X, X0. apply eq_refl.
+  destruct pq. destruct z, z'. simpl in *. destruct e, e0. apply eq_refl.
 Defined.
 
 Definition path_prod {A B : Type} (z z' : A * B) :
