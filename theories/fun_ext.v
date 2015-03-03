@@ -171,19 +171,12 @@ Set Universe Polymorphism.
 
 Lemma eq_Prod_ctxt {T Γ} (A:Typ Γ) (F:TypFam A) (f: [T -|-> Γ]) :
   Prod F ⋅⋅ f ~1 Prod (F °°° f).
+  simpl.
   exists (fun t => identity (Prod0 ([F] ([f] t)))). 
-  intros x y e. simpl. simpl_id_bi. apply equiv_eq_nat_trans. simpl. red. simpl.
-  match goal with | [ |- sigma (λ α : ?H, _)]
-                  => assert H end.
-  intro ; red. simpl.
-  match goal with | [ |- sigma (λ α : ?H, _)]
-                  => assert H end.
-  intro. simpl. unfold substF.  
-  admit. exists X. red. intros. trunc1_eq.
-  exists X. red. intros. simpl. red. intro. trunc1_eq.
+  intros x y e. apply equiv_eq_nat_trans. simpl. red. simpl.
+  refine (Build_sigma _ _ _). intro. apply identity. 
+  intros t t' X a. trunc1_eq.
 Defined.
-
-Notation "↑ t" := (t °° Sub with eq_Prod_ctxt _ _) (at level 9, t at level 9).
 
 (* end hide *)
 
@@ -192,39 +185,38 @@ Notation "↑ t" := (t °° Sub with eq_Prod_ctxt _ _) (at level 9, t at level 9
   of equality at product types. It is simply witnessed by a natural transformation
   between the (dependent) functions, that is a pointwise equality. This corresponds 
   to the introduction of equality on dependent functions in%~\cite{DBLP:conf/popl/LicataH12}%.
-
-[Lemma FunExt Γ (A : Typ Γ)
-        (F : TypDep A) (M N : Elt (Prod (LamT F)))
-        (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A)))))
-  : Elt (Id M N).]
-
-  %\noindent% where [↑M] is the weakening for terms. 
 *)
 
-
 (* begin hide *)
+
+Definition useless_coercion A B (f : [A-->B]) (g : [B --> Type0]) :
+  Prod_Type (fun x => [[[g]]] @ (f @ x) ; arrow_comp _ _ _ f ([[[g]]])) ->
+  Prod_Type ([[[(fun x => g @ (f @ x) ; arrow_comp _ _ _ f g)]]]) := @id _.
+
+Notation "↑ t" := (useless_coercion (t °° Sub) with eq_Prod_ctxt _ _) (at level 9, t at level 9).
 
 Definition FunExt_1 (Γ: Context) (A : Typ Γ)
            (F : TypDep A) (M N : Elt (Prod (LamT F)))
            (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))):
-  ∀ t : [Γ], [([[[Id M N]]]) @ t].
-  exact (fun t => ((α @ t).1; fun a a' e =>
-                                   eq_is_eq2 _ (@HoTT_light.center _ (Trunc_1 _ _ _ _ _)))).
-Abort.
-(* Defined. *)
+  ∀ t : [Γ], [([[[Id M N]]]) @ t] :=
+  fun t => ((α @ t).1; fun a a' e =>
+                         eq_is_eq2 _ (@HoTT_light.center _ (Trunc_1 _ _ _ _ _))).
 
-Definition FunExt_comp (Γ: Context) (A : Typ Γ)
-           (F : TypDep A) (M N : Elt (Prod (LamT F)))
-           (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))):
-           DependentFunctor ([[[Id M N]]])
-           (fun t => ((α @ t).1; fun a a' e =>
-                                   eq_is_eq2 _ (@HoTT_light.center _ (Trunc_1 _ _ _ _ _)))).
-  apply Build_DependentFunctor.
+(*end hide*)
 
 Definition FunExt (Γ: Context) (A : Typ Γ)
            (F : TypDep A) (M N : Elt (Prod (LamT F)))
            (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A)))))
-  : Elt (Id M N).
-  exists (fun t => ((α @ t).1; fun a a' e => 
-                          eq_is_eq2 _ (@HoTT_light.center _ (Trunc_1 _ _ _ _ _)))).
-  simpl. econstructor. intros. simpl. a a' e e'.
+: Elt (Id M N).
+(*begin hide*)
+  exists (FunExt_1 α).
+  refine (Build_DependentFunctor _ _ _ _ _ _).
+  intros x y e t. trunc1_eq.
+  intros; exact tt.
+  intros; exact tt.
+  intros; exact tt.
+Defined.
+(*end hide *)
+
+(**  %\noindent% where [↑M] is the weakening for terms. 
+*)
