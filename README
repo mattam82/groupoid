@@ -1,10 +1,9 @@
-Internalization of the Groupoid Interpretation of HoTT - Coq development
+Internalization of the Setoid Interpretation of Type Theory - Coq development
 ========================================================================
-Copyright 2013-2014 Matthieu Sozeau & Nicolas Tabareau <first.last@inria.fr>
+Copyright 2013-2015 Matthieu Sozeau & Nicolas Tabareau <first.last@inria.fr>
 Distributed under the terms of the LGPL.
 
-To compile the development, simply run [coq_makefile -f Make -o Makefile; make]
-in the toplevel directory, with coqc in your path. You need Coq's development
-version (github.com/coq/coq.git branch master, 
-commit c4ecec191130a51975bf97d067472e0e5bd744f5, compile with -no-native-compiler) 
-to compile this code, as it makes use of universe polymorphism and fast projections.
+To compile the development, simply run [coq_makefile -f Make -o
+Makefile; make] in the toplevel directory, with coqc in your path. You
+need at least Coq 8.5beta1 to compile this code, as it makes use of
+universe polymorphism and fast projections.

@@ -1,4 +1,4 @@
--R theories Groupoid
+-R theories Groupoid -arg -no-native-compiler
 theories/HoTT_light.v
 theories/groupoid.v
 theories/fun_eq.v
