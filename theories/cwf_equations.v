@@ -154,55 +154,134 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 Add LoadPath "." as Groupoid.
-Require Import HoTT_light.
-Require Import groupoid.
-Require Import fun_eq.
-Require Import groupoid_interpretation_def.
-Require Import Equiv_adjoint.
-Require Import fun_depfun.
-Require Import sum_id.
-Require Import prod_eq.
-Require Import sum_eq.
-Require Import groupoid_interpretation.
-Require Import cwf_equations.
+Require Import HoTT_light groupoid fun_eq.
+Require Import groupoid_interpretation_def Equiv_adjoint fun_depfun.
+Require Import sum_id prod_eq sum_eq groupoid_interpretation fun_ext.
 
 Set Implicit Arguments.
 Set Universe Polymorphism.
 (* Set Program Mode. *)
 
-(* end hide *)
-
-(** 
-  Propositional functional extensionality is a direct consequence of the definition
-  of equality at product types. It is simply witnessed by a natural transformation
-  between the (dependent) functions, that is a pointwise equality. This corresponds 
-  to the introduction of equality on dependent functions in%~\cite{DBLP:conf/popl/LicataH12}%.
-*)
-
-(* begin hide *)
-
-Definition FunExt_1 (Γ: Context) (A : Typ Γ)
-           (F : TypDep A) (M N : Elt (Prod (LamT F)))
-           (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))):
-  ∀ t : [Γ], [([[[Id M N]]]) @ t] :=
-  fun t => ((α @ t).1; fun a a' e =>
-                         eq_is_eq2 _ (@HoTT_light.center _ (Trunc_1 _ _ _ _ _))).
-
-(*end hide*)
-
-Definition FunExt (Γ: Context) (A : Typ Γ)
-           (F : TypDep A) (M N : Elt (Prod (LamT F)))
-           (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A)))))
-: Elt (Id M N).
-(*begin hide*)
-  exists (FunExt_1 α).
-  refine (Build_DependentFunctor _ _ _ _ _ _).
-  intros x y e t. trunc1_eq.
-  intros; exact tt.
-  intros; exact tt.
-  intros; exact tt.
+Definition Prod_subst_law {Δ Γ} (σ:[Δ -|-> Γ]) (A:Typ Γ) (F:TypFam A)
+  : Prod F ⋅⋅ σ ~1 Prod (F °°° σ).
+  exists (fun t => identity _).
+  intros t t' e. refine (Build_sigma _ _ _).
+  simpl_id_bi. refine (Build_sigma _ _ _). intro X. exact (identity _).
+  intros X X' E. trunc1_eq.
+  apply equiv_eq_nat_trans.
 Defined.
-(*end hide *)
 
-(**  %\noindent% where [↑M] is the weakening for terms. 
-*)
+
+Program Instance Subm_1 {Δ Γ: Context} (σ:[Δ -|-> Γ]) (T : Typ Γ)
+         : Functor (T:=[[_Sum0 (T ⋅⋅ σ)]]) (U := [[_Sum0 T]]) (λ γt , (σ @ [γt]; γt.2)).
+Next Obligation. exact (map σ [X]; X.2). Defined.
+Next Obligation. refine (Build_sigma _ _ _). apply (map_id σ).
+                 trunc1_eq. Defined.
+Next Obligation. refine (Build_sigma _ _ _). apply (map_comp σ).
+                 trunc1_eq. Defined.
+Next Obligation. refine (Build_sigma _ _ _). apply (map2 σ [X]).
+                 trunc1_eq. Defined.
+
+Definition Subm {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} : [_Sum0 (T ⋅⋅ σ) -|-> _Sum0 T] 
+    :=  (_ ; Subm_1 _ _).
+
+Program Definition BetaT2 Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]) 
+: LamT B °°° σ ~1 LamT (B ⋅⋅ (Subm σ)).
+refine (Build_sigma _ _ _). intro t. simpl.
+refine (Build_sigma _ _ _). intro X. apply identity.
+intros x y z. simpl_id_bi. apply equiv_eq_nat_trans. simpl. 
+unfold Subm_1_obligation_1. apply (map2 B).
+refine (Build_sigma _ _ _). simpl. apply (map_id σ).
+simpl. trunc1_eq.
+intros t t' e. simpl. intro H. simpl. apply equiv_eq_nat_trans. simpl.
+refine (Build_sigma _ _ _). intro b. apply identity.
+intros x y z. trunc1_eq.
+Defined.
+
+Notation α_Dmap f := (@_α_Dmap _ _ _ _ _ (proj2 f) _ _).
+
+Definition Prod_eq {Γ} (A:Typ Γ) (F F':TypFam A) : F ~1 F' -> Prod F ~1 Prod F'.
+  intro H. refine (Build_sigma _ _ _).
+  intro γ. simpl. exact (prod_eqT (H @ γ)).
+  intros t t' e. 
+  refine (Build_sigma _ _ _).
+  refine (Build_sigma _ _ _).
+  intros X. refine (Build_sigma _ _ _).
+  intro a. simpl. exact ([α_Dmap H e a] @ _).
+  intros a a' Ha. trunc1_eq.
+  intros a a' Ha. trunc1_eq.
+  admit.
+  (* simpl. unfold EquivEq. red. intros a a' Ha. trunc1_eq. *)  
+Defined.
+
+Definition Lam_subst_law {Δ Γ} (σ:[Δ -|-> Γ]) {A:Typ Γ} {B:TypDep A} (b:Elt B) :
+  (Lam b) °°°° σ with Prod_subst_law _ _ with Prod_eq (BetaT2 _ _) ~1 Lam (b °°°° (Subm σ)).
+  refine (Build_sigma _ _ _).
+  intro γ. refine (Build_sigma _ _ _). intro a. exact (identity _).
+  intros  t t' e. trunc1_eq.
+  intros t t' e. intro X. simpl. trunc1_eq.
+Defined.
+
+Definition SubstT_subst_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:Elt (Prod F)) (a:Elt A):
+ (F {{a}}) ⋅⋅ σ ~1 (F °°° σ) {{a °°°° σ}}.
+  refine (Build_sigma _ _ _). 
+  intro t. exact (identity _).
+  intros t t' e. simpl_id_bi.
+Defined.
+
+Definition appProd_eq3 Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:Elt (Prod F)) (a:Elt A):
+  [c @@ a °°°° σ] = [(c °°°° σ with Prod_subst_law _ _) @@ (a °°°° σ)] :=
+  eq_refl [((c °°°° σ) with Prod_subst_law _ _) @@ (a °°°° σ)].
+
+(* c @@ a °°°° σ with SubstT_subst_law _ c _ ~1 (c °°°° σ with Prod_subst_law _ _) @@ (a °°°° σ). *)
+(*   refine (Build_sigma _ _ _). *)
+(*   intro t. simpl. exact (identity _). *)
+(*   intros t t' e. trunc1_eq. *)
+(* Defined. *)
+
+(* Program Instance _uLamT {Γ: Context} {A : Typ Γ} (B: TypFam A) : *)
+(*   Functor (T:=[[_Sum0 A]]) (fun x => B @ x.1 @ x.2). *)
+(* Next Obligation. *)
+(*   eapply composition; try exact ((@_Dmap _ _ _ B.2 x.1 y.1 X.1) @ y.2). *)
+(*   simpl. unfold id. apply (map (B @ [x])). *)
+(*   eapply Equiv_injective. eapply composition. exact X.2. *)
+(*   apply inverse. apply (section ((map A) [X])). *)
+(* Defined. *)
+(* Next Obligation. *)
+(*   (* apply equiv_eq_nat_trans. refine (Build_sigma _ _ _).  *) *)
+(*   (* intro X. simpl. unfold id. eapply composition. *) *)
+(*   (* apply [Dmap_id B x.2].1.  *) *)
+(*   admit. *)
+(* Defined. *)
+(* Next Obligation. admit. Defined.  *)
+(* Next Obligation. admit. Defined.  *)
+  
+(* Definition uLamT {Γ: Context} {A : Typ Γ} (B: TypFam A) : TypDep A *)
+(*   := (fun x => B @ x.1 @ x.2; _uLamT _). *)
+                
+Program Definition EtaT Γ (A:Typ Γ) (F:TypFam A)
+: LamT ((F °°° Sub) {{Var A}}) ~1 F.
+refine (Build_sigma _ _ _). intro γ.  
+refine (Build_sigma _ _ _). intro a. apply identity.
+intros t t' e. simpl_id_bi. apply equiv_eq_nat_trans.
+(* refine (Build_sigma _ _ _). intro X. simpl in *. *)
+(* unfold groupoid_interpretation.substF_1_obligation_1. *)
+(* apply inverse. eapply composition.  *)
+admit.
+admit.
+Defined.
+
+Definition useless_coercion A B (f : [A-->B]) (g : [B --> Type0]) :
+  Prod_Type (fun x => [[[g]]] @ (f @ x) ; arrow_comp _ _ _ f ([[[g]]])) ->
+  Prod_Type ([[[(fun x => g @ (f @ x) ; arrow_comp _ _ _ f g)]]]) := @id _.
+
+Notation "↑ t" := (useless_coercion (t °° Sub) with Prod_subst_law _ _) (at level 9, t at level 9).
+
+Definition Eta {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F))
+: Lam (↑ c @@ Var _) with Prod_eq (EtaT F) ~1 c.
+  refine (Build_sigma _ _ _).
+  intro γ. refine (Build_sigma _ _ _). intro a. exact (identity _).
+  intros  t t' e. trunc1_eq.
+  intros t t' e. intro X. simpl. trunc1_eq.
+Defined.
+

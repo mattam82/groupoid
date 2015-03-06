@@ -1,21 +1,28 @@
 \coqlibrary{Groupoid.fun ext}{Library }{Groupoid.fun\_ext}
 
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+
 
   Propositional functional extensionality is a direct consequence of the definition
   of equality at product types. It is simply witnessed by a natural transformation
   between the (dependent) functions, that is a pointwise equality. This corresponds 
   to the introduction of equality on dependent functions in~\cite{DBLP:conf/popl/LicataH12}.
-
-
 \begin{coqdoccode}
 \coqdocemptyline
+\coqdocemptyline
 \coqdocnoindent
-\coqdockw{Lemma} \coqdocvar{FunExt} \coqdocvariable{Γ} (\coqdocvariable{A} : \coqdocdefinition{Typ} \coqdocvariable{Γ})
-        (\coqdocvariable{F} : \coqdocvar{TypDep} \coqdocvariable{A}) (\coqdocvar{M} \coqdocvar{N} : \coqdocvar{$\mathsf{Tm}$} (\coqdocdefinition{Prod} (\coqdocvar{$\Lambda$} \coqdocvariable{F}))) \coqdoceol
-        (\coqdocvar{α} : \coqdocvar{$\mathsf{Tm}$} (\coqdocdefinition{Prod} (\coqdocvar{$\Lambda$} (\coqdocvar{Id} ($\shortdownarrow$\coqdocvar{M} $\star$ \coqdocvar{Var} \coqdocvariable{A}) ($\shortdownarrow$\coqdocvar{N} $\star$ \coqdocvar{Var} \coqdocvariable{A})))))
-  : \coqdocvar{$\mathsf{Tm}$} (\coqdocvar{Id} \coqdocvar{M} \coqdocvar{N}).
+\coqdockw{Definition} \coqdef{Groupoid.fun ext.FunExt}{FunExt}{\coqdocdefinition{FunExt}} (\coqdocvar{Γ}: \coqdocdefinition{Context}) (\coqdocvar{A} : \coqdocdefinition{Typ} \coqdocvariable{Γ})\coqdoceol
+\coqdocindent{5.50em}
+(\coqdocvar{F} : \coqdocdefinition{TypDep} \coqdocvariable{A}) (\coqdocvar{M} \coqdocvar{N} : \coqdocdefinition{$\mathsf{Tm}$} (\coqdocdefinition{Prod} (\coqdocdefinition{$\Lambda$} \coqdocvariable{F})))\coqdoceol
+\coqdocindent{5.50em}
+(\coqdocvar{α} : \coqdocdefinition{$\mathsf{Tm}$} (\coqdocdefinition{Prod} (\coqdocdefinition{$\Lambda$} (\coqdocdefinition{Id} (\coqref{Groupoid.fun ext.::'xE2x86x91' x}{\coqdocnotation{$\shortuparrow$}} \coqdocvariable{M} \coqdocnotation{$\star$} \coqdocdefinition{Var} \coqdocvariable{A}) (\coqref{Groupoid.fun ext.::'xE2x86x91' x}{\coqdocnotation{$\shortuparrow$}} \coqdocvariable{N} \coqdocnotation{$\star$} \coqdocdefinition{Var} \coqdocvariable{A})))))\coqdoceol
+\coqdocnoindent
+: \coqdocdefinition{$\mathsf{Tm}$} (\coqdocdefinition{Id} \coqdocvariable{M} \coqdocvariable{N}).\coqdoceol
 \coqdocemptyline
 \end{coqdoccode}
-
-
-  \noindent where $\shortdownarrow$\coqdocvar{M} is the weakening for terms. 
+ \noindent where $\shortuparrow$\coqdocvariable{M} is the weakening for terms. 
+\begin{coqdoccode}
+\end{coqdoccode}

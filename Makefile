@@ -40,6 +40,10 @@ TIMECMD=
 STDTIME?=/usr/bin/time -f "$* (user: %U mem: %M ko)"
 TIMER=$(if $(TIMED), $(STDTIME), $(TIMECMD))
 
+vo_to_obj = $(addsuffix .o,\
+  $(filter-out Warning: Error:,\
+  $(shell $(COQBIN)coqtop -q -noinit -batch -quiet -print-mod-uid $(1))))
+
 ##########################
 #                        #
 # Libraries definitions. #
@@ -47,9 +51,9 @@ TIMER=$(if $(TIMED), $(STDTIME), $(TIMECMD))
 ##########################
 
 COQLIBS?=\
-  -R theories Groupoid
+  -R "theories" Groupoid
 COQDOCLIBS?=\
-  -R theories Groupoid
+  -R "theories" Groupoid
 
 ##########################
 #                        #
@@ -82,6 +86,7 @@ COQDOCINSTALL=$(XDG_DATA_HOME)/doc/coq
 else
 COQLIBINSTALL="${COQLIB}user-contrib"
 COQDOCINSTALL="${DOCDIR}user-contrib"
+COQTOPINSTALL="${COQLIB}toploop"
 endif
 
 ######################
@@ -91,6 +96,7 @@ endif
 ######################
 
 VFILES:=theories/fun_ext.v\
+  theories/cwf_equations.v\
   theories/groupoid_interpretation.v\
   theories/sum_eq.v\
   theories/prod_eq.v\
@@ -112,6 +118,10 @@ GLOBFILES:=$(VFILES:.v=.glob)
 GFILES:=$(VFILES:.v=.g)
 HTMLFILES:=$(VFILES:.v=.html)
 GHTMLFILES:=$(VFILES:.v=.g.html)
+OBJFILES=$(call vo_to_obj,$(VOFILES))
+ALLNATIVEFILES=$(OBJFILES:.o=.cmi) $(OBJFILES:.o=.cmo) $(OBJFILES:.o=.cmx) $(OBJFILES:.o=.cmxs)
+NATIVEFILES=$(foreach f, $(ALLNATIVEFILES), $(wildcard $f))
+NATIVEFILES1=$(patsubst theories/%,%,$(filter theories/%,$(NATIVEFILES)))
 ifeq '$(HASNATDYNLINK)' 'true'
 HASNATDYNLINK_OR_EMPTY := yes
 else
@@ -126,12 +136,12 @@ endif
 
 all: $(VOFILES) 
 
-quick:
-	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) all VO=vi
-vi2vo:
-	$(COQC) $(COQDEBUG) $(COQFLAGS) -schedule-vi2vo $(J) $(VOFILES:%.vo=%.vi)
+quick: $(VOFILES:.vo=.vio)
+
+vio2vo:
+	$(COQC) $(COQDEBUG) $(COQFLAGS) -schedule-vio2vo $(J) $(VOFILES:%.vo=%.vio)
 checkproofs:
-	$(COQC) $(COQDEBUG) $(COQFLAGS) -schedule-vi-checking $(J) $(VOFILES:%.vo=%.vi)
+	$(COQC) $(COQDEBUG) $(COQFLAGS) -schedule-vio-checking $(J) $(VOFILES:%.vo=%.vio)
 gallina: $(GFILES)
 
 html: $(GLOBFILES) $(VFILES)
@@ -180,7 +190,7 @@ userinstall:
 	+$(MAKE) USERINSTALL=true install
 
 install:
-	cd "theories" && for i in $(VOFILES1); do \
+	cd "theories" && for i in $(NATIVEFILES1) $(GLOBFILES1) $(VFILES1) $(VOFILES1); do \
 	 install -d "`dirname "$(DSTROOT)"$(COQLIBINSTALL)/Groupoid/$$i`"; \
 	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/Groupoid/$$i; \
 	done
@@ -193,7 +203,7 @@ install-doc:
 
 uninstall_me.sh:
 	echo '#!/bin/sh' > $@ 
-	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/Groupoid && rm -f $(VOFILES1) && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "Groupoid" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
+	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/Groupoid && rm -f $(NATIVEFILES1) $(GLOBFILES1) $(VFILES1) $(VOFILES1) && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "Groupoid" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
 	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL)/Groupoid \\\n' >> "$@"
 	printf '&& rm -f $(shell find "html" -maxdepth 1 -and -type f -print)\n' >> "$@"
 	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL) && find Groupoid/html -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
@@ -203,7 +213,8 @@ uninstall: uninstall_me.sh
 	sh $<
 
 clean:
-	rm -f $(VOFILES) $(VOFILES:.vo=.vi) $(GFILES) $(VFILES:.v=.v.d) $(VFILES:=.beautified) $(VFILES:=.old)
+	rm -f $(OBJFILES) $(OBJFILES:.o=.native) $(NATIVEFILES)
+	rm -f $(VOFILES) $(VOFILES:.vo=.vio) $(GFILES) $(VFILES:.v=.v.d) $(VFILES:=.beautified) $(VFILES:=.old)
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
 	- rm -rf html mlihtml uninstall_me.sh
 
@@ -236,7 +247,7 @@ $(VOFILES): %.vo: %.v
 $(GLOBFILES): %.glob: %.v
 	$(COQC) $(COQDEBUG) $(COQFLAGS) $*
 
-$(VFILES:.v=.vi): %.vi: %.v
+$(VFILES:.v=.vio): %.vio: %.v
 	$(COQC) -quick $(COQDEBUG) $(COQFLAGS) $*
 
 $(GFILES): %.g: %.v

@@ -766,7 +766,6 @@ Definition Beta {Γ} {A:Typ Γ} {F:TypDep A} (b:Elt F) (a:Elt A)
 *)
 
 (* begin hide *)
-(* Eval compute in 4. *)
 
 Instance groupoid_eq1 (T:[_Type]) (a b : [T]): Groupoid (a ~1 b) :=
   IrrRelGroupoid {| eq1 := @eq2 _ _ _ a b|}.
