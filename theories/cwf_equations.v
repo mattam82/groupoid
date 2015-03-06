@@ -156,7 +156,7 @@ Require Import Coq.Program.Tactics.
 Add LoadPath "." as Groupoid.
 Require Import HoTT_light groupoid fun_eq.
 Require Import groupoid_interpretation_def Equiv_adjoint fun_depfun.
-Require Import sum_id prod_eq sum_eq groupoid_interpretation fun_ext.
+Require Import sum_id prod_eq sum_eq groupoid_interpretation.
 
 Set Implicit Arguments.
 Set Universe Polymorphism.
@@ -238,26 +238,6 @@ Definition appProd_eq3 Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:Elt (P
 (*   intro t. simpl. exact (identity _). *)
 (*   intros t t' e. trunc1_eq. *)
 (* Defined. *)
-
-(* Program Instance _uLamT {Γ: Context} {A : Typ Γ} (B: TypFam A) : *)
-(*   Functor (T:=[[_Sum0 A]]) (fun x => B @ x.1 @ x.2). *)
-(* Next Obligation. *)
-(*   eapply composition; try exact ((@_Dmap _ _ _ B.2 x.1 y.1 X.1) @ y.2). *)
-(*   simpl. unfold id. apply (map (B @ [x])). *)
-(*   eapply Equiv_injective. eapply composition. exact X.2. *)
-(*   apply inverse. apply (section ((map A) [X])). *)
-(* Defined. *)
-(* Next Obligation. *)
-(*   (* apply equiv_eq_nat_trans. refine (Build_sigma _ _ _).  *) *)
-(*   (* intro X. simpl. unfold id. eapply composition. *) *)
-(*   (* apply [Dmap_id B x.2].1.  *) *)
-(*   admit. *)
-(* Defined. *)
-(* Next Obligation. admit. Defined.  *)
-(* Next Obligation. admit. Defined.  *)
-  
-(* Definition uLamT {Γ: Context} {A : Typ Γ} (B: TypFam A) : TypDep A *)
-(*   := (fun x => B @ x.1 @ x.2; _uLamT _). *)
                 
 Program Definition EtaT Γ (A:Typ Γ) (F:TypFam A)
 : LamT ((F °°° Sub) {{Var A}}) ~1 F.
