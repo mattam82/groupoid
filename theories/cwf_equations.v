@@ -171,6 +171,11 @@ Definition Prod_subst_law {Δ Γ} (σ:[Δ -|-> Γ]) (A:Typ Γ) (F:TypFam A)
   apply equiv_eq_nat_trans.
 Defined.
 
+Definition useless_coercion A B (f : [A-->B]) (g : [B --> Type0]) :
+  Prod_Type (fun x => [[[g]]] @ (f @ x) ; arrow_comp _ _ _ f ([[[g]]])) ->
+  Prod_Type ([[[(fun x => g @ (f @ x) ; arrow_comp _ _ _ f g)]]]) := @id _.
+
+Notation "↑ t" := (useless_coercion (t °° Sub) with Prod_subst_law _ _) (at level 9, t at level 9).
 
 Program Instance Subm_1 {Δ Γ: Context} (σ:[Δ -|-> Γ]) (T : Typ Γ)
          : Functor (T:=[[_Sum0 (T ⋅⋅ σ)]]) (U := [[_Sum0 T]]) (λ γt , (σ @ [γt]; γt.2)).
@@ -210,8 +215,7 @@ Definition Prod_eq {Γ} (A:Typ Γ) (F F':TypFam A) : F ~1 F' -> Prod F ~1 Prod F
   intro a. simpl. exact ([α_Dmap H e a] @ _).
   intros a a' Ha. trunc1_eq.
   intros a a' Ha. trunc1_eq.
-  admit.
-  (* simpl. unfold EquivEq. red. intros a a' Ha. trunc1_eq. *)  
+  apply equiv_eq_nat_trans. 
 Defined.
 
 Definition Lam_subst_law {Δ Γ} (σ:[Δ -|-> Γ]) {A:Typ Γ} {B:TypDep A} (b:Elt B) :
@@ -238,24 +242,32 @@ Definition appProd_eq3 Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:Elt (P
 (*   intro t. simpl. exact (identity _). *)
 (*   intros t t' e. trunc1_eq. *)
 (* Defined. *)
-                
-Program Definition EtaT Γ (A:Typ Γ) (F:TypFam A)
-: LamT ((F °°° Sub) {{Var A}}) ~1 F.
-refine (Build_sigma _ _ _). intro γ.  
+
+Definition _EtaT Γ (A:Typ Γ) (F:TypFam A) γ
+: LamT ((F °°° Sub) {{Var A}}) @ γ ~1 F @ γ.
 refine (Build_sigma _ _ _). intro a. apply identity.
 intros t t' e. simpl_id_bi. apply equiv_eq_nat_trans.
-(* refine (Build_sigma _ _ _). intro X. simpl in *. *)
-(* unfold groupoid_interpretation.substF_1_obligation_1. *)
-(* apply inverse. eapply composition.  *)
-admit.
-admit.
+refine (Build_sigma _ _ _).
+intro X. apply inverse. eapply composition. refine ([Dmap_id F t'] @ _).
+eapply composition. eapply inverse. refine ([map_comp (F @ γ) _ _] @ X).
+refine ([map2 (F @ γ) _] @ X). trunc1_eq.
+intros a a' X. simpl. trunc1_eq.
 Defined.
 
-Definition useless_coercion A B (f : [A-->B]) (g : [B --> Type0]) :
-  Prod_Type (fun x => [[[g]]] @ (f @ x) ; arrow_comp _ _ _ f ([[[g]]])) ->
-  Prod_Type ([[[(fun x => g @ (f @ x) ; arrow_comp _ _ _ f g)]]]) := @id _.
-
-Notation "↑ t" := (useless_coercion (t °° Sub) with Prod_subst_law _ _) (at level 9, t at level 9).
+Definition EtaT Γ (A:Typ Γ) (F:TypFam A)
+: LamT ((F °°° Sub) {{Var A}}) ~1 F.
+  exists (_EtaT _).
+  intros t t' e X. simpl. unfold id, groupoid_interpretation.substF_1_obligation_1.
+  simpl. apply equiv_eq_nat_trans. simpl.
+  refine (Build_sigma _ _ _).
+  intro f. simpl. refine (map _ _).
+  assert ((map (F @ t)) (equiv_adjoint (Var A) (sum_id_right e X)) ~1 identity _).
+  unfold equiv_adjoint. simpl.
+  eapply composition; try exact (map_id (F @ t)). 
+  refine (map2 (F @ t) _). refine (triangle_inv' _ _ ).
+  refine ([X0] @ f). 
+  intros a a' H. trunc1_eq.
+Defined.
 
 Definition Eta {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F))
 : Lam (↑ c @@ Var _) with Prod_eq (EtaT F) ~1 c.

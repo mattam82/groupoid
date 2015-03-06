@@ -2065,7 +2065,7 @@ Definition Trunc_1 (T:[Type0]) (x y : [T])
 
 Ltac trunc1_eq :=   match goal with
     | [ |- ?e ~ ?e'] =>
-      let X := fresh in
+       let X := fresh in
       let X':=fresh in 
       set(X:=e) in *; 
       set(X':=e') in *; 
@@ -2074,6 +2074,16 @@ Ltac trunc1_eq :=   match goal with
       try ((destruct H; apply identity)
              || (simpl in *; destruct H; apply identity))    
   end. 
+
+
+(* cleaner but slower version ... *)
+(* Ltac trunc1_eq :=   match goal with *)
+(*     | [ |- ?e ~ ?e'] => *)
+(*       exact (HoTT_light.transport (fun X => e ~ X) *)
+(*                                   (@HoTT_light.center _ (Trunc_1 _ _ _ e e')) *)
+(*                                   (identity e)) *)
+(*   end.  *)
+
 
 Ltac trunc1_eq_expl T :=   match goal with
     | [ |- ?e ~ ?e'] =>
