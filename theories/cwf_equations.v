@@ -203,8 +203,6 @@ refine (Build_sigma _ _ _). intro b. apply identity.
 intros x y z. trunc1_eq.
 Defined.
 
-Notation α_Dmap f := (@_α_Dmap _ _ _ _ _ (proj2 f) _ _).
-
 Definition Prod_eq {Γ} (A:Typ Γ) (F F':TypFam A) : F ~1 F' -> Prod F ~1 Prod F'.
   intro H. refine (Build_sigma _ _ _).
   intro γ. simpl. exact (prod_eqT (H @ γ)).

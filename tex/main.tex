@@ -78,7 +78,7 @@
 \mainmatter  % start of an individual contribution
 
 % \title{Internalization of the Groupoid Interpretation of Type Theory}
-\title{A mechanized model of Type Theory based on an
+\title{A mechanized setoid model of Type Theory based on an
   internalization of groupoids}
 \titlerunning {A mechanized model of Type Theory based on groupoids}
 
@@ -101,6 +101,7 @@ Laboratoire d'Informatique de Nantes Altantique (LINA)
 %  Already,formalizing such weak structures is a difficult endeavor. 
 
 \begin{abstract}
+
   Homotopical interpretations of Martin-Löf type theory lead toward an
   interpretation of equality as a richer, more extensional
   notion. Extensional or axiomatic presentations of the theory with
@@ -108,12 +109,45 @@ Laboratoire d'Informatique de Nantes Altantique (LINA)
   power of dependent type theory, that is its computational
   character. Reconciling intensional type theory with this richer notion
   of equality requires to move to higher-dimensional structures where
-  equality reasoning is explicit. In this paper, we follow this idea and
-  develop an internalization of a model of Martin-Löf type theory based
-  on groupoids and respecting the invariance by isomorphism principle.
+  equality reasoning is explicit, which explains the emerging interest on
+  simplicial or cubical models. 
+  %
+  However, such models are still based on set theory, which is somehow
+  in opposition with the goal to replace set theory by homotopy type
+  theory in the foundations of mathematics. 
+  %
+  Therefore, it is important to be able to express those models
+  directly in type theory.
+  % 
+  In this paper, we follow this idea and develop an internalization of
+  a setoid model of Martin-Löf type theory based on an internalization
+  of groupoids.
+% and respecting the invariance by isomorphism principle.
+  % 
+  Our work shows that even a simple setoid model of type theory does
+  not form a model (at least in the sense of categories with families)
+  when internalized inside type theory, as the distinction between
+  definitional and propositional equality forbids some equalities on
+  substitutions to hold without explicit rewriting.
+  % 
   Our formal development relies crucially on ad-hoc polymorphism to
   overload notions of equality and on a conservative extension of
   Coq's universe mechanism with polymorphism.
+  % 
+
+  % Homotopical interpretations of Martin-Löf type theory lead toward an
+  % interpretation of equality as a richer, more extensional
+  % notion. Extensional or axiomatic presentations of the theory with
+  % principles based on such models do not yet fully benefit from the
+  % power of dependent type theory, that is its computational
+  % character. Reconciling intensional type theory with this richer notion
+  % of equality requires to move to higher-dimensional structures where
+  % equality reasoning is explicit. In this paper, we follow this idea and
+  % develop an internalization of a model of Martin-Löf type theory based
+  % on groupoids and respecting the invariance by isomorphism principle.
+  % Our formal development relies crucially on ad-hoc polymorphism to
+  % overload notions of equality and on a conservative extension of
+  % Coq's universe mechanism with polymorphism.
 \end{abstract}
 
 

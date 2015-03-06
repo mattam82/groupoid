@@ -2188,9 +2188,8 @@ Class DNaturalTransformation T (U:[T --> _Type]) {f g: Prod_Type U} (α : ∀ t,
 Definition Dnat_trans T (U:[T --> _Type]) (f g: Prod_Type U)  
   := {α : ∀ t : [T], f @ t ~1 g @ t & DNaturalTransformation α}.
 
-
 Hint Extern 0 (DNaturalTransformation [?f]) => exact (proj2 f) : typeclass_instances.
-Notation α_Dmap f := (@_α_Dmap (proj2 f) _ _).
+Notation α_Dmap f := (@_α_Dmap _ _ _ _ _ (proj2 f) _ _).
 
 Program Instance Dnat_id T U : Identity (Dnat_trans (T:=T) (U := U)).
 Next Obligation. 
