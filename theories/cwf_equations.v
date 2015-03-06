@@ -190,7 +190,7 @@ Next Obligation. refine (Build_sigma _ _ _). apply (map2 σ [X]).
 Definition Subm {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} : [_Sum0 (T ⋅⋅ σ) -|-> _Sum0 T] 
     :=  (_ ; Subm_1 _ _).
 
-Program Definition BetaT2 Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]) 
+Program Definition LamT_subst_law Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]) 
 : LamT B °°° σ ~1 LamT (B ⋅⋅ (Subm σ)).
 refine (Build_sigma _ _ _). intro t. simpl.
 refine (Build_sigma _ _ _). intro X. apply identity.
@@ -217,7 +217,7 @@ Definition Prod_eq {Γ} (A:Typ Γ) (F F':TypFam A) : F ~1 F' -> Prod F ~1 Prod F
 Defined.
 
 Definition Lam_subst_law {Δ Γ} (σ:[Δ -|-> Γ]) {A:Typ Γ} {B:TypDep A} (b:Elt B) :
-  (Lam b) °°°° σ with Prod_subst_law _ _ with Prod_eq (BetaT2 _ _) ~1 Lam (b °°°° (Subm σ)).
+  (Lam b) °°°° σ with Prod_subst_law _ _ with Prod_eq (LamT_subst_law _ _) ~1 Lam (b °°°° (Subm σ)).
   refine (Build_sigma _ _ _).
   intro γ. refine (Build_sigma _ _ _). intro a. exact (identity _).
   intros  t t' e. trunc1_eq.
@@ -231,15 +231,14 @@ Definition SubstT_subst_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:E
   intros t t' e. simpl_id_bi.
 Defined.
 
-Definition appProd_eq3 Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:Elt (Prod F)) (a:Elt A):
+Definition App_subst_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ])
+           (c:Elt (Prod F)) (a:Elt A):
   [c @@ a °°°° σ] = [(c °°°° σ with Prod_subst_law _ _) @@ (a °°°° σ)] :=
   eq_refl [((c °°°° σ) with Prod_subst_law _ _) @@ (a °°°° σ)].
 
-(* c @@ a °°°° σ with SubstT_subst_law _ c _ ~1 (c °°°° σ with Prod_subst_law _ _) @@ (a °°°° σ). *)
-(*   refine (Build_sigma _ _ _). *)
-(*   intro t. simpl. exact (identity _). *)
-(*   intros t t' e. trunc1_eq. *)
-(* Defined. *)
+(* it is possible to define a more complex version *)
+(* c @@ a °°°° σ with SubstT_subst_law _ c _ ~1 
+   (c °°°° σ with Prod_subst_law _ _) @@ (a °°°° σ). *)
 
 Definition _EtaT Γ (A:Typ Γ) (F:TypFam A) γ
 : LamT ((F °°° Sub) {{Var A}}) @ γ ~1 F @ γ.
