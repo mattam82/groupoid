@@ -468,8 +468,8 @@ Instance BetaT_1 {Δ Γ : Context} {A:Typ Γ} (B:TypDep A) (σ:[Δ -|-> Γ]) (a:
   Defined.
 (* end hide *)
 
-Program Definition BetaT Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]) (a:Elt (A ⋅⋅ σ)) 
-  : LamT B °°° σ {{a}} ~1 B ⋅⋅ (SubExt σ a) := (λ _, identity _ ; BetaT_1 _ _ _).
+Definition BetaT Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]) (a:Elt (A ⋅⋅ σ)) 
+: LamT B °°° σ {{a}} ~1 B ⋅⋅ (SubExt σ a) := (λ _, identity _ ; BetaT_1 B σ a).
 
 (* begin hide *)
 
@@ -908,7 +908,7 @@ Defined.
 
 (* end hide *)
 
-(** We can interpret the J eliminator of MLTT on [Id] using functoriality of [P] and of product ([prod_comp]). In the definition of J, the predicate [P] depends on the proof of equality, which is interpreted using a [Sigma] type. The functoriality of [P] is used on the term [J_Pair e P γ], which is a proof that [(a;Refl a)] is equal to [(b;e)]. The notation [⇑⇑ A] is used to convert the type of terms according to equality on [LamT]. *)
+(** We can interpret the J eliminator of MLTT on [Id] using functoriality of [P] and of product ([prod_comp]). In the definition of J, the predicate [P] depends on the proof of equality, which is interpreted using a [Sigma] type. The functoriality of [P] is used on the term [J_Pair e P γ], which is a proof that [(a;Refl a)] is equal to [(b;e)]. The notation [⇑⇑ a] is used to convert the type of terms according to equality on [LamT]. *)
 
 Definition J Γ (A:Typ Γ) (a b:Elt A) (P:TypFam (Sigma (LamT (Id (a °°°° Sub) (Var A)))))
                (e:Elt (Id a b)) (p:Elt (P{{Pair ⇑⇑ (Refl a)}})) 

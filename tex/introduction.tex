@@ -1,9 +1,9 @@
 \section{Introduction}
 \label{sec:introduction}
 A notorious difficulty with intensional type theories like Martin-Löf
-type theory or the calculus of inductive constructions is the
-lack of extensionality principles in the core theory, and notably in
-its notion of propositional equality. This makes the theory both
+type theory or the calculus of inductive constructions is the lack of
+extensionality principles in the core theory, and notably in its
+notion of propositional equality. This makes the theory both
 inflexible with respect to the notion of equality one might want to
 use on a given type and also departs from the traditional equality
 notion from set theory. Functional extensionality (pointwise equal
@@ -11,7 +11,8 @@ functions are equal), propositional extensionality (logically
 equivalent propositions are equal) and proof irrelevance (all proofs
 of the same proposition are equal) are principles that are valid
 extensions of type theory and can be internalized in an intensional
-theory, in the manner of Altenkirch et al.~\cite{altenkirch-mcbride-wierstra:ott-now}.  Another
+theory, in the manner of Altenkirch et
+al.~\cite{altenkirch-mcbride-wierstra:ott-now}.  Another
 extensionality principle coming from homotopy theory is univalence,
 whose first instance is the idea that isomorphic types are
 equal~\cite{Voevodsky:2011yq,Pelayo:2012uq}. All these principles
@@ -22,8 +23,8 @@ proposition. This hints at the idea that there ought to exist an
 internal model of type theory where equality is defined on a type by
 type basis using the aforementioned principles and a translation that
 witnesses that any term of the theory is equipped with proofs that
-they respect these properties. Formalizing this definitional
-translation is the goal of this paper.
+they respect these properties. Formalizing a simple version of this
+definitional translation is the goal of this paper.
 
 % However, before even starting to think about formalizing the
 % translation, we need to enhance the universe system of \Coq to handle

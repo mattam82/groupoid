@@ -236,7 +236,7 @@ Definition App_subst_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ])
   [c @@ a °°°° σ] = [(c °°°° σ with Prod_subst_law _ _) @@ (a °°°° σ)] :=
   eq_refl [((c °°°° σ) with Prod_subst_law _ _) @@ (a °°°° σ)].
 
-(* it is possible to define a more complex version *)
+(* it is also possible to define a more complex version *)
 (* c @@ a °°°° σ with SubstT_subst_law _ c _ ~1 
    (c °°°° σ with Prod_subst_law _ _) @@ (a °°°° σ). *)
 
