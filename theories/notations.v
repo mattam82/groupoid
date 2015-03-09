@@ -13,8 +13,8 @@
   is written [(t ; p)] when its predicate/fibration is inferrable from
   the context, and projections are denoted [Π1] and [Π2]. The bracket
   notation [[_]] is an alias for [Π1]. The following is directly
-  extracted from Coq .v files using the <<coqdoc>> tool (source files
-  are available at %\url{https://github.com/mattam82/groupoid}%). If
+  extracted from Coq files using the <<coqdoc>> tool (source files
+  are available at %\url{http://mattam82.github.io/groupoid}%). If
   you are reading the colored version of the paper, keywords are
   typeset in red, inductive types and classes in blue, inductive
   constructors in dark red, and defined constants and lemmas in green.

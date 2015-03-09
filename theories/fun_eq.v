@@ -1,8 +1,5 @@
 Require Export Unicode.Utf8_core.
 Require Coq.Program.Tactics.
-
-Add LoadPath "." as Groupoid.
-
 Require Import Groupoid.HoTT_light Groupoid.groupoid.
 
 Set Universe Polymorphism.
@@ -184,13 +181,16 @@ Definition Equiv_ajoint_map_id {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x : [Γ
   exists X. red; intros. trunc1_eq_expl (t@t0).
 Defined. 
 
+Unset Printing Primitive Projection Parameters.
+
 Definition fun_eq_idT {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x : [Γ]) :
   Equiv_eq (fun_eqT (map A (identity x)) (identity Type0)) 
            (@identity _ _ _Type_id (([[[A]]]) @ x -||-> Type0)) := (fun_eq_id' A x; _ ).
 Next Obligation.
     intro. intro. apply equiv_eq_nat_trans. 
     Opaque composition. simpl. red.
-    refine (@Build_sigma _ _ _ _).
+    Set Program Mode. unfold id. 
+    econstructor. Unshelve. Focus 2.
     intro. Transparent composition. simpl.
     unfold id. 
     eapply composition. eapply inverse. apply (map_comp t). 

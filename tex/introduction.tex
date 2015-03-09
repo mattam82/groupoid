@@ -54,23 +54,26 @@ starts by making the step to higher dimensions, whether finite (weak
 n-groupoids) or infinite (weak ω-groupoids)
 \cite{DBLP:conf/csl/AltenkirchR12}. %
 %
-Our work here concentrates on the internalization in \Coq of Hofmann and
-Streicher's groupoid model where we can have a self-contained definition
-of the structures involved.
+Our work here concentrates on the internalization in \Coq of the setoid
+model of type theory, seen as degenerate groupoids, where we can have a
+self-contained definition of the structures involved. Our long term goal
+is to formalize Hofmann and Streicher's groupoid model, which
+generalizes the construction from setoids to groupoids, but interresting
+difficulties already arise in this simpler setting.
 %
 Our first motivation to implement this translation is to explore the
-interpretation of type theory in groupoids in a completely
-intensional setting and in the type theoretic language, leaving no space
-for imprecision on the notions of equality and coherence involved.  We
-also hope to give with this translation a basic exposition of the
-possible type theoretic implications of the groupoid/homotopy models,
-bridging a gap in the literature. 
+interpretation of type theory in setoids in a completely intensional
+setting and in the type theoretic language, leaving no space for
+imprecision on the notions of equality and coherence involved.  We also
+hope to give with this translation a basic exposition of the possible
+type theoretic implications of the setoid/groupoid/homotopy models,
+bridging a gap in the literature.
 %
-On the technical side, we nevertheless have to slightly move away from
-Hofmann and Streicher's interpretation.  In particular, it is not
+On the technical side, we have to slightly move away from existing
+interpretations like Hofmann and Streicher's.  In particular, it is not
 possible to interpret a univalent universe in our type-theoretic
 formalization of their model; and this for two important reasons that we
-now discuss.
+discuss now.
 
 
 \paragraph{\bf A univalent model that makes no use of univalence.}
@@ -97,7 +100,7 @@ pointwise, but again using the identity type, and not the internal
 notion of equality in the groupoid, given by $\sim_1$.
 %
 This means that $\sim_1$ has to coincide with the identity type, which
-is precisely the property  of being a univalent groupoid.
+is precisely the property of being a univalent groupoid.
 %
 But then, this means that isomorphisms between groupoids should be
 reflected in the identity type, which forces the target theory to
@@ -133,7 +136,7 @@ to interpret homotopy type theory into type theory without identity
 types.
 
 
-\paragraph{\bf Taking size issue into account.}
+\paragraph{\bf Taking size and dimension issues into account.}
 %
 
 In Hofmann and Streicher's groupoid model, a type $A$ depending on

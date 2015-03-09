@@ -2,14 +2,14 @@
 \section{Related Work and Conclusion}
 \label{sec:conclusion}
 
-We have presented an internalization of the groupoid interpretation of
+We have presented an internalization of the setoid interpretation of
 (weak) Martin-Löf type theory respecting the invariance under
 isomorphism principle in \Coq's type theory with universe polymorphism.
 %
-The groupoid interpretation is due to Hofmann
-and Streicher~\cite{groupoid-interp}. This interpretation is based on
-the notion of categories with families introduced by
-Dybjer~\cite{dybjer:internaltt}. 
+The setoid interpretation is due to Hofmann~\cite{hofmann95These} and the groupoid
+interpretation to Hofmann and Streicher~\cite{groupoid-interp}. This
+interpretation is based on the notion of categories with families
+introduced by Dybjer~\cite{dybjer:internaltt}.
 %
 This framework has recently been used by Coquand et al. to give an
 interpretation in semi-simplicial sets and cubical
@@ -17,7 +17,7 @@ sets~\cite{barras:_gener_takeut_gandy_inter,coquand:cubical}.
 %
 Although very promising, the interpretation based on cubical sets has not
 yet been mechanically checked and only an evaluation procedure based on
-it has been implemented in Haskell.
+it has been implemented in Haskell. Besides, it is still based on set theory.
 
 Altenkirch et al. have introduced Observational Type Theory (OTT)
 \cite{altenkirch-mcbride-wierstra:ott-now}, an intentional type theory where
@@ -29,8 +29,8 @@ extensional type theory. A setoid interpretation clearly guides their
 design, and our model could be adapted to interpret this theory as well.
 
 We have strived for generality in our definitions and while our
-interpretation is done for groupoids, it illustrates the main structures of the
-model and should adapt to higher dimensional models, specifically
+interpretation is done for setoids, it illustrates the main structures
+of the model and should adapt to higher dimensional models, specifically
 $\omega$-groupoids.
 %
 The next step of our work is to generalize the construction to higher

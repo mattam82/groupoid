@@ -161,6 +161,7 @@ Require Import sum_id prod_eq sum_eq groupoid_interpretation.
 Set Implicit Arguments.
 Set Universe Polymorphism.
 (* Set Program Mode. *)
+(* end hide *)
 
 Definition Prod_subst_law {Δ Γ} (σ:[Δ -|-> Γ]) (A:Typ Γ) (F:TypFam A)
   : Prod F ⋅⋅ σ ~1 Prod (F °°° σ).

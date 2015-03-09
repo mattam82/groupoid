@@ -6,17 +6,18 @@
 
 \subsection{The proof assistant}
 \label{sec:proof-assistant}
-We use an extension of the \Coq proof assistant to formally define
-our translation. Vanilla features of \Coq allow us to define overloaded
+We use the latest version (8.5) of the \Coq proof assistant to formally define
+our translation\footnote{At the time of writing, a beta version is
+  available}. Vanilla features of \Coq allow us to define overloaded
 notations and hierarchies of structures through type classes
 \cite{sozeau.Coq/classes/fctc}, and to separate definitions and proofs
 using the \Program extension \cite{sozeau.Coq/FingerTrees/article}, they
-are both documented in \Coq's reference manual \cite{coq:refman:8.4}.
+are both documented in \Coq's reference manual \cite{coq:refman:8.5}.
 We also use the recent extension to polymorphic universes~\cite{sozeau.Coq/univs/ITP14}.
 
 \subsubsection{Classes and projections.}
 The formalization makes heavy use of type classes and sigma types, both
-defined internally as parameterized records. We also have modified the
+defined internally as parameterized records. We also use the new
 representation of record projections, making them primitive to allow a
 more economical representation, leaving out the parameters of the record
 type they are applied to. This change, which is justified by
@@ -68,22 +69,21 @@ defining \coqdoccst{A\_of\_B} as an instance of \coqdocind{A}.
   % it provides a solution to a number of formalization issues present in
   % the original system.
 
-To typecheck our formalization, we also need a stronger universe system
-than what vanilla \Coq offers. Indeed, if we are to give a uniform
-(shallow) translation of type theory in type theory, we have to define a
-translation of the \type{} universe (a groupoid) as a term of
-the calculus and equip type constructors like $Π$ and $Σ$ with
-\interp{\type{}} structures as well. As \interp{\type{}} itself contains
-a \Type{}, the following situation occurs when we define the translation
-of, e.g. sums: we should have \interp{Σ~U~T\ \type{}} = \interp{Σ} \interp{U}
-\interp{T} : \interp{\type}. To ensure consistency of the
-interpretations of types inside \interp{U}, \interp{T} and the outer
-one, they must be at different levels, with the outer one at least as
-large as the inner ones. A universe polymorphic extension of \Coq has
-been designed to allow such highly generic
-developments~\cite{sozeau.Coq/univs/ITP14}.  The design was implemented
-by the first author and is already in use to check the \name{HoTT}
-library in \Coq \cite{HoTT/HoTT}.
+To typecheck our formalization, we also need an expressive universe
+system. Indeed, if we are to give a uniform (shallow) translation of
+type theory in type theory, we have to define a translation of the
+\type{} universe (a groupoid) as a term of the calculus and equip type
+constructors like $Π$ and $Σ$ with \interp{\type{}} structures as
+well. As \interp{\type{}} itself contains a \Type{}, the following
+situation occurs when we define the translation of, e.g. sums: we should
+have \interp{Σ~U~T\ \type{}} = \interp{Σ} \interp{U} \interp{T} :
+\interp{\type}. To ensure consistency of the interpretations of types
+inside \interp{U}, \interp{T} and the outer one, they must be at
+different levels, with the outer one at least as large as the inner
+ones. The universe polymorphic extension of \Coq has been designed to
+allow such highly generic developments~\cite{sozeau.Coq/univs/ITP14}.
+The design was implemented by the first author and is already used to
+check the \name{HoTT} library in \Coq \cite{HoTT/HoTT}.
 
 % This is however not supported in the current
 % version of \Coq, as the universe system does not allow a definition to
