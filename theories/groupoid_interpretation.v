@@ -264,8 +264,8 @@ Definition LamT {Γ: Context} {A : Typ Γ} (B: TypDep A)
   A substitution is represented by a context morphism [[Γ --> Δ]]. 
   Note that although a substitution [σ] can be composed with a dependent type [A] 
   by using composition of functors, we need to define a fresh notion of composition, 
-  noted [A ⋅ σ], with the same computational content but with new universe indices 
-  to avoid universe inconsistency.
+  noted [A ⋅ σ], with the same computational content but a different relation on the
+  universe indices to avoid universe inconsistency.
 
   A substitution σ can be extended by a term [a: Elt (A ⋅ σ)] 
   of [A : Typ Δ].
@@ -817,8 +817,8 @@ Next Obligation. apply equiv_eq_nat_trans. simpl.
 (* end hide *)
 (** 
   ** Identity Types
-  One of the main interests of the groupoid interpretation is that it
-  allows to interpret a type directed notion of equality which validates 
+  One of the main interests of the setoid and groupoid interpretations is that they
+  allow to interpret a type directed notion of equality which validates 
   the J eliminator of identity types but also various extensional principles,
   including functional extensionality. 
   For any terms [a] and [b] of a dependent type [A:Typ Γ], we note [Id a b] the equality type
