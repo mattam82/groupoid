@@ -18,6 +18,7 @@ coq:
 	rubber -d $<
 
 clean:
+	cd .. && $(MAKE) clean
 	rm -f ${TARGETS}
 
 main.pdf: introduction.tex setting.tex ${THEORIES}/cwf_equations.tex ${THEORIES}/groupoid.tex ${THEORIES}/groupoid_interpretation_def.tex ${THEORIES}/groupoid_interpretation.tex ${THEORIES}/cwf_equations.tex ${THEORIES}/fun_ext.tex

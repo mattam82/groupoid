@@ -173,9 +173,11 @@ Set Universe Polymorphism.
 (** * Connection to internal categories with families 
    %\label{section:cwf}%
 
-  We now turn to show that have actually a model in the sense of internal categories with families%~\cite{dybjer:internaltt}%. More precisely, our work can be seen as a formalization of setoid-indexed families of setoids. 
-
-   This corresponds to the %\emph{reindexing
+  We now turn to show that have actually a model in the sense of
+  internal categories with families%~\cite{dybjer:internaltt}%. More
+  precisely, our work can be seen as a formalization of setoid-indexed
+  families of setoids, where the notion of rewriting with the
+  notation [t with e] corresponds to the %\emph{reindexing
   map}% of families of setoids.
 *)
 
@@ -237,12 +239,12 @@ Definition SubSigma {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} :
   as they follow the very same pattern; the use of the identity plus a
   proof of compatibility of the coherences.
   To express the substitution law of dependent functions, we first need
-  to exhibit the law for type-level abstraction [LamT] (where [SubSigma
+  to exhibit the law for type-level abstraction [LamT]---where [SubSigma
   σ] extends the substitution [σ] with a new (untouched) variable in
   the context. 
 *)
 
-Program Definition LamT_sigma_law Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]):
+Definition LamT_sigma_law Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]):
   LamT B °°° σ ~1 LamT (B ⋅⋅ SubSigma σ).
 refine (Build_sigma _ _ _). intro t. simpl.
 refine (Build_sigma _ _ _). intro X. apply identity.
@@ -279,7 +281,7 @@ Notation "↑ t" := (useless_coercion (t °° Sub) with Prod_sigma_law _ _)
   provided by the [t with e] notation.
  *)
 
-Definition Lam_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) {A:Typ Γ} {B:TypDep A} (b:Elt B) :
+Definition Lam_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) {A:Typ Γ} {B:TypDep A} (b:Elt B):
   (Lam b) °°°° σ with Prod_sigma_law _ _ with Prod_eq (LamT_sigma_law _ _) ~1 Lam (b °°°° (SubSigma σ)).
   red. red.
   match goal with | [ |- sigma (λ α : ?H, _)]
