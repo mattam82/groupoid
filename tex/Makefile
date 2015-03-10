@@ -1,18 +1,15 @@
 COQDOCOPTS=--utf8 -g --interpolate -coqlib http://coq.inria.fr/stdlib/ -R ../theories Groupoid
 COQOPTS=
-TARGETS=${THEORIES}/notations.vo ${THEORIES}/notations.tex ${THEORIES}/defU.vo ${THEORIES}/defU.tex ${THEORIES}/groupoid.vo ${THEORIES}/groupoid.tex main.pdf
 COQBIN=
 THEORIES = ../theories
 
-all: ${TARGETS}
+all: coq main.pdf
 
-%.vo: %.v
-	time ${COQBIN}coqc ${COQOPTS} $<
+coq:
+	cd .. && $(MAKE)
 
 %.tex: %.vo
 	${COQBIN}coqdoc ${COQOPTS} ${COQDOCOPTS} --body-only --latex -o $@ ${<:.vo=.v}
-
-#	rm coqdoc.sty
 
 %.html: %.vo
 	${COQBIN}coqdoc ${COQOPTS} ${COQDOCOPTS} --html -o $@ ${<:.vo=.v}
@@ -23,19 +20,7 @@ all: ${TARGETS}
 clean:
 	rm -f ${TARGETS}
 
-main.pdf: introduction.tex setting.tex ${THEORIES}/cwf_equations.tex ${THEORIES}/groupoid.tex ${THEORIES}/groupoid_interpretation_def.tex ${THEORIES}/groupoid_interpretation.tex ${THEORIES}/fun_ext.tex
-
-# groupoid_interpretation.tex
-
-groupoid.vo : ${THEORIES}/HoTT_light.vo
-
-groupoid_utility.vo : ${THEORIES}/groupoid.vo
-
-groupoid_utility2.vo : ${THEORIES}/groupoid_interpretation_def.vo ${THEORIES}/groupoid_interpretation.tex ${THEORIES}/groupoid_utility.vo
-
-groupoid_interpretation_def.vo : ${THEORIES}/groupoid_utility.vo
-
-# groupoid_interpretation.vo : groupoid_utility.vo groupoid_interpretation_def.vo groupoid_utility2.vo
+main.pdf: introduction.tex setting.tex ${THEORIES}/cwf_equations.tex ${THEORIES}/groupoid.tex ${THEORIES}/groupoid_interpretation_def.tex ${THEORIES}/groupoid_interpretation.tex ${THEORIES}/cwf_equations.tex ${THEORIES}/fun_ext.tex
 
 pdf : ${THEORIES}/groupoid.tex ${THEORIES}/groupoid_interpretation_def.tex
 	/bin/sh notations.sed

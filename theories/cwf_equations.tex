@@ -1,0 +1,99 @@
+\coqlibrary{Groupoid.cwf equations}{Library }{Groupoid.cwf\_equations}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+\section{Connection to internal categories with families}
+
+
+
+
+  We now turn to show that have actually a model in the sense of internal categories with families~\cite{dybjer:internaltt}. More precisely, our work can be seen as a formalization of setoid-indexed families of setoids. 
+
+
+  First, given an equality \coqdocvariable{e} : \coqdocvariable{T} $\sim_1$ \coqdocvar{U} between two types in \coqdocdefinition{Typ} \coqdocvariable{A}, there is a function 
+  from \coqdocvariable{t} : \coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{T} to \coqdocvariable{t} \coqdockw{with} \coqdocvariable{e} : \coqdocdefinition{$\mathsf{Tm}$} \coqdocvar{U} that comes from the
+  functoriality of \coqdocvar{$\Pi$}. This corresponds to the \emph{reindexing
+  map} of families of setoids.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+  \paragraph{\lrule{Substitution Laws}.}
+ \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.Prod sigma law}{$\mathsf{Prod_{\sigma law}}$}{\coqdocdefinition{$\mathsf{Prod_{\sigma law}}$}} \{\coqdocvar{Δ} \coqdocvar{Γ}\} (σ:\coqdocnotation{[}\coqdocvariable{Δ} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Γ}\coqdocnotation{]}) (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{F}:\coqdocdefinition{TypFam} \coqdocvariable{A}):\coqdoceol
+\coqdocindent{1.00em}
+\coqdocdefinition{Prod} \coqdocvariable{F} \coqdocnotation{$⋅$} \coqdocvariable{σ} \coqdocnotation{$\sim_1$} \coqdocdefinition{Prod} (\coqdocvariable{F} \coqdocnotation{$\circ$} \coqdocvariable{σ}).\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Program Definition} \coqdef{Groupoid.cwf equations.LamT sigma law}{$\mathsf{\Lambda_{\sigma law}}$}{\coqdocdefinition{$\mathsf{\Lambda_{\sigma law}}$}} \coqdocvar{Δ} \coqdocvar{Γ} (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{B}:\coqdocdefinition{TypDep} \coqdocvariable{A}) (σ:\coqdocnotation{[}\coqdocvariable{Δ} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Γ}\coqdocnotation{]}):\coqdoceol
+\coqdocindent{1.00em}
+\coqdocdefinition{$\Lambda$} \coqdocvariable{B} \coqdocnotation{$\circ$} \coqdocvariable{σ} \coqdocnotation{$\sim_1$} \coqdocdefinition{$\Lambda$} (\coqdocvariable{B} \coqdocnotation{$⋅$} \coqref{Groupoid.cwf equations.Subm}{\coqdocdefinition{Subm}} \coqdocvariable{σ}).\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.Lam sigma law}{Lam\_sigma\_law}{\coqdocdefinition{Lam\_sigma\_law}} \{\coqdocvar{Δ} \coqdocvar{Γ}\} (σ:\coqdocnotation{[}\coqdocvariable{Δ} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Γ}\coqdocnotation{]}) \{\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}\} \{\coqdocvar{B}:\coqdocdefinition{TypDep} \coqdocvariable{A}\} (\coqdocvar{b}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{B}) :\coqdoceol
+\coqdocindent{1.00em}
+\coqdocnotation{(}\coqdocdefinition{Lam} \coqdocvariable{b}\coqdocnotation{)} \coqdocnotation{$\circ$} \coqdocvariable{σ} \coqdocnotation{with} \coqref{Groupoid.cwf equations.Prod sigma law}{\coqdocdefinition{$\mathsf{Prod_{\sigma law}}$}} \coqdocvar{\_} \coqdocvar{\_} \coqdocnotation{with} \coqref{Groupoid.cwf equations.Prod eq}{\coqdocdefinition{Prod\_eq}} (\coqref{Groupoid.cwf equations.LamT sigma law}{\coqdocdefinition{$\mathsf{\Lambda_{\sigma law}}$}} \coqdocvar{\_} \coqdocvar{\_}) \coqdocnotation{$\sim_1$}\coqdoceol
+\coqdocindent{1.00em}
+\coqdocdefinition{Lam} (\coqdocvariable{b} \coqdocnotation{$\circ$} \coqdocnotation{(}\coqref{Groupoid.cwf equations.Subm}{\coqdocdefinition{Subm}} \coqdocvariable{σ}\coqdocnotation{)}).\coqdoceol
+\coqdocnoindent
+\coqdockw{Defined}.\coqdoceol
+\coqdocemptyline
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.App sigma law}{App\_sigma\_law}{\coqdocdefinition{App\_sigma\_law}} \coqdocvar{Δ} \coqdocvar{Γ} (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{F}:\coqdocdefinition{TypFam} \coqdocvariable{A}) (σ:\coqdocnotation{[}\coqdocvariable{Δ} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Γ}\coqdocnotation{]})\coqdoceol
+\coqdocindent{5.50em}
+(\coqdocvar{c}:\coqdocdefinition{$\mathsf{Tm}$} (\coqdocdefinition{Prod} \coqdocvariable{F})) (\coqdocvar{a}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}):\coqdoceol
+\coqdocindent{1.00em}
+\coqdocnotation{[}\coqdocnotation{(}\coqdocvariable{c} \coqdocnotation{$\star$} \coqdocvariable{a}\coqdocnotation{)} \coqdocnotation{$\circ$} \coqdocvariable{σ}\coqdocnotation{]} \coqdocnotation{=} \coqdocnotation{[}\coqdocnotation{(}\coqdocvariable{c} \coqdocnotation{$\circ$} \coqdocvariable{σ} \coqdocnotation{with} \coqref{Groupoid.cwf equations.Prod sigma law}{\coqdocdefinition{$\mathsf{Prod_{\sigma law}}$}} \coqdocvar{\_} \coqdocvar{\_}\coqdocnotation{)} \coqdocnotation{$\star$} \coqdocnotation{(}\coqdocvariable{a} \coqdocnotation{$\circ$} \coqdocvariable{σ}\coqdocnotation{)}\coqdocnotation{]} :=\coqdoceol
+\coqdocindent{1.00em}
+\coqdocconstructor{eq\_refl} \coqdocnotation{[}\coqdocnotation{(}\coqdocnotation{(}\coqdocvariable{c} \coqdocnotation{$\circ$} \coqdocvariable{σ}\coqdocnotation{)} \coqdocnotation{with} \coqref{Groupoid.cwf equations.Prod sigma law}{\coqdocdefinition{$\mathsf{Prod_{\sigma law}}$}} \coqdocvar{\_} \coqdocvar{\_}\coqdocnotation{)} \coqdocnotation{$\star$} \coqdocnotation{(}\coqdocvariable{a} \coqdocnotation{$\circ$} \coqdocvariable{σ}\coqdocnotation{)}\coqdocnotation{]}.\coqdoceol
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+  \paragraph{\lrule{Conv}.}
+  $\beta$-reduction for abstraction is valid as a definitional equality,
+  where \coqdocdefinition{SubExtId} is a specialization of \coqdocvar{SubExt} with the identity substitution.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.Beta}{Beta}{\coqdocdefinition{Beta}} \{\coqdocvar{Γ}\} \{\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}\} \{\coqdocvar{F}:\coqdocdefinition{TypDep} \coqdocvariable{A}\} (\coqdocvar{b}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{F}) (\coqdocvar{a}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}) \coqdoceol
+\coqdocindent{1.00em}
+: \coqdocnotation{[}\coqdocdefinition{Lam} \coqdocvariable{b} \coqdocnotation{$\star$} \coqdocvariable{a}\coqdocnotation{]} \coqdocnotation{=} \coqdocnotation{[}\coqdocvariable{b} \coqdocnotation{$\circ$} \coqdocdefinition{SubExtId} \coqdocvariable{a}\coqdocnotation{]} := \coqdocconstructor{eq\_refl} \coqdocvar{\_}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+ \noindent 
+  The other beta rules and the equational theory of 
+  explicit substitutions can be validated in the same way, showing that
+  this forms a CwF.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.EtaT}{EtaT}{\coqdocdefinition{EtaT}} \coqdocvar{Γ} (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{F}:\coqdocdefinition{TypFam} \coqdocvariable{A})\coqdoceol
+\coqdocnoindent
+: \coqdocdefinition{$\Lambda$} (\coqdocnotation{(}\coqdocvariable{F} \coqdocnotation{$\circ$} \coqdocdefinition{Sub}\coqdocnotation{)} \coqdocnotation{\{\{}\coqdocdefinition{Var} \coqdocvariable{A}\coqdocnotation{\}\}}) \coqdocnotation{$\sim_1$} \coqdocvariable{F}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Defined}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.Eta}{Eta}{\coqdocdefinition{Eta}} \{\coqdocvar{Γ}\} \{\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}\} \{\coqdocvar{F}:\coqdocdefinition{TypFam} \coqdocvariable{A}\} (\coqdocvar{c}:\coqdocdefinition{$\mathsf{Tm}$} (\coqdocdefinition{Prod} \coqdocvariable{F}))\coqdoceol
+\coqdocnoindent
+: \coqdocdefinition{Lam} (\coqref{Groupoid.cwf equations.::'xE2x86x91' x}{\coqdocnotation{$\shortuparrow$}} \coqdocvariable{c} \coqdocnotation{$\star$} \coqdocdefinition{Var} \coqdocvar{\_}) \coqdocnotation{with} \coqref{Groupoid.cwf equations.Prod eq}{\coqdocdefinition{Prod\_eq}} (\coqref{Groupoid.cwf equations.EtaT}{\coqdocdefinition{EtaT}} \coqdocvariable{F}) \coqdocnotation{$\sim_1$} \coqdocvariable{c}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Defined}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+We can interpret the J eliminator of MLTT on \coqdocdefinition{Id} using functoriality of \coqdocvariable{P} and of product (\coqdocdefinition{$\mathsf{\Pi_{comp}}$}). In the definition of J, the predicate \coqdocvariable{P} depends on the proof of equality, which is interpreted using a \coqdocdefinition{Sigma} type. The functoriality of \coqdocvariable{P} is used on the term \coqdocdefinition{J\_Pair} \coqdocvariable{e} \coqdocvariable{P} \coqdocvariable{$\gamma$}, which is a proof that (\coqdocvariable{a};\coqdocdefinition{Refl} \coqdocvariable{a}) is equal to (\coqdocvariable{b};\coqdocvariable{e}). The notation $\shortuparrow$ \coqdocvariable{a} is used to convert the type of terms according to equality on \coqdocdefinition{$\Lambda$}. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.J}{J}{\coqdocdefinition{J}} \coqdocvar{Γ} (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{a} \coqdocvar{b}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}) (\coqdocvar{P}:\coqdocdefinition{TypFam} (\coqdocdefinition{Sigma} (\coqdocdefinition{$\Lambda$} (\coqdocdefinition{Id} (\coqdocvariable{a} \coqdocnotation{$\circ$} \coqdocdefinition{Sub}) (\coqdocdefinition{Var} \coqdocvariable{A})))))\coqdoceol
+\coqdocindent{7.50em}
+(\coqdocvar{e}:\coqdocdefinition{$\mathsf{Tm}$} (\coqdocdefinition{Id} \coqdocvariable{a} \coqdocvariable{b})) (\coqdocvar{p}:\coqdocdefinition{$\mathsf{Tm}$} (\coqdocvariable{P}\coqdocnotation{\{\{}\coqdocdefinition{Pair} \coqdocnotation{$\shortuparrow$} \coqdocnotation{(}\coqdocdefinition{Refl} \coqdocvariable{a}\coqdocnotation{)}\coqdocnotation{\}\}})) \coqdoceol
+\coqdocindent{1.00em}
+: \coqdocdefinition{$\mathsf{Tm}$} (\coqdocvariable{P}\coqdocnotation{\{\{}\coqdocdefinition{Pair} \coqdocnotation{$\shortuparrow$}\coqdocvariable{e}\coqdocnotation{\}\}}) := \coqdocdefinition{$\mathsf{\Pi_{comp}}$} \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{$\gamma$}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{(}}\coqdocabbreviation{map} (\coqdocvariable{P} \coqdocnotation{$\star$} \coqdocvariable{$\gamma$}) (\coqdocdefinition{J\_Pair} \coqdocvariable{e} \coqdocvariable{P} \coqdocvariable{$\gamma$})\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{)}}\coqdocnotation{;} \coqdocinstance{$\mathsf{J_{comp}}$} \coqdocvar{\_} \coqdocvar{\_}\coqdocnotation{)} \coqdocnotation{$\star$} \coqdocvariable{p}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}

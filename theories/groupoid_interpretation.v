@@ -290,6 +290,8 @@ Definition SubExt {Γ Δ : Context} {A : Typ Δ} (σ: [Γ -|-> Δ]) (a: Elt (A �
   : [Γ -|-> _Sum0 A ] := (λ γ, (σ @ γ; a @ γ) ; SubExt_1 _ _).
 
 (** %\noindent% where [SubExt_1] is a proof that it is functorial. 
+  A substitution [σ] can be applied to a type family [F] using the
+  composition of a functor with a dependent functor. 
 *)
 (* begin hide *)
 
@@ -357,9 +359,8 @@ Definition substF {T Γ} {A:Typ Γ} (F:TypFam A) (σ:[T -|-> Γ]) : TypFam (A �
 Notation  "F '°°°' σ " := (substF F σ) (at level 50).
 
 (* end hide *)
-(** A substitution [σ] can be applied to a type family [F] using the
-  composition of a functor with a dependent functor. We
-  abusively note all those different compositions with [°] as it is done in
+(**
+  We abusively note all those different compositions with [°] as it is done in
   mathematics, whereas they are distinct operators in the %\Coq%
   development.
   The weakening substitution of $\Gamma, x:A \vdash$ is given by the first
@@ -749,22 +750,6 @@ Definition Proj2 {Γ} {A:Typ Γ} {B:TypFam A} (t: Elt (Sigma B))
   : Elt (B {{Proj1 t}}) := (λ γ, Π2 (t @ γ); Proj2_1 t).
 (* end hide *)
 
-(**
-  %\paragraph{\lrule{Conv}.}%
-  %$\beta$%-reduction for abstraction is valid as a definitional equality,
-  where [SubExtId] is a specialization of [SubExt] with the identity substitution.
-*)
-
-Definition Beta {Γ} {A:Typ Γ} {F:TypDep A} (b:Elt F) (a:Elt A) 
-  : [Lam b @@ a] = [b °° SubExtId a] := eq_refl _.
-
-(**
- %\noindent% 
-  The other beta rules and the equational theory of 
-  explicit substitutions can be validated in the same way, showing that
-  this forms a CwF.
-*)
-
 (* begin hide *)
 
 Instance groupoid_eq1 (T:[_Type]) (a b : [T]): Groupoid (a ~1 b) :=
@@ -908,9 +893,6 @@ Defined.
 
 (* end hide *)
 
-(** We can interpret the J eliminator of MLTT on [Id] using functoriality of [P] and of product ([prod_comp]). In the definition of J, the predicate [P] depends on the proof of equality, which is interpreted using a [Sigma] type. The functoriality of [P] is used on the term [J_Pair e P γ], which is a proof that [(a;Refl a)] is equal to [(b;e)]. The notation [⇑⇑ a] is used to convert the type of terms according to equality on [LamT]. *)
-
-Definition J Γ (A:Typ Γ) (a b:Elt A) (P:TypFam (Sigma (LamT (Id (a °°°° Sub) (Var A)))))
-               (e:Elt (Id a b)) (p:Elt (P{{Pair ⇑⇑ (Refl a)}})) 
-  : Elt (P{{Pair ⇑⇑e}}) := prod_comp (λ γ, (map (P @ γ) (J_Pair e P γ)); J_1 _ _) @ p. 
-
+(**
+We defer the proof the definition of the [J] eliminator and functional extensionality to the next section as it involves explicit rewriting in their definitions.  
+*)
