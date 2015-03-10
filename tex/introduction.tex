@@ -7,9 +7,8 @@ notion of propositional equality. This makes the theory both
 inflexible with respect to the notion of equality one might want to
 use on a given type and also departs from the traditional equality
 notion from set theory. Functional extensionality (pointwise equal
-functions are equal), propositional extensionality (logically
-equivalent propositions are equal) and proof irrelevance (all proofs
-of the same proposition are equal) are principles that are valid
+functions are equal) and propositional extensionality (logically
+equivalent propositions are equal) are principles that are valid
 extensions of type theory and can be internalized in an intensional
 theory, in the manner of Altenkirch et
 al.~\cite{altenkirch-mcbride-wierstra:ott-now}.  Another
@@ -18,13 +17,14 @@ whose first instance is the idea that isomorphic types are
 equal~\cite{Voevodsky:2011yq,Pelayo:2012uq}. All these principles
 should be imposeable on a type theory like MLTT because, intuitively,
 no term can distinguish between isomorphic types, pointwise equal
-functions, logically equivalent propositions or two proofs of the same
-proposition. This hints at the idea that there ought to exist an
-internal model of type theory where equality is defined on a type by
-type basis using the aforementioned principles and a translation that
-witnesses that any term of the theory is equipped with proofs that
-they respect these properties. Formalizing a simple version of this
-definitional translation is the goal of this paper.
+functions or logically equivalent propositions.
+%
+This hints at the idea that there ought to exist an internal model of
+type theory where equality is defined on a type by type basis using
+the aforementioned principles and a translation that witnesses that
+any term of the theory is equipped with proofs that they respect these
+properties. Formalizing a simple version of this definitional
+translation is the goal of this paper.
 
 % However, before even starting to think about formalizing the
 % translation, we need to enhance the universe system of \Coq to handle
@@ -57,10 +57,11 @@ n-groupoids) or infinite (weak ω-groupoids)
 %
 Our work here concentrates on the internalization in \Coq of the setoid
 model of type theory, seen as degenerate groupoids, where we can have a
-self-contained definition of the structures involved. Our long term goal
-is to formalize Hofmann and Streicher's groupoid model, which
-generalizes the construction from setoids to groupoids, but interresting
-difficulties already arise in this simpler setting.
+self-contained definition of the structures involved. 
+% Our long term goal
+% is to formalize Hofmann and Streicher's groupoid model, which
+% generalizes the construction from setoids to groupoids, but interresting
+% difficulties already arise in this simpler setting.
 %
 Our first motivation to implement this translation is to explore the
 interpretation of type theory in setoids in a completely intensional
@@ -128,16 +129,16 @@ Note that our presentation requires less properties on identity types,
 but we still need the axiom of functional extensionality to prove
 triviality of higher dimensions for the groupoid of functors.
 %
-Also, this indicates that if we scale to ω-groupoids, the presence of
-identity types in the core type theory will
-not be necessary anymore and so the core type theory will be axiom free.
+But this indicates that if we scale to ω-groupoids, the presence of
+identity types in the core type theory will not be necessary anymore
+and so the core type theory will be axiom free.
 %
 Thus, this paper can be seen as a proof of concept that it is possible
 to interpret homotopy type theory into type theory without identity
 types.
 
 
-\paragraph{\bf Taking size and dimension issues into account.}
+\paragraph{\bf Taking dimension issues into account.}
 %
 
 In Hofmann and Streicher's groupoid model, a type $A$ depending on
@@ -148,43 +149,48 @@ $$
 %
 where $\GPD$ is said to be \emph{``the (large) category of groupoids''}. 
 %
-But groupoids form naturally a 2-category/2-groupoid and not a
-category/groupoid, because functors/isomorphisms between (large)
-groupoids do not form a set but an arbitrary collection (a type in type
-theory). Otherwise said, groupoids are not enriched over themselves.
+This means that they consider small groupoids, 
+i.e., groupoids for which the type of objects is also a set, and
+rely on set-theoretic extensional equality to witness natural
+isomorphisms between groupoid isomorphisms. This is fine as long as we
+consider set theory.
 %
-Hofmann and Streicher have solved this issue as we usually do in
-category theory, by considering small groupoids, that is groupoids for
-which the type of objects is also a set, and relying on set-theoretic
-extensional equality to witness natural isomorphisms between groupoid 
-isomorphisms. This is fine as long as we consider set theory.
+% But groupoids form naturally a 2-category/2-groupoid and not a
+% category/groupoid, because functors/isomorphisms between (large)
+% groupoids do not form a set but an arbitrary collection (a type in type
+% theory). Otherwise said, groupoids are not enriched over themselves.
+%
+% Hofmann and Streicher have solved this issue as we usually do in
+% category theory, by considering small groupoids, that is groupoids for
+% which the type of objects is also a set, and relying on set-theoretic
+% extensional equality to witness natural isomorphisms between groupoid 
+% isomorphisms. This is fine as long as we consider set theory.
 %
 But when moving to type theory, small groupoids that form a
-category/groupoid actually correspond to setoids. Indeed, to impose the
+category actually correspond to setoids. Indeed, to impose the
 smallness condition internally, we have to impose either that (i)
 the identity type on the type of objects is an h-prop, or that (ii) $x
 \sim_1 y$ is an h-prop for all objects $x$ and $y$. But
-condition (i) does not give rise to a category: it is not possible to prove that
-functors form an h-set because we have an hypothesis on the identity type
-where we need an hypothesis on $\sim_1$. 
+condition (i) gives rise to a category only in presence of functional
+extensionality, which we precisely want to interpret.
 %
-This means that only condition (ii) is valid, so that the
-correct notion of small groupoids in type theory is the notion of
-setoids.
+This means that only condition (ii) provides the only correct notion
+of small groupoids in type theory without using functional
+extensionality, which precisely the notion of setoids.
 %
-Note that this is also true for the notion of univalent groupoids
-introduced above as in that case, $\sim_1$ coincides with the identity type.
+% Note that this is also true for the notion of univalent groupoids
+% introduced above as in that case, $\sim_1$ coincides with the identity type.
 %
-In other words, using an internalization of groupoids, one can only
-interpret types as functors into the groupoid of setoids. This is what we do
-in this paper, which prevents us from giving a complete formulation of
-univalence in the source theory. That is, the invariance by
-isomorphism principle is respected in the model but has no counterpart
-in the source theory. 
+% In other words, using an internalization of groupoids, one can only
+% interpret types as functors into the groupoid of setoids. This is what we do
+% in this paper, which prevents us from giving a complete formulation of
+% univalence in the source theory. That is, the invariance by
+% isomorphism principle is respected in the model but has no counterpart
+% in the source theory. 
 
 Another way to solve this size issue would be to formalize the notion of
 2-groupoids instead but we do not think that the interpretation would
-have gained much. We believe that the real challenge is to interpret
+have gained much interest. We believe that the real challenge is to interpret
 $\omega$-groupoids which is the proper notion of self-enriched 
 groupoid-like structure and is the subject of on-going work.
 
@@ -227,7 +233,10 @@ formalization of groupoids and associated structures
 (\S\ref{sec:w2gpds}-\ref{sec:rew}) and a construction of the groupoids
 interpreting the standard type constructors
 (\S\ref{sec:depprod}-\ref{sec:sigma}). Section
-\ref{sec:interpretation} presents the internalization of the model proper.
+\ref{sec:interpretation} presents the internalization of the model
+proper, and Section~\ref{section:cwf} shows that it constitutes an
+internal category with families. 
+% 
  Section \ref{sec:conclusion} concludes on related and future work.
 %
 

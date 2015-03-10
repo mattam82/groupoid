@@ -164,7 +164,6 @@ Require Import sum_id.
 Require Import prod_eq.
 Require Import sum_eq.
 Require Import groupoid_interpretation.
-Require Import cwf_equations.
 
 Set Implicit Arguments.
 Set Universe Polymorphism.
@@ -181,6 +180,26 @@ Set Universe Polymorphism.
 
 (* begin hide *)
 
+
+Definition useless_coercion A B (f : [A-->B]) (g : [B --> Type0]) :
+  Prod_Type (fun x => [[[g]]] @ (f @ x) ; arrow_comp _ _ _ f ([[[g]]])) ->
+  Prod_Type ([[[(fun x => g @ (f @ x) ; arrow_comp _ _ _ f g)]]]) := @id _.
+
+Definition _Prod_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) (A:Typ Γ) (F:TypFam A) :
+  @NaturalTransformation Δ _ (Prod F ⋅⋅ σ) (Prod (F °°° σ))
+                         (λ t : [Δ], identity ((Prod F ⋅⋅ σ) @ t)).
+  intros t t' e. refine (Build_sigma _ _ _).
+  simpl_id_bi. refine (Build_sigma _ _ _). intro X. exact (identity _).
+  intros X X' E. trunc1_eq.
+  apply equiv_eq_nat_trans.
+Defined.
+                      
+Definition Prod_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) (A:Typ Γ) (F:TypFam A):
+  Prod F ⋅⋅ σ ~1 Prod (F °°° σ) := (λ t, identity _; _Prod_sigma_law σ F).
+
+Notation "↑ t" := (useless_coercion (t °° Sub) with Prod_sigma_law _ _)
+                    (at level 9, t at level 9).
+
 Definition FunExt_1 (Γ: Context) (A : Typ Γ)
            (F : TypDep A) (M N : Elt (Prod (LamT F)))
            (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))):
@@ -190,10 +209,8 @@ Definition FunExt_1 (Γ: Context) (A : Typ Γ)
 
 (*end hide*)
 
-Definition FunExt (Γ: Context) (A : Typ Γ)
-           (F : TypDep A) (M N : Elt (Prod (LamT F)))
-           (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A)))))
-: Elt (Id M N).
+Definition FunExt (Γ: Context) (A : Typ Γ) (F : TypDep A) (M N : Elt (Prod (LamT F)))
+  (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))): Elt (Id M N).
 (*begin hide*)
   exists (FunExt_1 α).
   refine (Build_DependentFunctor _ _ _ _ _ _).

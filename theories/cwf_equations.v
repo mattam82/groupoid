@@ -122,7 +122,7 @@
 (** printing SubstT_sigma_law $\mathsf{Subst_{\sigma law}}$*)
 (** printing TypFam_1 $\mathsf{TypFam_{comp}}$*)
 (** printing Sub_1 $\mathsf{Sub_{comp}}$*)
-(** printing SubExt_1 $\mathsf{SubExt_{comp}}$*)
+(** printing SubSigma_1 $\mathsf{SubSigma_{comp}}$*)
 (** printing substF_1 $\mathsf{substF_{comp}}$*)
 (** printing Var_1 $\mathsf{Var_{comp}}$*)
 (** printing Prod_1 $\mathsf{Prod_{comp}}$*)
@@ -153,6 +153,8 @@
 (** printing UType $\Univ$*)
 (** printing Elt $\mathsf{Tm}$*)
 (** printing FunExt_comp $\mathsf{FunExt}_\mathsf{comp}$*)
+(** printing SubSigma $\mathsf{Sub_\Sigma}$*)
+
 
 (* begin hide *)
 
@@ -161,7 +163,7 @@ Require Import Coq.Program.Tactics.
 Add LoadPath "." as Groupoid.
 Require Import HoTT_light groupoid fun_eq.
 Require Import groupoid_interpretation_def Equiv_adjoint fun_depfun.
-Require Import sum_id prod_eq sum_eq groupoid_interpretation.
+Require Import sum_id prod_eq sum_eq groupoid_interpretation fun_ext.
 
 Set Implicit Arguments.
 Set Universe Polymorphism.
@@ -169,12 +171,11 @@ Set Universe Polymorphism.
 (* end hide *)
 
 (** * Connection to internal categories with families 
+   %\label{section:cwf}%
 
   We now turn to show that have actually a model in the sense of internal categories with families%~\cite{dybjer:internaltt}%. More precisely, our work can be seen as a formalization of setoid-indexed families of setoids. 
 
-  First, given an equality [e : T ~1 U] between two types in [Typ A], there is a function 
-  from [t : Elt T] to [t with e : Elt U] that comes from the
-  functoriality of [_Prod]. This corresponds to the %\emph{reindexing
+   This corresponds to the %\emph{reindexing
   map}% of families of setoids.
 *)
 
@@ -216,13 +217,7 @@ Definition Prod_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) (A:Typ Γ) (F:TypFam A):
 (* begin hide *)
 
 
-Definition useless_coercion A B (f : [A-->B]) (g : [B --> Type0]) :
-  Prod_Type (fun x => [[[g]]] @ (f @ x) ; arrow_comp _ _ _ f ([[[g]]])) ->
-  Prod_Type ([[[(fun x => g @ (f @ x) ; arrow_comp _ _ _ f g)]]]) := @id _.
-
-Notation "↑ t" := (useless_coercion (t °° Sub) with Prod_sigma_law _ _) (at level 9, t at level 9).
-
-Program Instance Subm_1 {Δ Γ: Context} (σ:[Δ -|-> Γ]) (T : Typ Γ)
+Program Instance SubSigma_1 {Δ Γ: Context} (σ:[Δ -|-> Γ]) (T : Typ Γ)
          : Functor (T:=[[_Sum0 (T ⋅⋅ σ)]]) (U := [[_Sum0 T]]) (λ γt , (σ @ [γt]; γt.2)).
 Next Obligation. exact (map σ [X]; X.2). Defined.
 Next Obligation. refine (Build_sigma _ _ _). apply (map_id σ).
@@ -232,8 +227,8 @@ Next Obligation. refine (Build_sigma _ _ _). apply (map_comp σ).
 Next Obligation. refine (Build_sigma _ _ _). apply (map2 σ [X]).
                  trunc1_eq. Defined.
 
-Definition Subm {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} :
-  [_Sum0 (T ⋅⋅ σ) -|-> _Sum0 T] :=  (_;  Subm_1 _ _).
+Definition SubSigma {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} :
+  [_Sum0 (T ⋅⋅ σ) -|-> _Sum0 T] :=  (_;  SubSigma_1 _ _).
 
 
 (* end hide *)
@@ -241,17 +236,18 @@ Definition Subm {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} :
 (** For the other of the substitution laws, we omit their definitions
   as they follow the very same pattern; the use of the identity plus a
   proof of compatibility of the coherences.
- 
   To express the substitution law of dependent functions, we first need
-  to exhibit the law for type-level abstraction [LamT].
+  to exhibit the law for type-level abstraction [LamT] (where [SubSigma
+  σ] extends the substitution [σ] with a new (untouched) variable in
+  the context. 
 *)
 
 Program Definition LamT_sigma_law Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]):
-  LamT B °°° σ ~1 LamT (B ⋅⋅ Subm σ).
+  LamT B °°° σ ~1 LamT (B ⋅⋅ SubSigma σ).
 refine (Build_sigma _ _ _). intro t. simpl.
 refine (Build_sigma _ _ _). intro X. apply identity.
 intros x y z. simpl_id_bi. apply equiv_eq_nat_trans. simpl. 
-unfold Subm_1_obligation_1. apply (map2 B).
+unfold SubSigma_1_obligation_1. apply (map2 B).
 refine (Build_sigma _ _ _). simpl. apply (map_id σ).
 simpl. trunc1_eq.
 intros t t' e. simpl. intro H. simpl. apply equiv_eq_nat_trans. simpl.
@@ -273,6 +269,9 @@ Definition Prod_eq {Γ} (A:Typ Γ) (F F':TypFam A) : F ~1 F' -> Prod F ~1 Prod F
   apply equiv_eq_nat_trans. 
 Defined.
 
+Notation "↑ t" := (useless_coercion (t °° Sub) with Prod_sigma_law _ _)
+                    (at level 9, t at level 9).
+
 (* end hide *)
 
 (**
@@ -281,15 +280,21 @@ Defined.
  *)
 
 Definition Lam_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) {A:Typ Γ} {B:TypDep A} (b:Elt B) :
-  (Lam b) °°°° σ with Prod_sigma_law _ _ with Prod_eq (LamT_sigma_law _ _) ~1
-  Lam (b °°°° (Subm σ)).
+  (Lam b) °°°° σ with Prod_sigma_law _ _ with Prod_eq (LamT_sigma_law _ _) ~1 Lam (b °°°° (SubSigma σ)).
+  red. red.
+  match goal with | [ |- sigma (λ α : ?H, _)]
+                  => assert H end.
+  (* refine (Build_sigma _ _ _). *)
+  intro γ. 
+  (* match goal with | [ |- sigma (λ α : ?H', _)] *)
+                  (* => assert H' end. *)
   refine (Build_sigma _ _ _).
-  intro γ. refine (Build_sigma _ _ _). intro a. exact (identity _).
+  intro a. exact (identity _).
   intros  t t' e. trunc1_eq.
-  intros t t' e. intro X. simpl. trunc1_eq.
+  exists X. intros t t' e H. trunc1_eq.
+(* begin hide *)
 Defined.
 
-(* begin hide *)
 
 Definition SubstT_sigma_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:Elt (Prod F)) (a:Elt A):
  (F {{a}}) ⋅⋅ σ ~1 (F °°° σ) {{a °°°° σ}}.
@@ -297,21 +302,27 @@ Definition SubstT_sigma_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:E
   intro t. exact (identity _).
   intros t t' e. simpl_id_bi.
 Defined.
-
 (* end hide *)
+
+(** In the same way, to state the law for function application, we need
+   a law [SubstT_sigma_law] for application at the level of type families. 
+*)
 
 Definition App_sigma_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ])
            (c:Elt (Prod F)) (a:Elt A):
-  [(c @@ a) °°°° σ] = [(c °°°° σ with Prod_sigma_law _ _) @@ (a °°°° σ)] :=
-  eq_refl [((c °°°° σ) with Prod_sigma_law _ _) @@ (a °°°° σ)].
-
-(* it is also possible to define a more complex version *)
-(* c @@ a °°°° σ with SubstT_sigma_law _ c _ ~1 
-   (c °°°° σ with Prod_sigma_law _ _) @@ (a °°°° σ). *)
+  c @@ a °°°° σ with SubstT_sigma_law _ c _ ~1 
+   (c °°°° σ with Prod_sigma_law _ _) @@ (a °°°° σ).
+  refine (Build_sigma _ _ _). 
+  intro t. simpl. exact (identity _). 
+  intros t t' e. trunc1_eq. 
+(* begin hide *)
+Defined.
+(* end hide *)
 
 (**
   %\paragraph{\lrule{Conv}.}%
-  %$\beta$%-reduction for abstraction is valid as a definitional equality,
+  %$\beta$%-reduction for abstraction is valid as a definitional 
+  equality (which is made explicit by the use of [eq_refl]),
   where [SubExtId] is a specialization of [SubExt] with the identity substitution.
 *)
 
@@ -320,9 +331,9 @@ Definition Beta {Γ} {A:Typ Γ} {F:TypDep A} (b:Elt F) (a:Elt A)
 
 (**
  %\noindent% 
-  The other beta rules and the equational theory of 
-  explicit substitutions can be validated in the same way, showing that
-  this forms a CwF.
+  %$\eta$%-reduction does not hold definitionally, and we need 
+  %$\eta$%-reduction at the level of type abstraction (rule [EtaT]) 
+  to state it.  
 *)
 
 (* begin hide *)
@@ -338,10 +349,8 @@ refine ([map2 (F @ γ) _] @ X). trunc1_eq.
 intros a a' X. simpl. trunc1_eq.
 Defined.
 
-(* end hide *)
 
-Definition EtaT Γ (A:Typ Γ) (F:TypFam A)
-: LamT ((F °°° Sub) {{Var A}}) ~1 F.
+Definition EtaT Γ (A:Typ Γ) (F:TypFam A): LamT ((F °°° Sub) {{Var A}}) ~1 F.
   exists (_EtaT _).
   intros t t' e X. simpl. unfold id, groupoid_interpretation.substF_1_obligation_1.
   simpl. apply equiv_eq_nat_trans. simpl.
@@ -354,20 +363,17 @@ Definition EtaT Γ (A:Typ Γ) (F:TypFam A)
   refine ([X0] @ f). 
   intros a a' H. trunc1_eq.
 Defined.
+(* end hide *)
 
-Definition Eta {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F))
-: Lam (↑ c @@ Var _) with Prod_eq (EtaT F) ~1 c.
+Definition Eta {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)):
+  Lam (↑ c @@ Var _) with Prod_eq (EtaT F) ~1 c.
   refine (Build_sigma _ _ _).
   intro γ. refine (Build_sigma _ _ _). intro a. exact (identity _).
   intros  t t' e. trunc1_eq.
   intros t t' e. intro X. simpl. trunc1_eq.
+  (* begin hide *)
 Defined.
+(* end hide *)
 
 
-
-(** We can interpret the J eliminator of MLTT on [Id] using functoriality of [P] and of product ([prod_comp]). In the definition of J, the predicate [P] depends on the proof of equality, which is interpreted using a [Sigma] type. The functoriality of [P] is used on the term [J_Pair e P γ], which is a proof that [(a;Refl a)] is equal to [(b;e)]. The notation [⇑⇑ a] is used to convert the type of terms according to equality on [LamT]. *)
-
-Definition J Γ (A:Typ Γ) (a b:Elt A) (P:TypFam (Sigma (LamT (Id (a °°°° Sub) (Var A)))))
-               (e:Elt (Id a b)) (p:Elt (P{{Pair ⇑⇑ (Refl a)}})) 
-  : Elt (P{{Pair ⇑⇑e}}) := prod_comp (λ γ, (map (P @ γ) (J_Pair e P γ)); J_1 _ _) @ p. 
 

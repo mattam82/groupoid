@@ -832,14 +832,14 @@ Definition Refl Γ (A: Typ Γ) (a : Elt A)
 
 Definition depEq Γ (A:Typ Γ) (a :Elt A) : Typ Γ := Sigma (LamT (Id (a °°°° Sub) (Var A))).
 
-Definition BetaT2 Γ (A:Typ Γ) (a b:Elt A) : LamT (Id (a °°°° Sub) (Var A)) {{b}} ~1 Id a b.
+Definition BetaT2 Γ (A:Typ Γ) (a b:Elt A) : Id a b ~1 LamT (Id (a °°°° Sub) (Var A)) {{b}}.
 simpl. red. simpl. exists (fun _ => identity _).
 intros t t' e.
 simpl_id_bi. apply equiv_eq_nat_trans. simpl. red. simpl.
 refine (Build_sigma _ _ _).
 intro. 
 apply comp. apply identity. 
-eapply composition. eapply inverse. 
+apply inverse. eapply composition. eapply inverse. 
 apply (comp_inv _ _ _ _ ((retraction (map A e ^-1) @ (b @ t')) ^-1)).
 apply inverse. eapply composition. eapply inverse. 
 apply (comp_inv _ _ _ _ ((retraction (map A e ^-1) @ (b @ t')) ^-1)).
@@ -852,47 +852,59 @@ Definition prod_comp Γ (A: Typ Γ) (a b : Elt A) (P : TypFam A) (e:P{{a}} ~1 P{
 
 Notation "e 'with' t" := (prod_eq t @ e) (at level 50).
 
-Notation "⇑⇑ A" := (A with (inverse (BetaT2 _ _))) (at level 9).
-
 Definition J_Pair Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam (depEq a))  
            (γ : [Γ]) : 
-  Pair (prod_eq (BetaT2 a a) ^-1 @ Refl a) @ γ ~1
-  Pair (e with (inverse (BetaT2 _ _)))@ γ.
+  Pair (prod_eq (BetaT2 a a) @ Refl a) @ γ ~1
+  Pair (e with (BetaT2 _ _))@ γ.
   exists (e @ γ). simpl. trunc1_eq.
 Defined.
 
 Instance J_1 Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam (depEq a)) :
-  NaturalTransformation (f:=P {{Pair (Refl a with (inverse (BetaT2 _ _)))}}) 
-                        (g:=P {{Pair (e with (inverse (BetaT2 _ _)))}}) 
+  NaturalTransformation (f:=P {{Pair (Refl a with ((BetaT2 _ _)))}}) 
+                        (g:=P {{Pair (e with ((BetaT2 _ _)))}}) 
                         (λ γ : [Γ], map (P @ γ) (J_Pair e P γ)).
 red. intros.
-pose (Dmap P e0). pose (P @ t').  apply equiv_eq_nat_trans.
+pose (Dmap P e0). pose (P @ t'). apply equiv_eq_nat_trans.
 eapply composition. eapply inverse.
 pose ([α_map (Dmap P e0) (J_Pair e P t')]).
 pose ((identity [map (P @ t)
            (equiv_adjoint
               (Pair
                  (λ a0 : [Γ], id (identity (a @ a0));
-                 prod_eq1 (groupoid.nat_inv_obligation_1 (BetaT2 a a))
+                 prod_eq1 ((BetaT2 a a))
                    (Refl a))) e0)])). 
 simpl in n , n0. exact (n0 ** n). red. simpl.
-
-pose (f := Dmap P e0 @ (b @ t'; id (e @ t'))). 
-pose (@_map _ _ _ [Dmap P e0 @ (b @ t';  (e @ t'))].2).
 match goal with | [ |- sigma (λ α : ?H, _)]
                   => assert H end.
-intro. apply e2.
+(* refine (Build_sigma _ _ _).  *)
+intro. apply (map [Dmap P e0 @ (b @ t';  (e @ t'))]).
 eapply composition. eapply inverse. apply (map_comp (P @ t)). 
 apply inverse. eapply composition. eapply inverse. apply (map_comp (P @ t)). 
-apply (map2 (P @ t)). simpl. red. 
+apply (map2 (P @ t)). simpl. red.  
 match goal with | [ |- sigma (λ α : ?H, _)]
                   => assert H end.
-simpl. trunc1_eq. exists H.  exact tt.
-exists X. red. intros. simpl. trunc1_eq.
+(* refine (Build_sigma _ _ _). *)
+trunc1_eq. exists H. exact tt.
+exists X. intros x y X'. trunc1_eq.
 Defined.
 
 (* end hide *)
 
-(**
-We defer the proof the definition of the [J] eliminator and functional extensionality to the next section as it involves explicit rewriting in their definitions.  
-*)
+(** We can interpret the [J] eliminator of MLTT on [Id] using
+  functoriality of [P] and of product ([prod_comp]). In the definition
+  of [J], the predicate [P] depends on the proof of equality, which is
+  interpreted using a [Sigma] type. The functoriality of [P] is used on
+  the term [J_Pair e P γ], which is a proof that [(a;Refl a)] is equal
+  to [(b;e)]. To state the rule, we need to do a rewriting at 
+  the level of term, i.e., given an equality [e : T ~1 U] between two 
+  types in [Typ A], we use the map from [t : Elt T] to 
+  [t with e : Elt U] that comes from the
+  functoriality of [_Prod]:*)
+
+Definition J Γ (A:Typ Γ) (a b:Elt A) (P:TypFam (Sigma (LamT (Id (a °°°° Sub) (Var A)))))
+               (e:Elt (Id a b)) (p:Elt (P{{Pair (Refl a with BetaT2 _ _)}})):
+  Elt (P{{Pair (e with BetaT2 _ _)}}) :=
+  prod_comp (λ γ, (map (P @ γ) (J_Pair e P γ)); J_1 _ _) @ p. 
+
+(** where [BetaT2] is another dedicated version of the %$\beta$%-rule for [LamT]. *)
+
