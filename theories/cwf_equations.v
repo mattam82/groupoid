@@ -173,10 +173,10 @@ Set Universe Polymorphism.
 (** * Connection to internal categories with families 
    %\label{section:cwf}%
 
-  We now turn to show that have actually a model in the sense of
+  We now turn to show that we have actually a model in the sense of
   internal categories with families%~\cite{dybjer:internaltt}%. More
   precisely, our work can be seen as a formalization of setoid-indexed
-  families of setoids, where the notion of rewriting with the
+  families of setoids, where the notion of rewriting using
   notation [t with e] corresponds to the %\emph{reindexing
   map}% of families of setoids.
 *)
@@ -203,18 +203,18 @@ Defined.
   In internal CwFs, substitution laws holds, but not
   definitionally. This means that substitution laws for terms needs
   explicit rewriting using reindexing maps in their statement. 
-  The situation is similar in our setting, but the fact that a law
-  that does not definitionally can only hold with respect to the
+  The situation is similar in our setting: a law
+  that does not hold definitionally can only hold with respect to the
   notion of equality of the setoid/groupoid. Note that every
-  substitution laws holds using the identity on the computation side, 
+  substitution law holds using the identity on the computation side, 
   but the laws do not hold definitionally because the coherences are
   different.
 
   We only present the substitution laws for dependent products. First,
-  the rule at the level of type.  
+  the rule at the level of types.
  *)
 
-Definition Prod_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) (A:Typ Γ) (F:TypFam A):
+Definition Prod_sigma_law {Δ Γ} {σ : [Δ -|-> Γ]} {A : Typ Γ} {F : TypFam A}:
   Prod F ⋅⋅ σ ~1 Prod (F °°° σ) := (λ t, identity _; _Prod_sigma_law σ F).
 (* begin hide *)
 
@@ -235,16 +235,14 @@ Definition SubSigma {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} :
 
 (* end hide *)
 
-(** For the other of the substitution laws, we omit their definitions
-  as they follow the very same pattern; the use of the identity plus a
-  proof of compatibility of the coherences.
-  To express the substitution law of dependent functions, we first need
-  to exhibit the law for type-level abstraction [LamT]---where [SubSigma
-  σ] extends the substitution [σ] with a new (untouched) variable in
-  the context. 
-*)
+(** For the other substitution laws, we omit their definitions as they
+  follow the very same pattern; the witness is always the identity plus
+  a proof of compatibility of the coherences.  To express the
+  substitution law of dependent functions, we first need to exhibit the
+  law for type-level abstraction [LamT]---where [SubSigma σ] extends the
+  substitution [σ] with a new (untouched) variable in the context.  *)
 
-Definition LamT_sigma_law Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]):
+Definition LamT_sigma_law {Δ Γ} {A : Typ Γ} {B : TypDep A} {σ : [Δ -|-> Γ]}:
   LamT B °°° σ ~1 LamT (B ⋅⋅ SubSigma σ).
 refine (Build_sigma _ _ _). intro t. simpl.
 refine (Build_sigma _ _ _). intro X. apply identity.
@@ -271,18 +269,18 @@ Definition Prod_eq {Γ} (A:Typ Γ) (F F':TypFam A) : F ~1 F' -> Prod F ~1 Prod F
   apply equiv_eq_nat_trans. 
 Defined.
 
-Notation "↑ t" := (useless_coercion (t °° Sub) with Prod_sigma_law _ _)
+Notation "↑ t" := (useless_coercion (t °° Sub) with Prod_sigma_law)
                     (at level 9, t at level 9).
 
 (* end hide *)
 
 (**
-  Then the law for term-level abstraction can be stated, using rewriting 
+  Finally, the law for term-level abstraction can be stated, using rewriting 
   provided by the [t with e] notation.
  *)
 
 Definition Lam_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) {A:Typ Γ} {B:TypDep A} (b:Elt B):
-  (Lam b) °°°° σ with Prod_sigma_law _ _ with Prod_eq (LamT_sigma_law _ _) ~1 Lam (b °°°° (SubSigma σ)).
+  (Lam b) °°°° σ with Prod_sigma_law with Prod_eq LamT_sigma_law ~1 Lam (b °°°° (SubSigma σ)).
   red. red.
   match goal with | [ |- sigma (λ α : ?H, _)]
                   => assert H end.
@@ -298,8 +296,8 @@ Definition Lam_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) {A:Typ Γ} {B:TypDep A} (b:El
 Defined.
 
 
-Definition SubstT_sigma_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:Elt (Prod F)) (a:Elt A):
- (F {{a}}) ⋅⋅ σ ~1 (F °°° σ) {{a °°°° σ}}.
+Definition SubstT_sigma_law {Δ Γ} {A:Typ Γ} {F:TypFam A} {σ:[Δ -|-> Γ]} {a:Elt A}:
+ (F {{a}}) ⋅⋅ σ ~1 (F °°° σ) {{a °°°° σ}}. 
   refine (Build_sigma _ _ _). 
   intro t. exact (identity _).
   intros t t' e. simpl_id_bi.
@@ -312,30 +310,28 @@ Defined.
 
 Definition App_sigma_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ])
            (c:Elt (Prod F)) (a:Elt A):
-  c @@ a °°°° σ with SubstT_sigma_law _ c _ ~1 
-   (c °°°° σ with Prod_sigma_law _ _) @@ (a °°°° σ).
+  c @@ a °°°° σ with SubstT_sigma_law ~1 (c °°°° σ with Prod_sigma_law) @@ (a °°°° σ).
   refine (Build_sigma _ _ _). 
   intro t. simpl. exact (identity _). 
   intros t t' e. trunc1_eq. 
 (* begin hide *)
 Defined.
+Definition foo := @SubExt. (* for documentation interpolation... *)
 (* end hide *)
 
-(**
-  %\paragraph{\lrule{Conv}.}%
-  %$\beta$%-reduction for abstraction is valid as a definitional 
-  equality (which is made explicit by the use of [eq_refl]),
-  where [SubExtId] is a specialization of [SubExt] with the identity substitution.
-*)
+(** %\paragraph{\lrule{Conv}.}% The %$\beta$% conversion rule for term-level
+  abstractions is valid as a definitional equality (which is made explicit
+  by the use of [eq_refl]), where [SubExtId] is a specialization of
+  [SubExt] with the identity substitution.  *)
 
 Definition Beta {Γ} {A:Typ Γ} {F:TypDep A} (b:Elt F) (a:Elt A) 
   : [Lam b @@ a] = [b °° SubExtId a] := eq_refl _.
 
 (**
  %\noindent% 
-  %$\eta$%-reduction does not hold definitionally, and we need 
-  %$\eta$%-reduction at the level of type abstraction (rule [EtaT]) 
-  to state it.  
+  However, %$\eta$% conversion does not hold definitionally, and we need 
+  %$\eta$%-conversion at the level of type abstractions (rule [EtaT]) 
+  to state it.
 *)
 
 (* begin hide *)
@@ -368,7 +364,7 @@ Defined.
 (* end hide *)
 
 Definition Eta {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)):
-  Lam (↑ c @@ Var _) with Prod_eq (EtaT F) ~1 c.
+  Lam (↑ c @@ Var A) with Prod_eq (EtaT F) ~1 c.
   refine (Build_sigma _ _ _).
   intro γ. refine (Build_sigma _ _ _). intro a. exact (identity _).
   intros  t t' e. trunc1_eq.
@@ -376,6 +372,3 @@ Definition Eta {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)):
   (* begin hide *)
 Defined.
 (* end hide *)
-
-
-
