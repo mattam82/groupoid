@@ -310,10 +310,8 @@ Defined.
    a law [SubstT_sigma_law] for application at the level of type families. 
 *)
 
-Definition App_sigma_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ])
-           (c:Elt (Prod F)) (a:Elt A):
-  c @@ a °°°° σ with SubstT_sigma_law _ c _ ~1 
-   (c °°°° σ with Prod_sigma_law _ _) @@ (a °°°° σ).
+Definition App_sigma_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:Elt (Prod F))
+  (a:Elt A): c @@ a °°°° σ with SubstT_sigma_law _ c _ ~1 (c °°°° σ with Prod_sigma_law _ _) @@ (a °°°° σ).
   refine (Build_sigma _ _ _). 
   intro t. simpl. exact (identity _). 
   intros t t' e. trunc1_eq. 
@@ -328,8 +326,8 @@ Defined.
   where [SubExtId] is a specialization of [SubExt] with the identity substitution.
 *)
 
-Definition Beta {Γ} {A:Typ Γ} {F:TypDep A} (b:Elt F) (a:Elt A) 
-  : [Lam b @@ a] = [b °° SubExtId a] := eq_refl _.
+Definition Beta {Γ} {A:Typ Γ} {F:TypDep A} (b:Elt F) (a:Elt A):
+  [Lam b @@ a] = [b °° SubExtId a] := eq_refl _.
 
 (**
  %\noindent% 
@@ -377,5 +375,23 @@ Definition Eta {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)):
 Defined.
 (* end hide *)
 
+(**
+  %\paragraph{\lrule{Coherence of the interpretation}.}%
+  In%~\cite{dybjer:internaltt}%, the coherence of the interpretation is not 
+  entirely shown, and relies on the absence of invariance under isomorphism
+  and using Streicher K axiom. In our setting the (first level coherence) can 
+  be directly expressed and proved by naturality of the interpretation, because we 
+  embed the setoid model inside groupoids. 
+*)
+
+Theorem coherence_of_interpretation {Γ} {A B:Typ Γ} (e e' : A ~1 B) (a:Elt A):
+  e ~2 e' -> a with e ~1 a with e'.
+(* begin hide *)
+  intro P. exists (fun γ => ((P γ).1 @ (a @ γ))).
+  intros γ γ' eγ. trunc1_eq.
+Defined. 
+(* end hide *)
 
 
+(** To get higher notions of coherence require 
+  to go to higher dimensions. *)
