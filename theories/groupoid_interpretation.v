@@ -896,8 +896,8 @@ Defined.
   interpreted using a [Sigma] type. The functoriality of [P] is used on
   the term [J_Pair e P γ], which is a proof that [(a;Refl a)] is equal
   to [(b;e)]. To state the rule, we need to do a rewriting at 
-  the level of term, i.e., given an equality [e : T ~1 U] between two 
-  types in [Typ A], we use the map from [t : Elt T] to 
+  the level of terms, i.e., given an equality [e : T ~1 U] between two 
+  types in [A], we use the map from [t : Elt T] to 
   [t with e : Elt U] that comes from the
   functoriality of [_Prod]:*)
 
