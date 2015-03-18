@@ -376,7 +376,8 @@ Defined.
   %\paragraph{\lrule{Coherence of the interpretation}.}%
   In%~\cite{dybjer:internaltt}%, the coherence of the interpretation is not 
   entirely shown, and relies on the absence of invariance under isomorphism
-  and using Streicher K axiom. In our setting the (first level coherence) can 
+  as it uses Uniqueness of Identity Proof (UIP).
+  In our setting the (first level coherence) can 
   be directly expressed and proved by naturality of the interpretation, because we 
   embed the setoid model inside groupoids. 
 *)
