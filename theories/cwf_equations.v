@@ -154,7 +154,7 @@
 (** printing Elt $\mathsf{Tm}$*)
 (** printing FunExt_comp $\mathsf{FunExt}_\mathsf{comp}$*)
 (** printing SubSigma $\mathsf{Sub_\Sigma}$*)
-
+(** printing with $\coqdockw{with}$*)
 
 (* begin hide *)
 
@@ -200,18 +200,16 @@ Defined.
 (**
   %\paragraph{\lrule{Substitution Laws}.}%
 
-  In internal CwFs, substitution laws holds, but not
-  definitionally. This means that substitution laws for terms needs
-  explicit rewriting using reindexing maps in their statement. 
-  The situation is similar in our setting: a law
-  that does not hold definitionally can only hold with respect to the
-  notion of equality of the setoid/groupoid. Note that every
-  substitution law holds using the identity on the computation side, 
-  but the laws do not hold definitionally because the coherences are
-  different.
+  In internal CwFs, substitution laws hold, but not definitionally. This
+  means that substitution laws for terms need explicit rewriting using
+  reindexing maps in their statements.  The situation is similar in our
+  setting: a law that does not hold definitionally can only hold with
+  respect to the notion of equality of the setoid/groupoid. Every
+  substitution law holds using [identity] on the computation side
+  though.
 
   We only present the substitution laws for dependent products. First,
-  the rule at the level of types.
+  the rule at the level of types:
  *)
 
 Definition Prod_sigma_law {Δ Γ} {σ : [Δ -|-> Γ]} {A : Typ Γ} {F : TypFam A}:
@@ -239,8 +237,8 @@ Definition SubSigma {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} :
   follow the very same pattern; the witness is always the identity plus
   a proof of compatibility of the coherences.  To express the
   substitution law of dependent functions, we first need to exhibit the
-  law for type-level abstraction [LamT]---where [SubSigma σ] extends the
-  substitution [σ] with a new (untouched) variable in the context.  *)
+  law for type-level abstraction [LamT]---where [SubSigma σ] weakens the
+  substitution [σ].  *)
 
 Definition LamT_sigma_law {Δ Γ} {A : Typ Γ} {B : TypDep A} {σ : [Δ -|-> Γ]}:
   LamT B °°° σ ~1 LamT (B ⋅⋅ SubSigma σ).
@@ -388,5 +386,8 @@ Defined.
 (* end hide *)
 
 
-(** To get higher notions of coherence require 
-  to move to higher dimensions. *)
+(** To get higher notions of coherence requires to move to higher
+  dimensions. However, assuming (metatheoretically) that the
+  interpretation of type equalities from the source type theory only
+  targets _identity_ isomorphisms, the [e ~2 e'] hypothesis would become
+  provable. *)

@@ -209,7 +209,7 @@ Definition FunExt_1 (Γ: Context) (A : Typ Γ)
 
 (*end hide*)
 
-Definition FunExt (Γ: Context) (A : Typ Γ) (F : TypDep A) (M N : Elt (Prod (LamT F)))
+Definition FunExt Γ (A:Typ Γ) (F:TypDep A) (M N:Elt (Prod (LamT F)))
   (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))): Elt (Id M N).
 (*begin hide*)
   exists (FunExt_1 α).

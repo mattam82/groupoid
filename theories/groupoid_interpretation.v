@@ -261,11 +261,13 @@ Definition LamT {Γ: Context} {A : Typ Γ} (B: TypDep A)
 (** 
   ** Substitutions 
 
-  A substitution is represented by a context morphism [[Γ --> Δ]]. 
-  Note that although a substitution [σ] can be composed with a dependent type [A] 
-  by using composition of functors, we need to define a fresh notion of composition, 
-  noted [A ⋅ σ], with the same computational content but a different relation on the
-  universe indices to avoid universe inconsistency.
+  A substitution is represented by a context morphism [[Γ --> Δ]].  Note
+  that although a substitution [σ] can be composed with a dependent type
+  [A] by using composition of functors, we define a relaxed notion of
+  composition, noted [A ⋅ σ]. It has the same computational content but
+  a different relation on the universe indices: homogeneous functor
+  composition otherwise forces the three categories and two functors to
+  live at exactly the same levels, which is not necessary.
 
   A substitution σ can be extended by a term [a: Elt (A ⋅ σ)] 
   of [A : Typ Δ].
@@ -470,7 +472,7 @@ Instance BetaT_1 {Δ Γ : Context} {A:Typ Γ} (B:TypDep A) (σ:[Δ -|-> Γ]) (a:
 (* end hide *)
 
 Definition BetaT Δ Γ (A:Typ Γ) (B:TypDep A) (σ:[Δ -|-> Γ]) (a:Elt (A ⋅⋅ σ)) 
-: LamT B °°° σ {{a}} ~1 B ⋅⋅ (SubExt σ a) := (λ _, identity _ ; BetaT_1 B σ a).
+: LamT B °°° σ {{a}} ~1 B ⋅⋅ (SubExt σ a) := (λ γ, identity _ ; BetaT_1 B σ a).
 
 (* begin hide *)
 
@@ -832,7 +834,7 @@ Definition Refl Γ (A: Typ Γ) (a : Elt A)
 
 Definition depEq Γ (A:Typ Γ) (a :Elt A) : Typ Γ := Sigma (LamT (Id (a °°°° Sub) (Var A))).
 
-Definition BetaT2 Γ (A:Typ Γ) (a b:Elt A) : Id a b ~1 LamT (Id (a °°°° Sub) (Var A)) {{b}}.
+Definition BetaT2 {Γ} {A:Typ Γ} {a b:Elt A} : Id a b ~1 LamT (Id (a °°°° Sub) (Var A)) {{b}}.
 simpl. red. simpl. exists (fun _ => identity _).
 intros t t' e.
 simpl_id_bi. apply equiv_eq_nat_trans. simpl. red. simpl.
@@ -854,14 +856,14 @@ Notation "e 'with' t" := (prod_eq t @ e) (at level 50).
 
 Definition J_Pair Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam (depEq a))  
            (γ : [Γ]) : 
-  Pair (prod_eq (BetaT2 a a) @ Refl a) @ γ ~1
-  Pair (e with (BetaT2 _ _))@ γ.
+  Pair (prod_eq (BetaT2 (a:=a) (b:=a)) @ Refl a) @ γ ~1
+  Pair (e with BetaT2)@ γ.
   exists (e @ γ). simpl. trunc1_eq.
 Defined.
 
 Instance J_1 Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam (depEq a)) :
-  NaturalTransformation (f:=P {{Pair (Refl a with ((BetaT2 _ _)))}}) 
-                        (g:=P {{Pair (e with ((BetaT2 _ _)))}}) 
+  NaturalTransformation (f:=P {{Pair (Refl a with (BetaT2))}}) 
+                        (g:=P {{Pair (e with BetaT2)}}) 
                         (λ γ : [Γ], map (P @ γ) (J_Pair e P γ)).
 red. intros.
 pose (Dmap P e0). pose (P @ t'). apply equiv_eq_nat_trans.
@@ -871,7 +873,7 @@ pose ((identity [map (P @ t)
            (equiv_adjoint
               (Pair
                  (λ a0 : [Γ], id (identity (a @ a0));
-                 prod_eq1 ((BetaT2 a a))
+                 prod_eq1 ((BetaT2 (a:=a) (b:=a)))
                    (Refl a))) e0)])). 
 simpl in n , n0. exact (n0 ** n). red. simpl.
 match goal with | [ |- sigma (λ α : ?H, _)]
@@ -902,8 +904,8 @@ Defined.
   functoriality of [_Prod]:*)
 
 Definition J Γ (A:Typ Γ) (a b:Elt A) (P:TypFam (Sigma (LamT (Id (a °°°° Sub) (Var A)))))
-               (e:Elt (Id a b)) (p:Elt (P{{Pair (Refl a with BetaT2 _ _)}})):
-  Elt (P{{Pair (e with BetaT2 _ _)}}) :=
+               (e:Elt (Id a b)) (p:Elt (P{{Pair (Refl a with BetaT2)}})):
+  Elt (P{{Pair (e with BetaT2)}}) :=
   prod_comp (λ γ, (map (P @ γ) (J_Pair e P γ)); J_1 _ _) @ p. 
 
 (** where [BetaT2] is another dedicated version of the %$\beta$%-rule for [LamT]. *)
