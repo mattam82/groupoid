@@ -372,15 +372,12 @@ Definition Eta {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)):
 Defined.
 (* end hide *)
 
-(**
-  %\paragraph{\lrule{Coherence of the interpretation}.}%
-  In%~\cite{dybjer:internaltt}%, the coherence of the interpretation is not 
-  entirely shown, and relies on the absence of invariance under isomorphism
-  as it uses Uniqueness of Identity Proofs (UIP).
-  In our setting the (first level coherence) can 
-  be directly expressed and proved by naturality of the interpretation, because we 
-  embed the setoid model inside groupoids. 
-*)
+(** %\paragraph{\lrule{Coherence of the interpretation}.}%
+  In%~\cite{dybjer:internaltt}%, the coherence of the interpretation is
+  not entirely shown, and relies on Uniqueness of Identity Proofs through
+  Alf's pattern-matching. In our setting the first level coherence can
+  be directly expressed and proved by naturality of the interpretation,
+  because we embed the setoid model inside groupoids.  *)
 
 Theorem coherence_of_interpretation {Γ} {A B:Typ Γ} (e e' : A ~1 B) (a:Elt A):
   e ~2 e' -> a with e ~1 a with e'.
@@ -392,4 +389,4 @@ Defined.
 
 
 (** To get higher notions of coherence require 
-  to go to higher dimensions. *)
+  to move to higher dimensions. *)

@@ -2,29 +2,28 @@
 \label{sec:introduction}
 A notorious difficulty with intensional type theories like Martin-Löf
 type theory or the calculus of inductive constructions is the lack of
-extensionality principles in the core theory, and notably in its
-notion of propositional equality. This makes the theory both
-inflexible with respect to the notion of equality one might want to
-use on a given type and also departs from the traditional equality
-notion from set theory. Functional extensionality (pointwise equal
-functions are equal) and propositional extensionality (logically
-equivalent propositions are equal) are principles that are valid
-extensions of type theory and can be internalized in an intensional
-theory, in the manner of Altenkirch et
-al.~\cite{altenkirch-mcbride-wierstra:ott-now}.  Another
+extensionality principles in the core theory, and notably in its notion
+of propositional equality. This makes the theory both inflexible with
+respect to the notion of equality one might want to use on a given type
+and also departs from the traditional equality notion from set
+theory. Functional extensionality (pointwise equal functions are equal)
+and propositional extensionality (logically equivalent propositions are
+equal) are principles that are valid extensions of type theory and can
+be internalized in an intensional theory, in the manner of Altenkirch
+\textit{et al.}~\cite{altenkirch-mcbride-wierstra:ott-now}.  Another
 extensionality principle coming from homotopy theory is univalence,
 whose first instance is the idea that isomorphic types are
-equal~\cite{Voevodsky:2011yq,Pelayo:2012uq}. All these principles
-should be imposeable on a type theory like MLTT because, intuitively,
-no term can distinguish between isomorphic types, pointwise equal
-functions or logically equivalent propositions.
+equal~\cite{Voevodsky:2011yq,Pelayo:2012uq}. All these principles should
+be imposeable on a type theory like MLTT because, intuitively, no term
+can distinguish between isomorphic types, pointwise equal functions or
+logically equivalent propositions.
 %
 This hints at the idea that there ought to exist an internal model of
 type theory where equality is defined on a type by type basis using
 the aforementioned principles and a translation that witnesses that
 any term of the theory is equipped with proofs that they respect these
 properties. Formalizing a simple version of this definitional
-translation is the goal of this paper.
+translation is our first goal.
 
 % However, before even starting to think about formalizing the
 % translation, we need to enhance the universe system of \Coq to handle
@@ -72,10 +71,8 @@ type theoretic implications of the setoid/groupoid/homotopy models,
 bridging a gap in the literature.
 %
 On the technical side, we have to slightly move away from existing
-interpretations like Hofmann and Streicher's.  In particular, it is not
-possible to interpret a univalent universe in our type-theoretic
-formalization of their model; and this for two important reasons that we
-discuss now.
+interpretations like Hofmann and Streicher's, for two important reasons
+that we discuss now.
 
 
 \paragraph{\bf A univalent model that makes no use of univalence.}
@@ -108,9 +105,9 @@ But then, this means that isomorphisms between groupoids should be
 reflected in the identity type, which forces the target theory to
 satisfy univalence already\ldots
 %
-So the first conclusion is that an internalization of the groupoid
-interpretation in the style of formalization of categories presented
-in~\cite{hottbook} would require the target theory to be univalent already.
+So the first conclusion is that an internalization of the interpretation
+in the style of formalization of categories presented in~\cite{hottbook}
+would require the target theory to be univalent already.
  
 To avoid this issue in our internalization of groupoids, the groupoid
 laws are imposed using a notion of 2-dimensional equality that does
@@ -134,8 +131,7 @@ identity types in the core type theory will not be necessary anymore
 and so the core type theory will be axiom free.
 %
 Thus, this paper can be seen as a proof of concept that it is possible
-to interpret homotopy type theory into type theory without identity
-types.
+to interpret type theory into type theory without identity types.
 
 
 \paragraph{\bf Taking dimension issues into account.}
@@ -166,13 +162,13 @@ consider set theory.
 % extensional equality to witness natural isomorphisms between groupoid 
 % isomorphisms. This is fine as long as we consider set theory.
 %
-But when moving to type theory, small groupoids that form a
-category actually correspond to setoids. Indeed, to impose the
-smallness condition internally, we have to impose either that (i)
-the identity type on the type of objects is an h-prop, or that (ii) $x
-\sim_1 y$ is an h-prop for all objects $x$ and $y$. But
-condition (i) gives rise to a category only in presence of functional
-extensionality, which we precisely want to interpret.
+But when moving to type theory, small groupoids that form a category
+actually correspond to setoids, unless we rely on axioms. Indeed, to
+impose the smallness condition internally, we have to impose either that
+(i) the identity type on the type of objects is an h-prop, or that (ii)
+$x \sim_1 y$ is an h-prop for all objects $x$ and $y$. But condition (i)
+gives rise to a category only in presence of functional extensionality,
+which we precisely want to interpret.
 %
 This means that only condition~(ii) provides a correct notion
 of small groupoids in type theory without using functional
@@ -189,8 +185,9 @@ extensionality. But condition~(ii) is the definition of a setoid.
 % in the source theory. 
 
 Another way to solve this size issue would be to formalize the notion of
-2-groupoids instead but we do not think that the interpretation would
-have gained much interest. We believe that the real challenge is to interpret
+2-groupoids instead. However, the 1-groupoid case already raises
+important challenges that wouldn't go away in the 2-groupoid case. 
+Moreover, we believe that the real challenge is to interpret
 $\omega$-groupoids which is the proper notion of self-enriched 
 groupoid-like structure and is the subject of on-going work.
 
@@ -226,16 +223,15 @@ groupoid-like structure and is the subject of on-going work.
 
 \paragraph{\bf Outline of the paper.}
 % The paper is organized as follows: 
-Section \ref{sec:setting-translation} introduces the source type
-theory of the translation and some features of the proof assistant
-that are used in the formalization. The formal model includes a
-formalization of groupoids and associated structures
-(\S\ref{sec:w2gpds}-\ref{sec:rew}) and a construction of the groupoids
-interpreting the standard type constructors
-(\S\ref{sec:depprod}-\ref{sec:sigma}). Section
+Section \ref{sec:setting-translation} introduces the source type theory
+of the translation and some features of the proof assistant that are
+used in the formalization. The formal model includes a formalization of
+groupoids and associated structures (\S\ref{sec:w2gpds}-\ref{sec:rew})
+and a construction of the groupoids interpreting the standard type
+constructors (\S\ref{sec:depprod}-\ref{sec:sigma}). Section
 \ref{sec:interpretation} presents the internalization of the model
-proper, and Section~\ref{section:cwf} shows that it constitutes an
-internal category with families. 
+proper, and Section~\ref{section:cwf} shows that it constitutes (almost)
+an internal category with families.
 % 
  Section \ref{sec:conclusion} concludes on related and future work.
 %
