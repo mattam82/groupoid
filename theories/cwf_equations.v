@@ -206,7 +206,7 @@ Defined.
   setting: a law that does not hold definitionally can only hold with
   respect to the notion of equality of the setoid/groupoid. Every
   substitution law holds using [identity] once a context has been applied, 
-  which means that the only non-definitional coherences comes from proofs of 
+  which means that the only non-definitional coherences come from proofs of 
   naturality with respect to two equal contexts.
 
   We only present the substitution laws for dependent products. First,
