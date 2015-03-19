@@ -128,6 +128,7 @@
 (** printing Proj1_1 $\mathsf{Proj1_{comp}}$*)
 (** printing Proj2_1 $\mathsf{Proj2_{comp}}$*)
 (** printing BetaT_1 $\mathsf{BetaT_{comp}}$*)
+(** printing BetaT2 $\mathsf{BetaT'}$*)
 (** printing Sigma_1 $\mathsf{Sigma_{comp}}$*)
 (** printing transport_id $\mathsf{transport_{id}}$*)
 (** printing transport_eq $\mathsf{transport_{eq}}$*)
@@ -908,5 +909,5 @@ Definition J Γ (A:Typ Γ) (a b:Elt A) (P:TypFam (Sigma (LamT (Id (a °°°° Su
   Elt (P{{Pair (e with BetaT2)}}) :=
   prod_comp (λ γ, (map (P @ γ) (J_Pair e P γ)); J_1 _ _) @ p. 
 
-(** where [BetaT2] is another dedicated version of the %$\beta$%-rule for [LamT]. *)
+(** %\noindent% where [BetaT2] is another dedicated version of the %$\beta$%-rule for [LamT]. *)
 

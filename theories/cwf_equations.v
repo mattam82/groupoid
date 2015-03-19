@@ -205,8 +205,9 @@ Defined.
   reindexing maps in their statements.  The situation is similar in our
   setting: a law that does not hold definitionally can only hold with
   respect to the notion of equality of the setoid/groupoid. Every
-  substitution law holds using [identity] on the computation side
-  though.
+  substitution law holds using [identity] once a context has been applied, 
+  which means that the only non-definitional coherences comes from proofs of 
+  naturality with respect to two equal contexts.
 
   We only present the substitution laws for dependent products. First,
   the rule at the level of types:
@@ -235,7 +236,7 @@ Definition SubSigma {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} :
 
 (** For the other substitution laws, we omit their definitions as they
   follow the very same pattern; the witness is always the identity plus
-  a proof of compatibility of the coherences.  To express the
+  a proof of naturality wrt context change. To express the
   substitution law of dependent functions, we first need to exhibit the
   law for type-level abstraction [LamT]---where [SubSigma σ] weakens the
   substitution [σ].  *)
@@ -375,7 +376,8 @@ Defined.
   not entirely shown, and relies on Uniqueness of Identity Proofs through
   Alf's pattern-matching. In our setting the first level coherence can
   be directly expressed and proved by naturality of the interpretation,
-  because we embed the setoid model inside groupoids.  *)
+  because we embed the setoid model inside groupoids (higher notions of coherence
+  require to move to higher groupoids).  *)
 
 Theorem coherence_of_interpretation {Γ} {A B:Typ Γ} (e e' : A ~1 B) (a:Elt A):
   e ~2 e' -> a with e ~1 a with e'.
@@ -386,8 +388,11 @@ Defined.
 (* end hide *)
 
 
-(** To get higher notions of coherence requires to move to higher
-  dimensions. However, assuming (metatheoretically) that the
-  interpretation of type equalities from the source type theory only
-  targets _identity_ isomorphisms, the [e ~2 e'] hypothesis would become
-  provable. *)
+(** Thus, the coherence of our interpretation only requires to prove 
+  that the interpretation of type equalities from the source type theory 
+  only targets _identity_ isomorphisms (as then the [e ~2 e'] hypothesis would be given by 
+  the identity modification). This proof is not difficult metatheoretically as every 
+  conversion rule is interpreted by the identity isomorphism, but it can not be 
+  internalized because it is not possible to reason on definitional equality inside 
+  the theory.
+ *)

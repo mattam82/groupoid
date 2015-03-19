@@ -170,14 +170,13 @@ Set Universe Polymorphism.
 (* Set Program Mode. *)
 
 (* end hide *)
-
 (** 
   Propositional functional extensionality is a direct consequence of the definition
   of equality at product types. It is simply witnessed by a natural transformation
-  between the (dependent) functions, that is a pointwise equality. This corresponds 
+  between (dependent) functions, that is a pointwise equality. This corresponds 
   to the introduction of equality on dependent functions in%~\cite{DBLP:conf/popl/LicataH12}%.
+  Using [↑M], the weakening for terms, it can be stated as:
 *)
-
 (* begin hide *)
 
 
@@ -220,6 +219,3 @@ Definition FunExt Γ (A:Typ Γ) (F:TypDep A) (M N:Elt (Prod (LamT F)))
   intros; exact tt.
 Defined.
 (*end hide *)
-
-(**  %\noindent% where [↑M] is the weakening for terms. 
-*)

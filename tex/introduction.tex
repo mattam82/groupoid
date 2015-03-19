@@ -55,7 +55,7 @@ n-groupoids) or infinite (weak ω-groupoids)
 \cite{DBLP:conf/csl/AltenkirchR12}. %
 %
 Our work here concentrates on the internalization in \Coq of the setoid
-model of type theory, seen as degenerate groupoids, where we can have a
+model of type theory using a formalization of groupoids, where we can have a
 self-contained definition of the structures involved. 
 % Our long term goal
 % is to formalize Hofmann and Streicher's groupoid model, which
@@ -69,6 +69,15 @@ imprecision on the notions of equality and coherence involved.  We also
 hope to give with this translation a basic exposition of the possible
 type theoretic implications of the setoid/groupoid/homotopy models,
 bridging a gap in the literature.
+%
+We show at the end of this paper that our interpretation constitutes a
+model of type theory in the sense of internal category with families
+(CwFs)~\cite{dybjer:internaltt} with the additional benefit that it
+provides a reformulation of the coherence problem of the
+interpretation and a prove of it relying on metatheoretical that that
+the interpretation of type equalities from the source type theory only
+targets \emph{identity} isomorphisms.
+
 %
 On the technical side, we have to slightly move away from existing
 interpretations like Hofmann and Streicher's, for two important reasons
@@ -91,19 +100,19 @@ also be formalized using the identity type. Or, putting it in the
 homotopy type theoretic language, we have to consider univalent
 groupoids.
 %
-This is because, in the groupoid interpretation, we need isomorphisms
-between groupoids to satisfy groupoids laws using the identity
-type as the notion of equality between isomorphisms. Then, using
-functional extensionality, this amounts to compare the two functions
-pointwise, but again using the identity type, and not the internal
-notion of equality in the groupoid, given by $\sim_1$.
-%
-This means that $\sim_1$ has to coincide with the identity type, which
-is precisely the property of being a univalent groupoid.
+% This is because, in the groupoid interpretation, we need isomorphisms
+% between groupoids to satisfy groupoids laws using the identity
+% type as the notion of equality between isomorphisms. Then, using
+% functional extensionality, this amounts to compare the two functions
+% pointwise, but again using the identity type, and not the internal
+% notion of equality in the groupoid, given by $\sim_1$.
+% %
+% This means that $\sim_1$ has to coincide with the identity type, which
+% is precisely the property of being a univalent groupoid.
 %
 But then, this means that isomorphisms between groupoids should be
 reflected in the identity type, which forces the target theory to
-satisfy univalence already\ldots
+satisfy univalence already\ldots 
 %
 So the first conclusion is that an internalization of the interpretation
 in the style of formalization of categories presented in~\cite{hottbook}
@@ -126,9 +135,10 @@ Note that our presentation requires less properties on identity types,
 but we still need the axiom of functional extensionality to prove
 triviality of higher dimensions for the groupoid of functors.
 %
-But this indicates that if we scale to ω-groupoids, the presence of
-identity types in the core type theory will not be necessary anymore
-and so the core type theory will be axiom free.
+This indicates that if we scale to ω-groupoids, the presence of
+identity types (and of axioms) in the core type theory will not be
+necessary anymore. 
+% and so the core type theory will be axiom free.
 %
 Thus, this paper can be seen as a proof of concept that it is possible
 to interpret type theory into type theory without identity types.
@@ -166,8 +176,8 @@ But when moving to type theory, small groupoids that form a category
 actually correspond to setoids, unless we rely on axioms. Indeed, to
 impose the smallness condition internally, we have to impose either that
 (i) the identity type on the type of objects is an h-prop, or that (ii)
-$x \sim_1 y$ is an h-prop for all objects $x$ and $y$. But condition (i)
-gives rise to a category only in presence of functional extensionality,
+$x \sim_1 y$ is an h-prop for all objects $x$ and $y$. Condition (i)
+gives rise to a category in presence of functional extensionality,
 which we precisely want to interpret.
 %
 This means that only condition~(ii) provides a correct notion
@@ -230,7 +240,8 @@ groupoids and associated structures (\S\ref{sec:w2gpds}-\ref{sec:rew})
 and a construction of the groupoids interpreting the standard type
 constructors (\S\ref{sec:depprod}-\ref{sec:sigma}). Section
 \ref{sec:interpretation} presents the internalization of the model
-proper, and Section~\ref{section:cwf} shows that it constitutes (almost)
+proper, and Section~\ref{section:cwf} shows that it constitutes
+\nt{(almost) ?}
 an internal category with families.
 % 
  Section \ref{sec:conclusion} concludes on related and future work.
