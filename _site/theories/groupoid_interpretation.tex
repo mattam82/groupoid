@@ -1,0 +1,224 @@
+\coqlibrary{Groupoid.groupoid interpretation}{Library }{Groupoid.groupoid\_interpretation}
+
+\begin{coqdoccode}
+\end{coqdoccode}
+
+
+  Terms of \coqdocdefinition{TypDep} \coqdocvariable{A} and \coqdocdefinition{TypFam} \coqdocvariable{A} can be related using a dependent closure
+  at the level of types. In the interpretation of typing judgments, this connection 
+  will be used to switch between the fibration and the morphism points of view.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.LamT}{$\Lambda$}{\coqdocdefinition{$\Lambda$}} \{\coqdocvar{Γ}: \coqdocdefinition{Context}\} \{\coqdocvar{A} : \coqdocdefinition{Typ} \coqdocvariable{Γ}\} (\coqdocvar{B}: \coqdocdefinition{TypDep} \coqdocvariable{A})\coqdoceol
+\coqdocindent{1.00em}
+: \coqdocdefinition{TypFam} \coqdocvariable{A} := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{$\gamma$}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{t}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocvariable{B} \coqdocnotation{$\star$} \coqdocnotation{(}\coqdocvariable{$\gamma$}\coqdocnotation{;} \coqdocvariable{t}\coqdocnotation{)} \coqdocnotation{;} \coqdocvar{\_}\coqdocnotation{);} \coqref{Groupoid.groupoid interpretation.LamT 1}{\coqdocinstance{$\mathsf{\Lambda_{comp}}$}} \coqdocvariable{B}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+
+
+\subsection{Substitutions}
+
+
+
+
+  A substitution is represented by a context morphism [\coqdocvariable{Γ} $\longrightarrow$ \coqdocvariable{Δ}].  Note
+  that although a substitution σ can be composed with a dependent type
+  \coqdocvariable{A} by using composition of functors, we define a relaxed notion of
+  composition, noted \coqdocvariable{A} ⋅ σ. It has the same computational content but
+  a different relation on the universe indices: homogeneous functor
+  composition otherwise forces the three categories and two functors to
+  live at exactly the same levels, which is not necessary.
+
+
+  A substitution σ can be extended by a term \coqdocvariable{a}: \coqdocdefinition{$\mathsf{Tm}$} (\coqdocvariable{A} ⋅ σ) 
+  of \coqdocvariable{A} : \coqdocdefinition{Typ} \coqdocvariable{Δ}.
+
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.SubExt}{SubExt}{\coqdocdefinition{SubExt}} \{\coqdocvar{Γ} \coqdocvar{Δ} : \coqdocdefinition{Context}\} \{\coqdocvar{A} : \coqdocdefinition{Typ} \coqdocvariable{Δ}\} (σ: \coqdocnotation{[}\coqdocvariable{Γ} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Δ}\coqdocnotation{]}) (\coqdocvar{a}: \coqdocdefinition{$\mathsf{Tm}$} (\coqdocvariable{A} \coqdocnotation{$⋅$} \coqdocvariable{σ})) \coqdoceol
+\coqdocindent{1.00em}
+: \coqdocnotation{[}\coqdocvariable{Γ} \coqdocnotation{$\longrightarrow$} \coqdocdefinition{$\Sigma$} \coqdocvariable{A} \coqdocnotation{]} := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{$\gamma$}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocnotation{(}\coqdocvariable{σ} \coqdocnotation{$\star$} \coqdocvariable{$\gamma$}\coqdocnotation{;} \coqdocvariable{a} \coqdocnotation{$\star$} \coqdocvariable{$\gamma$}\coqdocnotation{)} \coqdocnotation{;} \coqref{Groupoid.groupoid interpretation.SubExt 1}{\coqdocinstance{$\mathsf{SubExt_{comp}}$}} \coqdocvar{\_} \coqdocvar{\_}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\noindent where \coqref{Groupoid.groupoid interpretation.SubExt 1}{\coqdocinstance{$\mathsf{SubExt_{comp}}$}} is a proof that it is functorial. 
+  A substitution σ can be applied to a type family \coqdocvariable{F} using the
+  composition of a functor with a dependent functor. 
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.substF}{substF}{\coqdocdefinition{substF}} \{\coqdocvar{T} \coqdocvar{Γ}\} \{\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}\} (\coqdocvar{F}:\coqdocdefinition{TypFam} \coqdocvariable{A}) (σ:\coqdocnotation{[}\coqdocvariable{T} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Γ}\coqdocnotation{]}) : \coqdocdefinition{TypFam} (\coqdocvariable{A} \coqdocnotation{$⋅$} \coqdocvariable{σ}) \coqdoceol
+\coqdocindent{1.00em}
+:= \coqdocnotation{(}\coqdocnotation{[}\coqdocvariable{F} \coqdocnotation{$\circ$} \coqdocvariable{σ}\coqdocnotation{]} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{t} : \coqdocnotation{[}\coqdocvariable{T}\coqdocnotation{]}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocnotation{ }\coqdocvariable{A} \coqdocnotation{$⋅$} \coqdocvariable{σ}\coqdocnotation{$_{\upharpoonright s}$} \coqdocnotation{$\star$} \coqdocvariable{t} \coqref{Groupoid.groupoid interpretation.::x '--->' x}{\coqdocnotation{$\longrightarrow$}} \coqdocdefinition{$\mathsf{Type}_{0}^1$}\coqdocnotation{;} \coqref{Groupoid.groupoid interpretation.substF 1}{\coqdocinstance{$\mathsf{substF_{comp}}$}} \coqdocvariable{F} \coqdocvariable{σ}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+  We abusively note all those different compositions with $\circ$ as it is done in
+  mathematics, whereas they are distinct operators in the \Coq
+  development.
+  The weakening substitution of $\Gamma, x:A \vdash$ is given by the first
+  projection. \begin{coqdoccode}
+\coqdocemptyline
+\end{coqdoccode}
+
+
+  A type family \coqdocvariable{F} in \coqdocdefinition{TypFam} \coqdocvariable{A} can be partially substituted with an
+  term \coqdocvariable{a} in \coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}, noted \coqdocvariable{F} \{\{\coqdocvariable{a}\}\}, to get its value (a type) at
+  \coqdocvariable{a}. This process is defined as \coqdocvariable{F} \{\{\coqdocvariable{a}\}\} := (\coqdocvar{\ensuremath{\lambda}} \coqdocvariable{$\gamma$}, (\coqdocvariable{F} $\star$ \coqdocvariable{$\gamma$}) $\star$ (\coqdocvariable{a} $\star$ \coqdocvariable{$\gamma$}) ;
+  \coqdocvar{\_}) (where \coqdocvar{\_} is a proof it is functorial). Note that this
+  pattern of application \emph{up-to a context $\gamma$} will be used
+  later to defined other notions of application. Although the
+  computational definitions are the same, the compatibility conditions
+  are always different.  This notion of partial substitution in a type
+  family enables to state that \coqref{Groupoid.groupoid interpretation.LamT}{\coqdocdefinition{$\Lambda$}} defines a type level
+  $\lambda$-abstraction.  \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.BetaT}{BetaT}{\coqdocdefinition{BetaT}} \coqdocvar{Δ} \coqdocvar{Γ} (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{B}:\coqdocdefinition{TypDep} \coqdocvariable{A}) (σ:\coqdocnotation{[}\coqdocvariable{Δ} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Γ}\coqdocnotation{]}) (\coqdocvar{a}:\coqdocdefinition{$\mathsf{Tm}$} (\coqdocvariable{A} \coqdocnotation{$⋅$} \coqdocvariable{σ})) \coqdoceol
+\coqdocnoindent
+: \coqref{Groupoid.groupoid interpretation.LamT}{\coqdocdefinition{$\Lambda$}} \coqdocvariable{B} \coqref{Groupoid.groupoid interpretation.::x 'xC2xB0xC2xB0xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{σ} \coqref{Groupoid.groupoid interpretation.::x 'x7Bx7B' x 'x7Dx7D'}{\coqdocnotation{\{\{}}\coqdocvariable{a}\coqref{Groupoid.groupoid interpretation.::x 'x7Bx7B' x 'x7Dx7D'}{\coqdocnotation{\}\}}} \coqdocnotation{$\sim_1$} \coqdocvariable{B} \coqdocnotation{$⋅$} \coqdocnotation{(}\coqref{Groupoid.groupoid interpretation.SubExt}{\coqdocdefinition{SubExt}} \coqdocvariable{σ} \coqdocvariable{a}\coqdocnotation{)} := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{$\gamma$}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocprojection{identity} \coqdocvar{\_} \coqdocnotation{;} \coqref{Groupoid.groupoid interpretation.BetaT 1}{\coqdocinstance{$\mathsf{BetaT_{comp}}$}} \coqdocvariable{B} \coqdocvariable{σ} \coqdocvariable{a}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+
+
+\subsection{Interpretation of the typing judgment}
+
+
+  \label{sec:interp}
+
+
+  The explicit substitution versions of the typing rules of Figure
+  \ref{fig:emltt} are modelled as described below.
+
+
+  \paragraph{\textsc{Var}.} 
+
+
+  The rule \textsc{Var} is given by the second projection plus a proof
+  that the projection is dependently functorial. Note the explicit
+  weakening of \coqdocvariable{A} in the returned type. This is because we need to
+  make explicit that the context used to type \coqdocvariable{A} is extended with an
+  term of type \coqdocvariable{A}.
+
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.Var}{Var}{\coqdocdefinition{Var}} \{\coqdocvar{Γ}\} (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) : \coqdocdefinition{$\mathsf{Tm}$} \coqref{Groupoid.groupoid interpretation.::'xE2x87x91' x}{\coqdocnotation{$\shortuparrow$}}\coqdocvariable{A} := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{t}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocabbreviation{$\pi_2$} \coqdocvariable{t}\coqdocnotation{;} \coqref{Groupoid.groupoid interpretation.Var 1}{\coqdocinstance{$\mathsf{Var_{comp}}$}} \coqdocvariable{A}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+\paragraph{\textsc{Prod}.} The rule \textsc{Prod} is interpreted
+  using the dependent functor space, plus a proof that equivalent
+  contexts give rise to isomorphic dependent functor spaces.  Note that
+  the rule is defined on type families and not on the dependent type
+  formulation because here we need a fibration point of view. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.Prod}{Prod}{\coqdocdefinition{Prod}} \{\coqdocvar{Γ}\} (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{F}:\coqdocdefinition{TypFam} \coqdocvariable{A}) \coqdoceol
+\coqdocindent{1.00em}
+: \coqdocdefinition{Typ} \coqdocvariable{Γ} := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{s}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocdefinition{$\Pi_0$} (\coqdocvariable{F} \coqdocnotation{$\star$} \coqdocvariable{s})\coqdocnotation{;} \coqref{Groupoid.groupoid interpretation.Prod 1}{\coqdocinstance{$\mathsf{Prod_{comp}}$}} \coqdocvariable{A} \coqdocvariable{F}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+  \paragraph{\textsc{App}.}
+
+
+  The rule \textsc{App} is interpreted using an up-to context application 
+  and a proof of dependent functoriality. We abusively note \coqdocvar{M} $\star$ \coqdocvar{N} the application 
+  of \coqref{Groupoid.groupoid interpretation.App}{\coqdocdefinition{App}}.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.App}{App}{\coqdocdefinition{App}} \{\coqdocvar{Γ}\} \{\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}\} \{\coqdocvar{F}:\coqdocdefinition{TypFam} \coqdocvariable{A}\} (\coqdocvar{c}:\coqdocdefinition{$\mathsf{Tm}$} (\coqref{Groupoid.groupoid interpretation.Prod}{\coqdocdefinition{Prod}} \coqdocvariable{F})) (\coqdocvar{a}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}) \coqdoceol
+\coqdocindent{1.00em}
+: \coqdocdefinition{$\mathsf{Tm}$} (\coqdocvariable{F} \coqref{Groupoid.groupoid interpretation.::x 'x7Bx7B' x 'x7Dx7D'}{\coqdocnotation{\{\{}}\coqdocvariable{a}\coqref{Groupoid.groupoid interpretation.::x 'x7Bx7B' x 'x7Dx7D'}{\coqdocnotation{\}\}}}) := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{s}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocnotation{(}\coqdocvariable{c} \coqdocnotation{$\star$} \coqdocvariable{s}\coqdocnotation{)} \coqdocnotation{$\star$} \coqdocnotation{(}\coqdocvariable{a} \coqdocnotation{$\star$} \coqdocvariable{s}\coqdocnotation{)}\coqdocnotation{;} \coqref{Groupoid.groupoid interpretation.App 1}{\coqdocinstance{$\mathsf{App_{comp}}$}} \coqdocvariable{c} \coqdocvariable{a}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+  \paragraph{\lrule{Lam}.}
+
+
+  Term-level $\lambda$-abstraction is defined with the same
+  computational meaning as type-level $\lambda$-abstraction, but it
+  differs on the proof of dependent functoriality. Note that we use
+  \coqref{Groupoid.groupoid interpretation.LamT}{\coqdocdefinition{$\Lambda$}} in the definition because we need both the fibration (for
+  \coqref{Groupoid.groupoid interpretation.Prod}{\coqdocdefinition{Prod}}) and the morphism (for \coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{B}) point of view. 
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.Lam}{Lam}{\coqdocdefinition{Lam}} \{\coqdocvar{Γ}\} \{\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}\} \{\coqdocvar{B}:\coqdocdefinition{TypDep} \coqdocvariable{A}\} (\coqdocvar{b}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{B})\coqdoceol
+\coqdocindent{1.00em}
+: \coqdocdefinition{$\mathsf{Tm}$} (\coqref{Groupoid.groupoid interpretation.Prod}{\coqdocdefinition{Prod}} (\coqref{Groupoid.groupoid interpretation.LamT}{\coqdocdefinition{$\Lambda$}} \coqdocvariable{B})) := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{$\gamma$}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{t}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocvariable{b} \coqdocnotation{$\star$} \coqdocnotation{(}\coqdocvariable{$\gamma$} \coqdocnotation{;} \coqdocvariable{t}\coqdocnotation{)} \coqdocnotation{;} \coqdocvar{\_}\coqdocnotation{);} \coqref{Groupoid.groupoid interpretation.Lam 2}{\coqdocinstance{$\mathsf{Lam_{comp}}$}} \coqdocvariable{b}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+  \paragraph{\textsc{Sigma}, \textsc{Pair} and \textsc{Projs}.}
+  The rules for Σ types are interpreted using the 
+  dependent sum \coqdocdefinition{$\Sigma$} on setoids.  
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.Sigma}{Sigma}{\coqdocdefinition{Sigma}} \{\coqdocvar{Γ}\} (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{F}:\coqdocdefinition{TypFam} \coqdocvariable{A}) \coqdoceol
+\coqdocindent{1.00em}
+: \coqdocdefinition{Typ} \coqdocvariable{Γ} := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{$\gamma$}: \coqdocnotation{[}\coqdocvariable{Γ}\coqdocnotation{]}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocdefinition{$\Sigma$} (\coqdocvariable{F} \coqdocnotation{$\star$} \coqdocvariable{$\gamma$})\coqdocnotation{;} \coqref{Groupoid.groupoid interpretation.Sigma 1}{\coqdocinstance{$\mathsf{Sigma_{comp}}$}} \coqdocvariable{A} \coqdocvariable{F}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\noindent Pairing and projections are obtained
+  by a context lift of pairing and projection of the underlying dependent sum.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+
+
+\subsection{Identity Types}
+
+
+  One of the main interests of the setoid and groupoid interpretations is that they
+  allow to interpret a type directed notion of equality which validates 
+  the J eliminator of identity types but also various extensional principles,
+  including functional extensionality. 
+  For any terms \coqdocvariable{a} and \coqdocvariable{b} of a dependent type \coqdocvariable{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}, we note \coqref{Groupoid.groupoid interpretation.Id}{\coqdocdefinition{Id}} \coqdocvariable{a} \coqdocvariable{b} the equality type
+  between \coqdocvariable{a} and \coqdocvariable{b} obtained by lifting $\sim_1$ to get a type depending on \coqdocvariable{Γ}.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.Id}{Id}{\coqdocdefinition{Id}} \{\coqdocvar{Γ}\} (\coqdocvar{A}: \coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{a} \coqdocvar{b} : \coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}) \coqdoceol
+\coqdocindent{1.00em}
+: \coqdocdefinition{Typ} \coqdocvariable{Γ} := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{$\gamma$}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocnotation{(}\coqdocvariable{a} \coqdocnotation{$\star$} \coqdocvariable{$\gamma$} \coqdocnotation{$\sim_1$} \coqdocvariable{b} \coqdocnotation{$\star$} \coqdocvariable{$\gamma$} \coqdocnotation{;} \coqdocvar{\_}\coqdocnotation{);} \coqref{Groupoid.groupoid interpretation.Id 1}{\coqdocinstance{$\mathsf{Id_{comp}}$}} \coqdocvariable{A} \coqdocvariable{a} \coqdocvariable{b}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+The introduction rule of identity types which corresponds to reflexivity is interpreted by the (lifting of) identity of the underlying setoid. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.Refl}{Refl}{\coqdocdefinition{Refl}} \coqdocvar{Γ} (\coqdocvar{A}: \coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{a} : \coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}) \coqdoceol
+\coqdocindent{1.00em}
+: \coqdocdefinition{$\mathsf{Tm}$} (\coqref{Groupoid.groupoid interpretation.Id}{\coqdocdefinition{Id}} \coqdocvariable{a} \coqdocvariable{a}) := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{$\gamma$}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocprojection{identity} (\coqdocvariable{a} \coqdocnotation{$\star$} \coqdocvariable{$\gamma$})\coqdocnotation{;} \coqref{Groupoid.groupoid interpretation.Refl 1}{\coqdocinstance{$\mathsf{Refl_{comp}}$}} \coqdocvar{\_} \coqdocvar{\_} \coqdocvar{\_}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+We can interpret the \coqref{Groupoid.groupoid interpretation.J}{\coqdocdefinition{J}} eliminator of MLTT on \coqref{Groupoid.groupoid interpretation.Id}{\coqdocdefinition{Id}} using
+  functoriality of \coqdocvariable{P} and of product (\coqref{Groupoid.groupoid interpretation.prod comp}{\coqdocdefinition{$\mathsf{\Pi_{comp}}$}}). In the definition
+  of \coqref{Groupoid.groupoid interpretation.J}{\coqdocdefinition{J}}, the predicate \coqdocvariable{P} depends on the proof of equality, which is
+  interpreted using a \coqref{Groupoid.groupoid interpretation.Sigma}{\coqdocdefinition{Sigma}} type. The functoriality of \coqdocvariable{P} is used on
+  the term \coqref{Groupoid.groupoid interpretation.J Pair}{\coqdocdefinition{J\_Pair}} \coqdocvariable{e} \coqdocvariable{P} \coqdocvariable{$\gamma$}, which is a proof that (\coqdocvariable{a};\coqref{Groupoid.groupoid interpretation.Refl}{\coqdocdefinition{Refl}} \coqdocvariable{a}) is equal
+  to (\coqdocvariable{b};\coqdocvariable{e}). To state the rule, we need to do a rewriting at 
+  the level of terms, i.e., given an equality \coqdocvariable{e} : \coqdocvariable{T} $\sim_1$ \coqdocvariable{U} between two 
+  types in \coqdocvariable{A}, we use the map from \coqdocvariable{t} : \coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{T} to 
+  \coqdocvariable{t} \coqdockw{with} \coqdocvariable{e} : \coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{U} that comes from the
+  functoriality of \coqdocvar{$\Pi$}:\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation.J}{J}{\coqdocdefinition{J}} \coqdocvar{Γ} (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{a} \coqdocvar{b}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}) (\coqdocvar{P}:\coqdocdefinition{TypFam} (\coqref{Groupoid.groupoid interpretation.Sigma}{\coqdocdefinition{Sigma}} (\coqref{Groupoid.groupoid interpretation.LamT}{\coqdocdefinition{$\Lambda$}} (\coqref{Groupoid.groupoid interpretation.Id}{\coqdocdefinition{Id}} (\coqdocvariable{a} \coqdocnotation{$\circ$} \coqref{Groupoid.groupoid interpretation.Sub}{\coqdocdefinition{Sub}}) (\coqref{Groupoid.groupoid interpretation.Var}{\coqdocdefinition{Var}} \coqdocvariable{A})))))\coqdoceol
+\coqdocindent{7.50em}
+(\coqdocvar{e}:\coqdocdefinition{$\mathsf{Tm}$} (\coqref{Groupoid.groupoid interpretation.Id}{\coqdocdefinition{Id}} \coqdocvariable{a} \coqdocvariable{b})) (\coqdocvar{p}:\coqdocdefinition{$\mathsf{Tm}$} (\coqdocvariable{P}\coqref{Groupoid.groupoid interpretation.::x 'x7Bx7B' x 'x7Dx7D'}{\coqdocnotation{\{\{}}\coqref{Groupoid.groupoid interpretation.Pair}{\coqdocdefinition{Pair}} (\coqref{Groupoid.groupoid interpretation.Refl}{\coqdocdefinition{Refl}} \coqdocvariable{a} \coqref{Groupoid.groupoid interpretation.::x 'with' x}{\coqdocnotation{with}} \coqref{Groupoid.groupoid interpretation.BetaT2}{\coqdocdefinition{$\mathsf{BetaT'}$}})\coqref{Groupoid.groupoid interpretation.::x 'x7Bx7B' x 'x7Dx7D'}{\coqdocnotation{\}\}}})):\coqdoceol
+\coqdocindent{1.00em}
+\coqdocdefinition{$\mathsf{Tm}$} (\coqdocvariable{P}\coqref{Groupoid.groupoid interpretation.::x 'x7Bx7B' x 'x7Dx7D'}{\coqdocnotation{\{\{}}\coqref{Groupoid.groupoid interpretation.Pair}{\coqdocdefinition{Pair}} (\coqdocvariable{e} \coqref{Groupoid.groupoid interpretation.::x 'with' x}{\coqdocnotation{with}} \coqref{Groupoid.groupoid interpretation.BetaT2}{\coqdocdefinition{$\mathsf{BetaT'}$}})\coqref{Groupoid.groupoid interpretation.::x 'x7Bx7B' x 'x7Dx7D'}{\coqdocnotation{\}\}}}) :=\coqdoceol
+\coqdocindent{1.00em}
+\coqref{Groupoid.groupoid interpretation.prod comp}{\coqdocdefinition{$\mathsf{\Pi_{comp}}$}} \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{$\gamma$}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{(}}\coqdocabbreviation{map} (\coqdocvariable{P} \coqdocnotation{$\star$} \coqdocvariable{$\gamma$}) (\coqref{Groupoid.groupoid interpretation.J Pair}{\coqdocdefinition{J\_Pair}} \coqdocvariable{e} \coqdocvariable{P} \coqdocvariable{$\gamma$})\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{)}}\coqdocnotation{;} \coqref{Groupoid.groupoid interpretation.J 1}{\coqdocinstance{$\mathsf{J_{comp}}$}} \coqdocvar{\_} \coqdocvar{\_}\coqdocnotation{)} \coqdocnotation{$\star$} \coqdocvariable{p}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\noindent where \coqref{Groupoid.groupoid interpretation.BetaT2}{\coqdocdefinition{$\mathsf{BetaT'}$}} is another dedicated version of the $\beta$-rule for \coqref{Groupoid.groupoid interpretation.LamT}{\coqdocdefinition{$\Lambda$}}. \begin{coqdoccode}
+\coqdocemptyline
+\end{coqdoccode}

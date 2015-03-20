@@ -1,0 +1,8 @@
+DIGEST 1f79cfee321fab5d41139dcb22733c7a
+Fnotations
+syndef 974:976 <> Π1
+R981:986 Coq.Init.Specif <> projT1 def
+syndef 998:1000 <> Π2
+R1005:1010 Coq.Init.Specif <> projT2 def
+R1040:1045 Coq.Init.Specif <> existT constr
+not 1022:1022 <> ::'('_x_';'_x_')'

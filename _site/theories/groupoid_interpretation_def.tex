@@ -1,0 +1,57 @@
+\coqlibrary{Groupoid.groupoid interpretation def}{Library }{Groupoid.groupoid\_interpretation\_def}
+
+\begin{coqdoccode}
+\end{coqdoccode}
+
+
+  We now organize our formalization of groupoids into a model of the dependent 
+  type theory introduced in Section~\ref{sec:definitions}.
+  The interpretation is based on the notion of categories with families 
+  introduced by Dybjer~\cite{dybjer:internaltt} later used in \cite{groupoid-interp}.
+  This interpretation can also be seen as an extension of the Takeuti-Gandy interpretation of simple type theory, recently generalized to dependent type theory by Coquand et al. using Kan semisimplicial sets or cubical sets~\cite{barras:_gener_takeut_gandy_inter}. 
+  The main novelty of our interpretation is to
+  take advantage of universe polymorphism to interpret dependent types
+  directly as functors into \coqdocdefinition{$\mathsf{Type}_{0}^1$}. 
+  We only present the computational part of the interpretation, the
+  proofs of functoriality and naturality are available in the \Coq development.
+
+
+\subsection{Dependent types}
+
+
+
+
+  The judgment context $\Gamma \vdash$ of Section
+  \ref{sec:definitions} is represented in \Coq as a setoid, noted
+  \coqdockw{Context} := \coqdocdefinition{$\mathsf{Type_0}$}. The empty context (Rule \textsc{Empty})
+  is interpreted as the setoid with exactly one element at each
+  dimension.  Types in a context \coqdocvariable{Γ}, noted \coqref{Groupoid.groupoid interpretation def.Typ}{\coqdocdefinition{Typ}} \coqdocvariable{Γ}, are (context)
+  functors from \coqdocvariable{Γ} to the groupoid of setoids \coqdocdefinition{$\mathsf{Type}_{0}^1$}.  Thus, a
+  judgment $\Gamma \vdash A : \Type{}$ is represented as a term \coqdocvariable{A} of
+  type \coqref{Groupoid.groupoid interpretation def.Typ}{\coqdocdefinition{Typ}} \coqdocvariable{Γ}. Context extension (Rule \textsc{Decl}) is given by
+  dependent sums, i.e., the judgment $\Gamma, x:A \vdash$ is represented
+  as \coqdocvar{$\Sigma$} \coqdocvariable{A}.
+
+
+\begin{coqdoccode}
+\end{coqdoccode}
+Terms of \coqdocvariable{A} introduced by a sequent $\Gamma \vdash t:A$ are
+  dependent (context) functors from \coqdocvariable{Γ} to \coqdocvariable{A} that return for each
+  context valuation \coqdocvariable{$\gamma$}, an object of \coqdocvariable{A} $\star$ \coqdocvariable{$\gamma$} respecting equality of
+  contexts.  The type of terms of \coqdocvariable{A} is noted \coqref{Groupoid.groupoid interpretation def.Elt}{\coqdocdefinition{$\mathsf{Tm}$}} \coqdocvariable{A} := [\coqdocdefinition{$\Pi$} \coqdocvariable{A}]
+  (context is implicit).  
+
+  A dependent type $\Gamma, x:A \vdash B$ is interpreted in two
+  equivalent ways: simply as a type \coqref{Groupoid.groupoid interpretation def.TypDep}{\coqdocdefinition{TypDep}} \coqdocvariable{A} := \coqref{Groupoid.groupoid interpretation def.Typ}{\coqdocdefinition{Typ}} (\coqdocvar{$\Sigma$} \coqdocvariable{A}) over the
+  dependent sum of \coqdocvariable{Γ} and \coqdocvariable{A} or as a type family \coqref{Groupoid.groupoid interpretation def.TypFam}{\coqdocdefinition{TypFam}} \coqdocvariable{A} over \coqdocvariable{A}
+  (corresponding to a family of sets in constructive mathematics). A
+  type family can be seen as a fibration (or bundle) from \coqdocvar{B} to \coqdocvariable{A}.
+  In what follows, the indice $\mathsf{_{comp}}$ is given to proofs of 
+  (dependent) functoriality.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid interpretation def.TypFam}{TypFam}{\coqdocdefinition{TypFam}} \{\coqdocvar{Γ} : \coqref{Groupoid.groupoid interpretation def.Context}{\coqdocdefinition{Context}}\} (\coqdocvar{A}: \coqref{Groupoid.groupoid interpretation def.Typ}{\coqdocdefinition{Typ}} \coqdocvariable{Γ}) := \coqdoceol
+\coqdocindent{1.00em}
+\coqdocnotation{[}\coqdocdefinition{$\Pi$} \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{$\gamma$}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqref{Groupoid.groupoid interpretation def.::'[[' x ']]'}{\coqdocnotation{ }} \coqref{Groupoid.groupoid interpretation def.::'[[' x ']]'}{\coqdocnotation{(}}\coqdocvariable{A} \coqdocnotation{$\star$} \coqdocvariable{$\gamma$}\coqref{Groupoid.groupoid interpretation def.::'[[' x ']]'}{\coqdocnotation{)}} \coqref{Groupoid.groupoid interpretation def.::'[[' x ']]'}{\coqdocnotation{$_{\upharpoonright s}$}} \coqdocnotation{$\longrightarrow$} \coqdocdefinition{$\mathsf{Type}_{0}^1$}\coqdocnotation{;} \coqref{Groupoid.groupoid interpretation def.TypFam 1}{\coqdocinstance{$\mathsf{TypFam_{comp}}$}} \coqdocvar{\_}\coqdocnotation{)}\coqdocnotation{]}.\coqdoceol
+\end{coqdoccode}

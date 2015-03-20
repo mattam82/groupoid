@@ -1,0 +1,2 @@
+theories/prod_eq.vo theories/prod_eq.glob theories/prod_eq.v.beautified: theories/prod_eq.v theories/HoTT_light.vo theories/groupoid.vo theories/fun_eq.vo theories/groupoid_interpretation_def.vo theories/Equiv_adjoint.vo theories/fun_depfun.vo
+theories/prod_eq.vio: theories/prod_eq.v theories/HoTT_light.vio theories/groupoid.vio theories/fun_eq.vio theories/groupoid_interpretation_def.vio theories/Equiv_adjoint.vio theories/fun_depfun.vio

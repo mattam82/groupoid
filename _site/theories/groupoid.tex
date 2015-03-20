@@ -1,0 +1,437 @@
+\coqlibrary{Groupoid.groupoid}{Library }{Groupoid.groupoid}
+
+\begin{coqdoccode}
+\end{coqdoccode}
+  This section presents our formalization of groupoids in \Coq with
+  universe polymorphism. 
+  We first explain our overloaded management of
+  equalities and introduce type classes for groupoids and their
+  associated structures, i.e., functors, natural transformations and
+  homotopy equivalences
+  (\S\ref{sec:w2gpds}-\ref{sec:homequiv}).
+  Natural transformations give access to a homotopic form of
+  functional extensionality, while homotopy equivalences provide
+  extensionality at the level of 0-types.  Polymorphic universes are
+  needed to state that setoids and homotopy equivalences form a
+  groupoid.  Homotopic equivalences directly provide access to a
+  rewriting mechanism on types (\S\ref{sec:rew}). This rewriting is
+  used to extend functors and products to dependent functors and
+  dependent sums (\S\ref{sec:depprod}-\ref{sec:sigma}).
+ \subsection{Notations} \input{../theories/notations}
+
+
+\subsection{Definition of groupoids \label{sec:w2gpds}}
+
+
+
+
+We formalize groupoids using type classes.  Contrarily to what is done
+in the setoid translation, the basic notion of a morphism is an
+inhabitant of a relation in \coqdockw{Type} (i.e., a proof-relevant relation): \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.HomT}{$\mathsf{HomSet}$}{\coqdocdefinition{$\mathsf{HomSet}$}} (\coqdocvar{T} : \coqdockw{Type}) := \coqdocvariable{T} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{\ensuremath{\rightarrow}}} \coqdocvariable{T} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{\ensuremath{\rightarrow}}} \coqdockw{Type}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+  \noindent
+  Given \coqdocvariable{x} and \coqdocvariable{y} in \coqdocvariable{T}, \coqref{Groupoid.groupoid.HomT}{\coqdocdefinition{$\mathsf{HomSet}$}} \coqdocvariable{T} \coqdocvariable{x} \coqdocvariable{y} is the type of morphism from \coqdocvariable{x} to \coqdocvariable{y}. 
+  To manipulate different \coqref{Groupoid.groupoid.HomT}{\coqdocdefinition{$\mathsf{HomSet}$}}'s at dimension 1 and 2 more abstractly, we use ad-hoc 
+  polymorphism and introduce type classes \coqref{Groupoid.groupoid.HomT1}{\coqdocrecord{$\mathsf{HomSet}_1$}} and \coqref{Groupoid.groupoid.HomT2}{\coqdocrecord{$\mathsf{HomSet}_2$}} with according notations. 
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.HomT1}{$\mathsf{HomSet}_1$}{\coqdocrecord{$\mathsf{HomSet}_1$}} \coqdocvar{T} := \{\coqdef{Groupoid.groupoid.eq1}{$\coqdoccst{eq}_1$}{\coqdocprojection{$\coqdoccst{eq}_1$}} : \coqref{Groupoid.groupoid.HomT}{\coqdocdefinition{$\mathsf{HomSet}$}} \coqdocvariable{T}\}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Infix} \coqdef{Groupoid.groupoid.::x 'x7E1' x}{"}{"}$\sim_1$" := \coqref{Groupoid.groupoid.eq1}{\coqdocprojection{$\coqdoccst{eq}_1$}} (\coqdoctac{at} \coqdockw{level} 80).\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.HomT2}{$\mathsf{HomSet}_2$}{\coqdocrecord{$\mathsf{HomSet}_2$}} \{\coqdocvar{T}\} (\coqdocvar{Hom} : \coqref{Groupoid.groupoid.HomT}{\coqdocdefinition{$\mathsf{HomSet}$}} \coqdocvariable{T}) := \{\coqdef{Groupoid.groupoid.eq2}{$\coqdoccst{eq}_2$}{\coqdocprojection{$\coqdoccst{eq}_2$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\{}}\coqdocvar{x} \coqdocvar{y} : \coqdocvariable{T}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\},}} \coqref{Groupoid.groupoid.HomT}{\coqdocdefinition{$\mathsf{HomSet}$}} (\coqdocvariable{Hom} \coqdocvariable{x} \coqdocvariable{y})\}.\coqdoceol
+\coqdocnoindent
+\coqdockw{Infix} \coqdef{Groupoid.groupoid.::x 'x7E2' x}{"}{"}$\sim_2$" := \coqref{Groupoid.groupoid.eq2}{\coqdocprojection{$\coqdoccst{eq}_2$}} (\coqdoctac{at} \coqdockw{level} 80).\coqdoceol
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+Given a \coqref{Groupoid.groupoid.HomT}{\coqdocdefinition{$\mathsf{HomSet}$}}, we define type classes: \coqref{Groupoid.groupoid.Identity}{\coqdocrecord{Identity}} that gives the
+  identity morphism, \coqref{Groupoid.groupoid.Inverse}{\coqdocrecord{Inverse}} which corresponds to the existence of an
+  inverse morphism for every morphism (noted \coqdocvariable{f} $\hspace{-1ex}^{-1}$) and \coqref{Groupoid.groupoid.Composition}{\coqdocrecord{Composition}}
+  which corresponds to morphism composition (noted \coqdocvariable{g} $\circ$ \coqdocvariable{f}). Those three
+  properties are gathered by the type class \coqref{Groupoid.groupoid.Equivalence}{\coqdocrecord{Equivalence}}.\begin{coqdoccode}
+\end{coqdoccode}
+  A \coqref{Groupoid.groupoid.CategoryP}{\coqdocrecord{$\mathsf{PreCategory}$}} is defined as a category
+  where coherences are given up-to an equivalence relation denoted by
+  $\sim_2$.  Ordinary categories are derived with the additional requirement
+  that higher equalities are trivial, which can be expressed using
+  identity types (see the definition of \coqref{Groupoid.groupoid.Groupoid}{\coqdocrecord{$\mathsf{IsType_1}$}}).  
+
+
+  We do not put this condition into the basic definition because
+categories and functors form a pre-category but not a 1-category. Thus,
+working with pre-categories and pre-groupoids allows to share more
+structure and is closer to the ω-groupoid model which is itself enriched.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.CategoryP}{$\mathsf{PreCategory}$}{\coqdocrecord{$\mathsf{PreCategory}$}} \coqdocvar{T} := \{ \coqdef{Groupoid.groupoid.Hom1}{$\mathsf{Hom}_1$}{\coqdocprojection{$\mathsf{Hom}_1$}} :> \coqref{Groupoid.groupoid.HomT1}{\coqdocclass{$\mathsf{HomSet}_1$}} \coqdocvariable{T}; \coqdef{Groupoid.groupoid.Hom2}{$\mathsf{Hom}_2$}{\coqdocprojection{$\mathsf{Hom}_2$}} :> \coqref{Groupoid.groupoid.HomT2}{\coqdocclass{$\mathsf{HomSet}_2$}} \coqref{Groupoid.groupoid.eq1}{\coqdocprojection{$\coqdoccst{eq}_1$}};\coqdoceol
+\coqdocindent{2.50em}
+\coqdef{Groupoid.groupoid.Id}{Id}{\coqdocprojection{Id}} :> \coqref{Groupoid.groupoid.Identity}{\coqdocclass{Identity}} \coqref{Groupoid.groupoid.eq1}{\coqdocprojection{$\coqdoccst{eq}_1$}}; \coqdef{Groupoid.groupoid.Comp}{Comp}{\coqdocprojection{Comp}} :> \coqref{Groupoid.groupoid.Composition}{\coqdocclass{Composition}} \coqref{Groupoid.groupoid.eq1}{\coqdocprojection{$\coqdoccst{eq}_1$}};\coqdoceol
+\coqdocindent{2.50em}
+\coqdef{Groupoid.groupoid.Equivalence 2}{$\mathsf{Equivalence}_2$}{\coqdocprojection{$\mathsf{Equivalence}_2$}} :> \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x} \coqdocvar{y}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{(}}\coqref{Groupoid.groupoid.Equivalence}{\coqdocclass{Equivalence}} (\coqref{Groupoid.groupoid.eq2}{\coqdocprojection{$\coqdoccst{eq}_2$}} (\coqdocvar{x}:=\coqdocvariable{x}) (\coqdocvar{y}:=\coqdocvariable{y}))\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{)}};\coqdoceol
+\coqdocindent{2.50em}
+\coqdef{Groupoid.groupoid.id R}{$\coqdoccst{id}_R$}{\coqdocprojection{$\coqdoccst{id}_R$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x} \coqdocvar{y} (\coqdocvar{f} : \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqref{Groupoid.groupoid.identity}{\coqdocprojection{identity}} \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{f} ;\coqdoceol
+\coqdocindent{2.50em}
+\coqdef{Groupoid.groupoid.id L}{$\coqdoccst{id}_L$}{\coqdocprojection{$\coqdoccst{id}_L$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x} \coqdocvar{y} (\coqdocvar{f} : \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}} \coqref{Groupoid.groupoid.identity}{\coqdocprojection{identity}} \coqdocvariable{y} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{f} ;\coqdoceol
+\coqdocindent{2.50em}
+\coqdef{Groupoid.groupoid.assoc}{assoc}{\coqdocprojection{assoc}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x} \coqdocvar{y} \coqdocvar{z} \coqdocvar{w} (\coqdocvar{f}: \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}) (\coqdocvar{g}: \coqdocvariable{y} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{z}) (\coqdocvar{h}: \coqdocvariable{z} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{w}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}}\coqdoceol
+\coqdocindent{7.00em}
+\coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{(}}\coqdocvariable{h} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{g}\coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{)}} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{h} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{(}}\coqdocvariable{g} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{f}\coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{)}};\coqdoceol
+\coqdocindent{2.50em}
+\coqdef{Groupoid.groupoid.comp}{comp}{\coqdocprojection{comp}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x} \coqdocvar{y} \coqdocvar{z} (\coqdocvar{f} \coqdocvar{f'}: \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}) (\coqdocvar{g} \coqdocvar{g'}: \coqdocvariable{y} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{z}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}} \coqdoceol
+\coqdocindent{7.00em}
+\coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{f'} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{\ensuremath{\rightarrow}}} \coqdocvariable{g} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{g'} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{\ensuremath{\rightarrow}}} \coqdocvariable{g} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{g'} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{f'} \}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+  In homotopy type theory, coherences are expressed using identity types, with a further requirement that the internal notion of equality induced by the category (isomorphism between two objects) coincides with its identity type.  
+  We do not share this point of view because our goal is to restrict the use of identity types to the treatment of contractedness for higher cells. 
+  Note that the \coqref{Groupoid.groupoid.comp}{\coqdocprojection{comp}} law is not present in traditional definition of categories 
+  because it is automatically satisfied for the identity type.
+\begin{coqdoccode}
+\end{coqdoccode}
+
+
+ A \coqref{Groupoid.groupoid.GroupoidP}{\coqdocrecord{$\mathsf{PreGroupoid}$}} is a \coqref{Groupoid.groupoid.CategoryP}{\coqdocrecord{$\mathsf{PreCategory}$}} where all 1-Homs are invertible
+ and subject to additional compatibility laws for inverses.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.GroupoidP}{$\mathsf{PreGroupoid}$}{\coqdocrecord{$\mathsf{PreGroupoid}$}} \coqdocvar{T} := \{ \coqdef{Groupoid.groupoid.C}{C}{\coqdocprojection{C}} :> \coqref{Groupoid.groupoid.CategoryP}{\coqdocclass{$\mathsf{PreCategory}$}} \coqdocvariable{T} ;  \coqdef{Groupoid.groupoid.Inv}{Inv}{\coqdocprojection{Inv}} :> \coqref{Groupoid.groupoid.Inverse}{\coqdocclass{Inverse}} \coqref{Groupoid.groupoid.eq1}{\coqdocprojection{$\coqdoccst{eq}_1$}} ;\coqdoceol
+\coqdocindent{2.50em}
+\coqdef{Groupoid.groupoid.inv R}{$\coqdoccst{inv}_R$}{\coqdocprojection{$\coqdoccst{inv}_R$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x} \coqdocvar{y} (\coqdocvar{f}: \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x5E-1'}{\coqdocnotation{$\hspace{-1ex}^{-1}$}} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.identity}{\coqdocprojection{identity}} \coqdocvariable{y} ;\coqdoceol
+\coqdocindent{2.50em}
+\coqdef{Groupoid.groupoid.inv L}{$\coqdoccst{inv}_L$}{\coqdocprojection{$\coqdoccst{inv}_L$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x} \coqdocvar{y} (\coqdocvar{f}: \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x5E-1'}{\coqdocnotation{$\hspace{-1ex}^{-1}$}} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.identity}{\coqdocprojection{identity}} \coqdocvariable{x} ;\coqdoceol
+\coqdocindent{2.50em}
+\coqdef{Groupoid.groupoid.inv}{inv}{\coqdocprojection{inv}} :   \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x} \coqdocvar{y} (\coqdocvar{f} \coqdocvar{f'}: \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{f'} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{\ensuremath{\rightarrow}}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x5E-1'}{\coqdocnotation{$\hspace{-1ex}^{-1}$}} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{f'} \coqref{Groupoid.groupoid.::x 'x5E-1'}{\coqdocnotation{$\hspace{-1ex}^{-1}$}}\}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+   Groupoids are then pre-groupoids where equality at
+   dimension 2 is irrelevant. This irrelevance is defined using a
+   notion of contractibility expressed with (relevant) identity types.  \begin{coqdoccode}
+\coqdocemptyline
+\end{coqdoccode}
+This is a way to require that all higher-cells are trivial. In our setting, we do not have the possibility to say that all 2-cells are related by a 3-cell, and so on. The price to pay will be explicit reasoning on identity types when proving for instance contractedness for the function space. In that case, we need the axiom of functional extensionality.
+By analogy to homotopy type theory, we note \coqref{Groupoid.groupoid.Groupoid}{\coqdocrecord{$\mathsf{IsType_1}$}} the property of being a groupoid. 
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.Groupoid}{$\mathsf{IsType_1}$}{\coqdocrecord{$\mathsf{IsType_1}$}} \coqdocvar{T} := \{ \coqdef{Groupoid.groupoid.G}{G}{\coqdocprojection{G}} :> \coqref{Groupoid.groupoid.GroupoidP}{\coqdocclass{$\mathsf{PreGroupoid}$}} \coqdocvariable{T} ;\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid.is Trunc 2}{is\_Trunc\_2}{\coqdocprojection{is\_Trunc\_2}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{(}}\coqdocvar{x} \coqdocvar{y} : \coqdocvariable{T}) (\coqdocvar{e} \coqdocvar{e'} : \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}) (\coqdocvar{E} \coqdocvar{E'} : \coqdocvariable{e} \coqref{Groupoid.groupoid.::x 'x7E2' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{e'}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}} \coqdocclass{Contr} (\coqdocvariable{E} \coqdocnotation{=} \coqdocvariable{E'})\}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\noindent 
+    In the same way, we define \coqref{Groupoid.groupoid.Setoid}{\coqdocrecord{$\mathsf{IsType_0}$}} when equality is irrelevant at dimension 1.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.Setoid}{$\mathsf{IsType_0}$}{\coqdocrecord{$\mathsf{IsType_0}$}} \coqdocvar{T} := \{ \coqdef{Groupoid.groupoid.S}{S}{\coqdocprojection{S}} :> \coqref{Groupoid.groupoid.Groupoid}{\coqdocclass{$\mathsf{IsType_1}$}} \coqdocvariable{T} ; \coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid.is Trunc 1}{is\_Trunc\_1}{\coqdocprojection{is\_Trunc\_1}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{(}}\coqdocvar{x} \coqdocvar{y} : \coqdocvariable{T}) (\coqdocvar{e} \coqdocvar{e'} : \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{)}} \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocclass{Contr} (\coqdocvariable{e} \coqdocnotation{=} \coqdocvariable{e'})\}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+   We note \coqref{Groupoid.groupoid.GroupoidType}{\coqdocdefinition{$\mathsf{Type_1}$}} for the types that form a \coqref{Groupoid.groupoid.Groupoid}{\coqdocrecord{$\mathsf{IsType_1}$}}.
+       The subscript $1$ comes from the fact that groupoids are 1-truncated types
+       in homotopy type theory. In the same way,  
+       we note \coqref{Groupoid.groupoid.SetoidType}{\coqdocdefinition{$\mathsf{Type_0}$}} 
+       for the types that form a \coqref{Groupoid.groupoid.Setoid}{\coqdocrecord{$\mathsf{IsType_0}$}}.
+       We define   \coqdocvariable{T}$_{\upharpoonright s}$  the lifting of setoids (inhabitants of \coqref{Groupoid.groupoid.SetoidType}{\coqdocdefinition{$\mathsf{Type_0}$}}) to groupoids.
+\begin{coqdoccode}
+\end{coqdoccode}
+\subsection{Functors and natural transformations}
+
+
+\label{sec:funextnat}
+A morphism between two groupoids is a functor, i.e., a function
+between objects of the groupoids that transports homs and
+subject to compatibility laws. 
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.Functor}{Functor}{\coqdocrecord{Functor}} \{\coqdocvar{T} \coqdocvar{U} : \coqref{Groupoid.groupoid.UGroupoidType}{\coqdocdefinition{$\mathsf{Type_{1}}$}}\} (\coqdocvar{f} : \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{\ensuremath{\rightarrow}}} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{U}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) : \coqdockw{Type} :=\coqdoceol
+\coqdocnoindent
+\{ \coqdef{Groupoid.groupoid. map}{$\coqdoccst{map}$}{\coqdocprojection{$\coqdoccst{map}$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \{\coqdocvar{x} \coqdocvar{y}\}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{\ensuremath{\rightarrow}}} \coqdocvariable{f} \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{f} \coqdocvariable{y} ;\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. map id}{$\coqdoccst{map}_\coqdoccst{id}$}{\coqdocprojection{$\coqdoccst{map}_\coqdoccst{id}$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \{\coqdocvar{x}\}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqref{Groupoid.groupoid. map}{\coqdocmethod{$\coqdoccst{map}$}} (\coqref{Groupoid.groupoid.identity}{\coqdocprojection{identity}} \coqdocvariable{x}) \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.identity}{\coqdocprojection{identity}} (\coqdocvariable{f} \coqdocvariable{x}) ;\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. map comp}{$\coqdoccst{map}_\coqdoccst{comp}$}{\coqdocprojection{$\coqdoccst{map}_\coqdoccst{comp}$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \{\coqdocvar{x} \coqdocvar{y} \coqdocvar{z}\} (\coqdocvar{e}:\coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}) (\coqdocvar{e'}:\coqdocvariable{y} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{z}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}} \coqref{Groupoid.groupoid. map}{\coqdocmethod{$\coqdoccst{map}$}} (\coqdocvariable{e'} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{e}) \coqref{Groupoid.groupoid.::x 'x7E2' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid. map}{\coqdocmethod{$\coqdoccst{map}$}} \coqdocvariable{e'} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqref{Groupoid.groupoid. map}{\coqdocmethod{$\coqdoccst{map}$}} \coqdocvariable{e} ;\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. map2}{$\coqdoccst{map}_2$}{\coqdocprojection{$\coqdoccst{map}_2$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\{}}\coqdocvar{x} \coqdocvar{y}:\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}\} \{\coqdocvar{e} \coqdocvar{e'} : \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\},}} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{(}}\coqdocvariable{e} \coqref{Groupoid.groupoid.::x 'x7E2' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{e'}\coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{)}} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{\ensuremath{\rightarrow}}} \coqref{Groupoid.groupoid. map}{\coqdocmethod{$\coqdoccst{map}$}}  \coqdocvariable{e} \coqref{Groupoid.groupoid.::x 'x7E2' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid. map}{\coqdocmethod{$\coqdoccst{map}$}} \coqdocvariable{e'} \}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.Fun Type}{Fun\_Type}{\coqdocdefinition{Fun\_Type}} (\coqdocvar{T} \coqdocvar{U} : \coqref{Groupoid.groupoid.UGroupoidType}{\coqdocdefinition{$\mathsf{Type_{1}}$}}) := \coqdocnotation{\{}\coqdocvar{f} \coqdocnotation{:} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{\ensuremath{\rightarrow}}} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{U}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqdocnotation{\&} \coqref{Groupoid.groupoid.Functor}{\coqdocclass{Functor}} \coqdocvar{f}\coqdocnotation{\}}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\noindent We note \coqdocvariable{T} $\longrightarrow$ \coqdocvariable{U} the type of functors from \coqdocvariable{T} to \coqdocvariable{U}.
+Note that we only impose compatibility with the composition as
+compatibilities with identities and inverse Homs can be deduced from
+it. We note \coqdocvariable{M} $\star$ \coqdocvariable{N} the application of a function \coqdocvariable{M} in the first
+component of a dependent pair. \begin{coqdoccode}
+\end{coqdoccode}
+Equivalence between functors is given by natural transformations.
+  We insist here that this naturality condition in the definition of
+  functor equality is crucial in a higher setting.  It is usually
+  derivable in formalizations of homotopy theory in Coq because there they
+  only consider the 1-groupoid case where the naturality comes for
+  free from functional extensionality, see for instance~\cite{coq_unival_axiom}.  \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.NaturalTransformation}{$\mathsf{NaturalTrans}$}{\coqdocrecord{$\mathsf{NaturalTrans}$}} \coqdocvar{T} \coqdocvar{U} \{\coqdocvar{f} \coqdocvar{g} : \coqdocvariable{T} \coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{$\longrightarrow$}} \coqdocvariable{U}\} (\coqdocvar{α} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{t} : \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{t} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{g} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{t}) := \coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. xCExB1 map}{$\coqdoccst{α}_\mathsf{map}$}{\coqdocprojection{$\coqdoccst{α}_\mathsf{map}$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \{\coqdocvar{t} \coqdocvar{t'}\} (\coqdocvar{e} : \coqdocvariable{t} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{t'}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}} \coqdocvariable{α} \coqdocvariable{t'} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqref{Groupoid.groupoid.map}{\coqdocabbreviation{map}} \coqdocvariable{f} \coqdocvariable{e} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.map}{\coqdocabbreviation{map}} \coqdocvariable{g} \coqdocvariable{e} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{α} \coqdocvariable{t}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.nat trans}{nat\_trans}{\coqdocdefinition{nat\_trans}} \coqdocvar{T} \coqdocvar{U} : \coqref{Groupoid.groupoid.HomT}{\coqdocdefinition{$\mathsf{HomSet}$}} (\coqdocvariable{T} \coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{$\longrightarrow$}} \coqdocvariable{U}) \coqdoceol
+\coqdocindent{0.50em}
+:= \coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{f} \coqdocvar{g}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocnotation{\{}\coqdocvar{α} \coqdocnotation{:} \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{t} : \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{t} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{g} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{t} \coqdocnotation{\&} \coqref{Groupoid.groupoid.NaturalTransformation}{\coqdocclass{$\mathsf{NaturalTrans}$}} \coqdocvar{α}\coqdocnotation{\}}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+In our setting, equality between natural transformations is not expressed using identity types, but using the higher categorical notion of modification.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.modification}{modification}{\coqdocdefinition{modification}} \coqdocvar{T} \coqdocvar{U} (\coqdocvar{f} \coqdocvar{g} : \coqdocvariable{T} \coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{$\longrightarrow$}} \coqdocvariable{U}) : \coqref{Groupoid.groupoid.HomT}{\coqdocdefinition{$\mathsf{HomSet}$}} (\coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{g}) \coqdoceol
+\coqdocindent{1.00em}
+:= \coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{α} \coqdocvar{$\beta$}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{t} : \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocvariable{α} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{t} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{$\beta$} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{t}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\noindent
+    We can now equip the functor space with a groupoid structure. Note
+    here that we (abusively) use the same notation for the functor type and 
+    its corresponding groupoid. \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid. fun}{\_fun}{\coqdocdefinition{\_fun}} \coqdocvar{T} \coqdocvar{U} : \coqref{Groupoid.groupoid.UGroupoidType}{\coqdocdefinition{$\mathsf{Type_{1}}$}} := \coqdocnotation{(}\coqdocvariable{T} \coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{$\longrightarrow$}} \coqdocvariable{U} \coqdocnotation{;} \coqref{Groupoid.groupoid.nat trans grp}{\coqdocinstance{$\mathsf{fun_{grp}}$}} \coqdocvariable{T} \coqdocvariable{U}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+ In the definition above, \coqref{Groupoid.groupoid.nat trans grp}{\coqdocinstance{$\mathsf{fun_{grp}}$}} is a proof that \coqref{Groupoid.groupoid.nat trans}{\coqdocdefinition{nat\_trans}} and \coqref{Groupoid.groupoid.modification}{\coqdocdefinition{modification}} form a groupoid on \coqdocvariable{T} $\longrightarrow$ \coqdocvariable{U}. In particular, it makes use of functional extensionality, which says that the canonical proof of \coqdocvariable{f} = \coqdocvariable{g} \ensuremath{\rightarrow} ∀ \coqdocvariable{x}, \coqdocvariable{f} \coqdocvariable{x} = \coqdocvariable{g} \coqdocvariable{x} is an equivalence (in the sense of homotopy type theory).   
+ \begin{coqdoccode}
+\coqdocemptyline
+\end{coqdoccode}
+\subsection{Homotopic equivalences}
+
+
+ \label{sec:homequiv}   
+    The standard notion of equivalence between groupoids is given by
+    adjoint equivalences, that is a map with an \coqref{Groupoid.groupoid.adjoint}{\coqdocabbreviation{adjoint}} and two proofs
+    that they form a \coqref{Groupoid.groupoid.section}{\coqdocabbreviation{section}} (or counit of the adjunction) and a
+    \coqref{Groupoid.groupoid.retraction}{\coqdocabbreviation{retraction}} (or unit of the adjunction). \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.Iso struct}{Iso\_struct}{\coqdocrecord{Iso\_struct}} \coqdocvar{T} \coqdocvar{U} (\coqdocvar{f} : \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T} \coqref{Groupoid.groupoid.::x '-->' x}{\coqdocnotation{$\longrightarrow$}} \coqdocvariable{U}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) := \coqdoceol
+\coqdocnoindent
+\{ \coqdef{Groupoid.groupoid. adjoint}{$\coqdoccst{adjoint}$}{\coqdocprojection{$\coqdoccst{adjoint}$}} :    \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{U} \coqref{Groupoid.groupoid.::x '-->' x}{\coqdocnotation{$\longrightarrow$}} \coqdocvariable{T}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} ;\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. section}{$\coqdoccst{section}$}{\coqdocprojection{$\coqdoccst{section}$}} :    \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqref{Groupoid.groupoid. adjoint}{\coqdocmethod{$\coqdoccst{adjoint}$}} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.identity}{\coqdocprojection{identity}} \coqdocvariable{U} ;\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. retraction}{$\coqdoccst{retraction}$}{\coqdocprojection{$\coqdoccst{retraction}$}} : \coqref{Groupoid.groupoid. adjoint}{\coqdocmethod{$\coqdoccst{adjoint}$}} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.identity}{\coqdocprojection{identity}} \coqdocvariable{T}\}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+This type class defines usual equivalences. To get an adjoint
+    equivalence, an additional triangle identity between sections and
+    retractions is required. This allows to eliminate a section against
+    a retraction in proofs. A corresponding triangle identity involving
+    \coqref{Groupoid.groupoid.adjoint}{\coqdocabbreviation{adjoint}} \coqdocvariable{f} can also be expressed, but it can be shown that each
+    condition implies the other.  \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.Equiv struct}{Equiv\_struct}{\coqdocrecord{Equiv\_struct}} \coqdocvar{T} \coqdocvar{U} (\coqdocvar{f} : \coqdocvariable{T} \coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{$\longrightarrow$}} \coqdocvariable{U}) := \coqdoceol
+\coqdocnoindent
+\{ \coqdef{Groupoid.groupoid.iso}{iso}{\coqdocprojection{iso}} :> \coqref{Groupoid.groupoid.Iso struct}{\coqdocclass{Iso\_struct}} \coqdocvariable{f};\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. triangle}{$\coqdoccst{triangle}$}{\coqdocprojection{$\coqdoccst{triangle}$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{t}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqref{Groupoid.groupoid. section}{\coqdocprojection{$\coqdoccst{section}$}} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{(}}\coqdocvariable{f} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{t}\coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{)}} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.map}{\coqdocabbreviation{map}} \coqdocvariable{f} (\coqref{Groupoid.groupoid. retraction}{\coqdocprojection{$\coqdoccst{retraction}$}} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{t})\}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.Equiv}{Equiv}{\coqdocdefinition{Equiv}} \coqdocvar{A} \coqdocvar{B} := \coqdocnotation{\{}\coqdocvar{f} \coqdocnotation{:} \coqdocvariable{A} \coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{$\longrightarrow$}} \coqdocvariable{B} \coqdocnotation{\&} \coqref{Groupoid.groupoid.Equiv struct}{\coqdocclass{Equiv\_struct}} \coqdocvar{f}\coqdocnotation{\}}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+
+
+   It is well known that any equivalence can be turned into an adjoint
+   equivalence by slightly modifying the section. While available in
+   our formalization, this result should be used with care as it
+   opacifies the underlying notion of homotopy and can harden proofs.
+\begin{coqdoccode}
+\coqdocemptyline
+\end{coqdoccode}
+Equality of homotopy equivalences is given by equivalence of
+  adjunctions. Two adjunctions are equivalent if their left adjoints are
+  equivalent and they agree on their sections (up-to the isomorphism).
+  Note that equivalence of the right adjoints and agreement on their
+  retractions can be deduced so they are not part of the definition.  \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.EquivEq}{EquivEq}{\coqdocrecord{EquivEq}} \{\coqdocvar{T} \coqdocvar{U}\} \{\coqdocvar{f} \coqdocvar{g} : \coqref{Groupoid.groupoid.Equiv}{\coqdocdefinition{Equiv}} \coqdocvariable{T} \coqdocvariable{U}\} (\coqdocvar{α} : \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{f}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{g}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) : \coqdockw{Type} :=  \coqdoceol
+\coqdocindent{0.50em}
+\coqdef{Groupoid.groupoid. eq section}{\_eq\_section}{\coqdocprojection{\_eq\_section}} : \coqref{Groupoid.groupoid.section}{\coqdocabbreviation{section}} \coqdocvariable{f} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.section}{\coqdocabbreviation{section}} \coqdocvariable{g} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{(}}\coqdocvariable{α} \coqref{Groupoid.groupoid.::x 'xC2xB0''' x}{\coqdocnotation{$\circ$}} \coqref{Groupoid.groupoid.::x 'xC2xB0''' x}{\coqdocnotation{(}}\coqref{Groupoid.groupoid.Equiv adjoint}{\coqdocdefinition{Equiv\_adjoint}} \coqdocvariable{α}\coqref{Groupoid.groupoid.::x 'xC2xB0''' x}{\coqdocnotation{)}}\coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{)}}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.Equiv eq}{Equiv\_eq}{\coqdocdefinition{Equiv\_eq}} \coqdocvar{T} \coqdocvar{U} (\coqdocvar{f} \coqdocvar{g} : \coqref{Groupoid.groupoid.Equiv}{\coqdocdefinition{Equiv}} \coqdocvariable{T} \coqdocvariable{U}) := \coqdocnotation{\{}\coqdocvar{α} \coqdocnotation{:} \coqref{Groupoid.groupoid.nat trans}{\coqdocdefinition{nat\_trans}} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{f}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{g}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqdocnotation{\&} \coqref{Groupoid.groupoid.EquivEq}{\coqdocclass{EquivEq}} \coqdocvar{α}\coqdocnotation{\}}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+It is crucial here to be able to express the 2-dimensional equality
+  between groupoids as a particular \coqdockw{Type} and not directly using the
+  identity type. Indeed, whereas the functional extensionality principle
+  makes the use of the identity type and modification equivalent to
+  treat equality of natural transformations, the same is not possible
+  for homotopy equivalences.  \begin{coqdoccode}
+\coqdocemptyline
+\end{coqdoccode}
+We can define the pre-groupoid \coqref{Groupoid.groupoid. Type}{\coqdocabbreviation{$\mathsf{Type}_{1}^{1}$}} of groupoids and homotopy
+ equivalences.  However, groupoids together with homotopy equivalences
+ do not form a groupoid but rather a 2-groupoid. As we only have a
+ formalization of groupoids, this can not be expressed in our
+ setting. Nevertheless, we can state that setoids (inhabitants of
+ \coqref{Groupoid.groupoid.SetoidType}{\coqdocdefinition{$\mathsf{Type_0}$}}) form a groupoid.  \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.Type0}{$\mathsf{Type}_{0}^1$}{\coqdocdefinition{$\mathsf{Type}_{0}^1$}} : \coqref{Groupoid.groupoid.GroupoidType}{\coqdocdefinition{$\mathsf{Type_1}$}} := \coqdocnotation{(}\coqref{Groupoid.groupoid.SetoidType}{\coqdocdefinition{$\mathsf{Type_0}$}} \coqdocnotation{;} \coqref{Groupoid.groupoid.Equiv Groupoid}{\coqdocinstance{$\mathsf{Equiv_{Type_0}}$}}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\noindent In the definition above, \coqref{Groupoid.groupoid.Equiv Groupoid}{\coqdocinstance{$\mathsf{Equiv_{Type_0}}$}} is a proof
+that \coqref{Groupoid.groupoid.Equiv}{\coqdocdefinition{Equiv}} and \coqref{Groupoid.groupoid.Equiv eq}{\coqdocdefinition{Equiv\_eq}} form a groupoid. It makes again use of
+functional extensionality to prove contractibility of higher cells.  As
+the type of pre-groupoids appears both in the term and the type, the use of
+polymorphic universes is crucial here to avoid an inconsistency. \begin{coqdoccode}
+\end{coqdoccode}
+\subsection{Rewriting in homotopy type theory}
+
+
+  \label{sec:rew}
+
+
+  When considering a dependent family \coqdocvariable{F} of type [\coqdocvariable{A} $\longrightarrow$ \coqref{Groupoid.groupoid. Type}{\coqdocabbreviation{$\mathsf{Type}_{1}^{1}$}}], the \coqref{Groupoid.groupoid. map}{\coqdocprojection{$\coqdoccst{map}$}} function
+  provides a homotopy equivalence between \coqdocvariable{F} $\star$ \coqdocvariable{x} and \coqdocvariable{F} $\star$ \coqdocvariable{y} for any \coqdocvariable{x}
+  and \coqdocvariable{y} such that \coqdocvariable{x} $\sim_1$ \coqdocvariable{y}. The underlying map of homotopy equivalence
+  can hence be used to cast any term of type [\coqdocvariable{F} $\star$ \coqdocvariable{x}] to [\coqdocvariable{F} $\star$ \coqdocvariable{y}].
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.transport}{transport}{\coqdocdefinition{transport}} \coqdocvar{A} (\coqdocvar{F}:\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{A} \coqref{Groupoid.groupoid.::x '-->' x}{\coqdocnotation{$\longrightarrow$}} \coqref{Groupoid.groupoid. Type}{\coqdocabbreviation{$\mathsf{Type}_{1}^{1}$}}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) \{\coqdocvar{x} \coqdocvar{y}:\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{A}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}\} (\coqdocvar{e}:\coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}) \coqdoceol
+\coqdocindent{1.00em}
+: \coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{(}}\coqdocvariable{F} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{x}\coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{)}} \coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{$\longrightarrow$}} \coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{(}}\coqdocvariable{F} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{y}\coqref{Groupoid.groupoid.::x '--->' x}{\coqdocnotation{)}} := \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqref{Groupoid.groupoid.map}{\coqdocabbreviation{map}} \coqdocvariable{F} \coqdocvariable{e}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Using compatibility on \coqref{Groupoid.groupoid. map}{\coqdocprojection{$\coqdoccst{map}$}}, we can reason on different transport paths.  
+  Intuitively, any two transport maps with the same domain
+  and codomain should be the same up to homotopy. As we only consider
+  groupoids, there is only one relevant level of compatibilities,
+  higher compatibilities are trivial. \coqref{Groupoid.groupoid.transport eq}{\coqdocdefinition{$\mathsf{transport_{eq}}$}} is an example of a
+  derivable equality between two transport maps, when the proofs
+  relating \coqdocvariable{x} and \coqdocvariable{y} are equal.  \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.transport eq}{$\mathsf{transport_{eq}}$}{\coqdocdefinition{$\mathsf{transport_{eq}}$}} \coqdocvar{A} (\coqdocvar{F}:\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{A} \coqref{Groupoid.groupoid.::x '-->' x}{\coqdocnotation{$\longrightarrow$}} \coqref{Groupoid.groupoid. Type}{\coqdocabbreviation{$\mathsf{Type}_{1}^{1}$}}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) \{\coqdocvar{x} \coqdocvar{y}:\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{A}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}\} \{\coqdocvar{e} \coqdocvar{e'}:\coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}\} (\coqdocvar{H}:\coqdocvariable{e} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{e'}) \coqdoceol
+\coqdocindent{1.00em}
+: \coqref{Groupoid.groupoid.transport}{\coqdocdefinition{transport}} \coqdocvariable{F} \coqdocvariable{e} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqref{Groupoid.groupoid.transport}{\coqdocdefinition{transport}} \coqdocvariable{F} \coqdocvariable{e'} := \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqref{Groupoid.groupoid.map2}{\coqdocabbreviation{$\coqdoccst{map}_2$}} \coqdocvariable{F} \coqdocvariable{H}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\noindent In the text, 
+  we also use \coqref{Groupoid.groupoid.transport id}{\coqdocdefinition{$\mathsf{transport_{id}}$}}, \coqref{Groupoid.groupoid.transport comp}{\coqdocdefinition{$\mathsf{transport_{comp}}$}} and \coqref{Groupoid.groupoid.transport map}{\coqdocdefinition{$\mathsf{transport_{map}}$}} for compatibilities with identities, composition and for the functoriality of \coqref{Groupoid.groupoid.transport}{\coqdocdefinition{transport}}. \begin{coqdoccode}
+\coqdocemptyline
+\end{coqdoccode}
+\subsection{Dependent Product}
+
+
+  \label{sec:depprod}
+  As for functions, dependent functions will be interpreted as functors. 
+  But this time, the compatibilities with higher-order morphisms cannot
+  be expressed as simple equalities, as some transport has to be done to 
+  make those equalities typable. We call such a functor a 
+  \emph{dependent functor}. Dependent functors are defined between a groupoid \coqdocvariable{T} and a functor \coqdocvariable{U} from \coqdocvariable{T} to \coqref{Groupoid.groupoid. Type}{\coqdocabbreviation{$\mathsf{Type}_{1}^{1}$}} (the pre-groupoid of groupoids). \coqdocvariable{U} must be seen as a type depending on \coqdocvariable{T}, or as a family of types indexed by \coqdocvariable{T}. 
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Class} \coqdef{Groupoid.groupoid.DependentFunctor}{$\mathsf{Functor}^\Pi$}{\coqdocrecord{$\mathsf{Functor}^\Pi$}} \coqdocvar{T} (\coqdocvar{U} : \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T} \coqref{Groupoid.groupoid.::x '-->' x}{\coqdocnotation{$\longrightarrow$}} \coqref{Groupoid.groupoid. Type}{\coqdocabbreviation{$\mathsf{Type}_{1}^{1}$}}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) (\coqdocvar{f} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{t}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{U} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{t}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) : \coqdockw{Type} := \{\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. Dmap}{$\coqdoccst{map}^{\cst{\Pi}}$}{\coqdocprojection{$\coqdoccst{map}^{\cst{\Pi}}$}}      : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \{\coqdocvar{x} \coqdocvar{y}\} (\coqdocvar{e}: \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}} \coqref{Groupoid.groupoid.transport}{\coqdocdefinition{transport}} \coqdocvariable{U} \coqdocvariable{e} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{(}}\coqdocvariable{f} \coqdocvariable{x}\coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{)}} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{f} \coqdocvariable{y} ;\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. Dmap id}{$\coqdoccst{map}^\Pi_\mathsf{id}$}{\coqdocprojection{$\coqdoccst{map}^\Pi_\mathsf{id}$}}   : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqref{Groupoid.groupoid. Dmap}{\coqdocmethod{$\coqdoccst{map}^{\cst{\Pi}}$}} (\coqref{Groupoid.groupoid.identity}{\coqdocprojection{identity}} \coqdocvariable{x}) \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.transport id}{\coqdocdefinition{$\mathsf{transport_{id}}$}} \coqdocvariable{U} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{(}}\coqdocvariable{f} \coqdocvariable{x}\coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{)}};\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. Dmap comp}{$\coqdoccst{map}^\Pi_\mathsf{comp}$}{\coqdocprojection{$\coqdoccst{map}^\Pi_\mathsf{comp}$}} : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x} \coqdocvar{y} \coqdocvar{z} (\coqdocvar{e} : \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}) (\coqdocvar{e'} : \coqdocvariable{y} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{z}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}}\coqdoceol
+\coqdocindent{1.50em}
+\coqref{Groupoid.groupoid. Dmap}{\coqdocmethod{$\coqdoccst{map}^{\cst{\Pi}}$}} (\coqdocvariable{e'} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdocvariable{e}) \coqref{Groupoid.groupoid.::x 'x7E2' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid. Dmap}{\coqdocmethod{$\coqdoccst{map}^{\cst{\Pi}}$}} \coqdocvariable{e'} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqref{Groupoid.groupoid.transport map}{\coqdocdefinition{$\mathsf{transport_{map}}$}} \coqdocvariable{U} \coqdocvar{\_} (\coqref{Groupoid.groupoid. Dmap}{\coqdocmethod{$\coqdoccst{map}^{\cst{\Pi}}$}} \coqdocvariable{e}) \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqdoceol
+\coqdocindent{10.50em}
+\coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{(}}\coqref{Groupoid.groupoid.transport comp}{\coqdocdefinition{$\mathsf{transport_{comp}}$}} \coqdocvariable{U} \coqdocvariable{e} \coqdocvariable{e'} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvar{\_}\coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{)}};\coqdoceol
+\coqdocindent{1.00em}
+\coqdef{Groupoid.groupoid. Dmap2}{$\coqdoccst{map}^\Pi_2$}{\coqdocprojection{$\coqdoccst{map}^\Pi_2$}}  : \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{x} \coqdocvar{y} (\coqdocvar{e} \coqdocvar{e'}: \coqdocvariable{x} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{y}) (\coqdocvar{H}: \coqdocvariable{e} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqdocvariable{e'}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{),}}\coqdoceol
+\coqdocindent{2.00em}
+\coqref{Groupoid.groupoid. Dmap}{\coqdocmethod{$\coqdoccst{map}^{\cst{\Pi}}$}} \coqdocvariable{e} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid. Dmap}{\coqdocmethod{$\coqdoccst{map}^{\cst{\Pi}}$}} \coqdocvariable{e'} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{(}}\coqref{Groupoid.groupoid.transport eq}{\coqdocdefinition{$\mathsf{transport_{eq}}$}} \coqdocvariable{U} \coqdocvariable{H} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{(}}\coqdocvariable{f} \coqdocvariable{x}\coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{)}}\coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{)}}\}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.Prod Type}{$\Pi_\coqdoccst{T}$}{\coqdocdefinition{$\Pi_\coqdoccst{T}$}} \coqdocvar{T} (\coqdocvar{U}:\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T} \coqref{Groupoid.groupoid.::x '-->' x}{\coqdocnotation{$\longrightarrow$}} \coqref{Groupoid.groupoid. Type}{\coqdocabbreviation{$\mathsf{Type}_{1}^{1}$}}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) := \coqdocnotation{\{}\coqdocvar{f} \coqdocnotation{:} \coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{∀}} \coqdocvar{t}\coqexternalref{:type scope:'xE2x88x80' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{U} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvariable{t}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqdocnotation{\&} \coqref{Groupoid.groupoid.DependentFunctor}{\coqdocclass{$\mathsf{Functor}^\Pi$}} \coqdocvariable{U} \coqdocvar{f}\coqdocnotation{\}}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+
+
+  Equality between dependent functors is given by dependent natural transformations
+  and equality at level 2 is given by dependent modifications.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+\noindent We can now equip dependent functors with a groupoid structure
+    as we have done for functors.
+    We note \coqref{Groupoid.groupoid. Prod}{\coqdocdefinition{$\Pi$}} \coqdocvariable{U} the dependent product over a family of groupoids \coqdocvariable{U}.
+\begin{coqdoccode}
+\coqdocemptyline
+\end{coqdoccode}
+A family of setoids can be seen as a family of groupoids using a
+lifting that we abusively note   \coqdocvariable{U}$_{\upharpoonright s}$ . We can prove that the
+dependent product over a family of setoids is also a setoid. We note
+\coqref{Groupoid.groupoid.Prod0}{\coqdocdefinition{$\Pi_0$}} the restriction of \coqref{Groupoid.groupoid. Prod}{\coqdocdefinition{$\Pi$}} to families of setoids.  \begin{coqdoccode}
+\coqdocemptyline
+\end{coqdoccode}
+\subsection{Dependent sums}
+
+
+
+
+\label{sec:sigma} In the interpretation of Σ types, we pay for the
+fact that we are missing the 2-dimensional nature of \coqref{Groupoid.groupoid. Type}{\coqdocabbreviation{$\mathsf{Type}_{1}^{1}$}}. Indeed, as
+we will need rewriting in the definition of equality on Σ types,
+delivering the corresponding groupoid structure requires to reason on
+compatibility between rewritings, which amount to the missing
+2-dimensional laws. However, as \coqref{Groupoid.groupoid.Type0}{\coqdocdefinition{$\mathsf{Type}_{0}^1$}} is a groupoid, all 2-dimensional
+equalities become trivial on a family of setoids, so we can define the
+groupoid of Σ types over a groupoid \coqdocvariable{T} and a morphism of type  [\coqdocvariable{T} $\longrightarrow$ \coqref{Groupoid.groupoid.Type0}{\coqdocdefinition{$\mathsf{Type}_{0}^1$}}] .\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.sum type}{$\Sigma_\coqdoccst{T}$}{\coqdocdefinition{$\Sigma_\coqdoccst{T}$}} \coqdocvar{T} (\coqdocvar{U} : \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T} \coqref{Groupoid.groupoid.::x '-||->' x}{\coqdocnotation{$\longrightarrow$}} \coqref{Groupoid.groupoid.Type0}{\coqdocdefinition{$\mathsf{Type}_{0}^1$}}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) := \coqdocnotation{\{}\coqdocvar{t} \coqdocnotation{:} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqdocnotation{\&} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{U} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqdocvar{t}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}\coqdocnotation{\}}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\noindent
+  The 1-equality between dependent pairs is given by 1-equality on the
+  first and second projections, with a transport on the second
+  projection on the left.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.sum eq}{$\Sigma_\coqdoccst{Eq}$}{\coqdocdefinition{$\Sigma_\coqdoccst{Eq}$}} \coqdocvar{T} (\coqdocvar{U} : \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T} \coqref{Groupoid.groupoid.::x '-||->' x}{\coqdocnotation{$\longrightarrow$}} \coqref{Groupoid.groupoid.Type0}{\coqdocdefinition{$\mathsf{Type}_{0}^1$}}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) : \coqref{Groupoid.groupoid.HomT}{\coqdocdefinition{$\mathsf{HomSet}$}} (\coqref{Groupoid.groupoid.sum type}{\coqdocdefinition{$\Sigma_\coqdoccst{T}$}} \coqdocvariable{U}) := \coqdoceol
+\coqdocindent{1.00em}
+\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{m} \coqdocvar{n}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocnotation{\{}\coqdocvar{P} \coqdocnotation{:} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{m}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{n}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqdocnotation{\&} \coqref{Groupoid.groupoid.transport}{\coqdocdefinition{transport}} (\coqref{Groupoid.groupoid.::'[[[' x ']]]'}{\coqdocnotation{ }}\coqdocvariable{U}\coqref{Groupoid.groupoid.::'[[[' x ']]]'}{\coqdocnotation{$_{\upharpoonright s}$}}) \coqdocvar{P} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{(}}\coqref{Groupoid.groupoid.xCExA02}{\coqdocabbreviation{$\pi_2$}} \coqdocvariable{m}\coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{)}} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqref{Groupoid.groupoid.xCExA02}{\coqdocabbreviation{$\pi_2$}} \coqdocvariable{n}\coqdocnotation{\}}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\noindent
+  In the same way, 2-equality between 1-equalities is given by projections
+  and rewriting.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.groupoid.sum eq2}{$\Sigma_{\coqdoccst{Eq}_2}$}{\coqdocdefinition{$\Sigma_{\coqdoccst{Eq}_2}$}} \coqdocvar{T} (\coqdocvar{U} : \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{T} \coqref{Groupoid.groupoid.::x '-||->' x}{\coqdocnotation{$\longrightarrow$}} \coqref{Groupoid.groupoid.Type0}{\coqdocdefinition{$\mathsf{Type}_{0}^1$}}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}}) (\coqdocvar{M} \coqdocvar{N} : \coqref{Groupoid.groupoid.sum type}{\coqdocdefinition{$\Sigma_\coqdoccst{T}$}} \coqdocvariable{U}) : \coqref{Groupoid.groupoid.HomT}{\coqdocdefinition{$\mathsf{HomSet}$}} (\coqdocvariable{M} \coqref{Groupoid.groupoid.::x 'x7E1' x}{\coqdocnotation{$\sim_1$}} \coqdocvariable{N}) \coqdoceol
+\coqdocindent{1.00em}
+:= \coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{e} \coqdocvar{e'} \coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocnotation{\{}\coqdocvar{P} \coqdocnotation{:} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{e}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{[}}\coqdocvariable{e'}\coqref{Groupoid.groupoid.::'[' x ']'}{\coqdocnotation{]}} \coqdocnotation{\&} \coqref{Groupoid.groupoid.xCExA02}{\coqdocabbreviation{$\pi_2$}} \coqdocvariable{e} \coqref{Groupoid.groupoid.::x 'x7E' x}{\coqdocnotation{$\sim_2$}} \coqref{Groupoid.groupoid.xCExA02}{\coqdocabbreviation{$\pi_2$}} \coqdocvariable{e'} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{$\circ$}} \coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{(}}\coqref{Groupoid.groupoid.transport eq}{\coqdocdefinition{$\mathsf{transport_{eq}}$}} (\coqref{Groupoid.groupoid.::'[[[' x ']]]'}{\coqdocnotation{ }}\coqdocvariable{U}\coqref{Groupoid.groupoid.::'[[[' x ']]]'}{\coqdocnotation{$_{\upharpoonright s}$}}) \coqdocvar{P} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{$\star$}} \coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{(}}\coqref{Groupoid.groupoid.xCExA02}{\coqdocabbreviation{$\pi_2$}} \coqdocvariable{M}\coqref{Groupoid.groupoid.::x '@' x}{\coqdocnotation{)}}\coqref{Groupoid.groupoid.::x 'xC2xB0' x}{\coqdocnotation{)}}\coqdocnotation{\}}.\coqdoceol
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+\noindent This way, we can define the groupoid \coqref{Groupoid.groupoid. Sum0}{\coqdocdefinition{$\Sigma$}} \coqdocvariable{U} of dependent sums for any family of setoids. When \coqdocvariable{T} is a setoid, \coqref{Groupoid.groupoid. Sum0}{\coqdocdefinition{$\Sigma$}} \coqdocvariable{U} is also a setoid.
+\begin{coqdoccode}
+\end{coqdoccode}

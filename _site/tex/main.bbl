@@ -1,0 +1,138 @@
+\begin{thebibliography}{10}
+
+\bibitem{altenkirch-mcbride-wierstra:ott-now}
+Altenkirch, T., McBride, C., Swierstra, W.:
+\newblock \href{http://www.cs.nott.ac.uk/~txa/publ/obseqnow.pdf}{Observational
+  Equality, Now!}
+\newblock In: PLPV'07, Freiburg, Germany (2007)
+
+\bibitem{Voevodsky:2011yq}
+Voevodsky, V.
+\newblock In: \href{http://dx.doi.org/10.1007/978-3-642-20920-8_4}{Univalent
+  Foundations of Mathematics}. Volume 6642. Springer Berlin Heidelberg (2011)
+  4--4
+
+\bibitem{Pelayo:2012uq}
+Pelayo, {\'A}., Warren, M.A.:
+\newblock \href{http://arxiv.org/abs/1210.5658}{Homotopy type theory and
+  Voevodsky's univalent foundations}.
+\newblock (10 2012)
+
+\bibitem{groupoid-interp}
+Hofmann, M., Streicher, T.:
+\newblock
+  \href{http://www.tcs.informatik.uni-muenchen.de/lehre/SS97/types-vl/venedig.ps}{{The
+  Groupoid Interpretation of Type Theory}}.
+\newblock In: Twenty-five years of constructive type theory ({V}enice, 1995).
+  Volume~36 of Oxford Logic Guides.
+\newblock Oxford Univ. Press, New York (1998)  83--111
+
+\bibitem{DBLP:conf/popl/LicataH12}
+Licata, D.R., Harper, R.:
+\newblock \href{http://doi.acm.org/10.1145/2103656.2103697}{{Canonicity for
+  2-dimensional type theory}}.
+\newblock In Field, J., Hicks, M., eds.: POPL, ACM (2012)  337--348
+
+\bibitem{DBLP:conf/csl/AltenkirchR12}
+Altenkirch, T., Rypacek, O.:
+\newblock \href{http://dx.doi.org/10.4230/LIPIcs.CSL.2012.16}{A Syntactical
+  Approach to Weak omega-Groupoids}.
+\newblock In C{\'e}gielski, P., Durand, A., eds.: CSL. Volume~16 of LIPIcs.,
+  Schloss Dagstuhl - Leibniz-Zentrum fuer Informatik (2012)  16--30
+
+\bibitem{hottbook}
+{The Univalent Foundations Program}:
+\newblock \href{http://homotopytypetheory.org/book}{Homotopy Type Theory:
+  Univalent Foundations for Mathematics}, Institute for Advanced Study (2013)
+
+\bibitem{DBLP:bibsonomy_cupart}
+Hofmann, M.:
+\newblock
+  \href{http://www.tcs.ifi.lmu.de/mitarbeiter/martin-hofmann/pdfs/syntaxandsemanticsof-dependenttypes.pdf}{Syntax
+  and Semantics of Dependent Types}.
+\newblock In: Semantics and Logics of Computation. (1997)  241--298
+
+\bibitem{MLTTpred}
+Martin-L{\"o}f, P.:
+\newblock {An intuitionistic theory of types: predicative part}.
+\newblock Logic Colloquium '73 \textbf{Studies in Logic and the Foundations of
+  Mathematics}(80) (1975)  73--118
+
+\bibitem{barras:_gener_takeut_gandy_inter}
+Barras, B., Coquand, T., Huber, S.:
+\newblock \href{http://uf-ias-2012.wikispaces.com/file/view/semi.pdf}{A
+  Generalization of Takeuti-Gandy Interpretation}.
+\newblock (2013)
+
+\bibitem{sozeau.Coq/classes/fctc}
+Sozeau, M., Oury, N.:
+\newblock
+  \href{http://www.pps.univ-paris-diderot.fr/~sozeau/research/publications/First-Class_Type_Classes.pdf}{{F}irst-{C}lass
+  {T}ype {C}lasses}.
+\newblock In Otmane Ait~Mohamed, C.M., Tahar, S., eds.: TPHOLs. Volume 5170 of
+  LNCS., Springer (August 2008)  278--293
+
+\bibitem{sozeau.Coq/FingerTrees/article}
+Sozeau, M.:
+\newblock
+  \href{http://www.pps.univ-paris-diderot.fr/~sozeau/research/publications/Program-ing_Finger_Trees_in_Coq.pdf}{{P}rogram-ing
+  {F}inger {T}rees in {C}oq}.
+\newblock In: ICFP'07, Freiburg, Germany, ACM Press (2007)  13--24
+
+\bibitem{coq:refman:8.5}
+{The {Coq} development team}:
+\newblock \href{http://coq.inria.fr/distrib/V8.5beta1/refman/}{Coq 8.5
+  Reference Manual}.
+\newblock Inria. (2015)
+
+\bibitem{DBLP-conf/itp/SozeauT14}
+Sozeau, M., Tabareau, N.:
+\newblock
+  \href{http://www.pps.univ-paris-diderot.fr/~sozeau/research/publications/Universe_Polymorphism_in_Coq.pdf}{{Universe
+  Polymorphism in Coq}}.
+\newblock In: {ITP} 2014. Volume 8558 of LNCS., Vienna, Austria  499--514
+
+\bibitem{garillot:pastel-00649586}
+Garillot, F.:
+\newblock \href{http://pastel.archives-ouvertes.fr/pastel-00649586}{{Generic
+  Proof Tools and Finite Group Theory}}.
+\newblock PhD thesis, Ecole Polytechnique X (December 2011)
+
+\bibitem{HoTT/HoTT}
+{The HoTT Development Team}:
+\newblock \href{http://github.com/HoTT/HoTT}{{Homotopy Type Theory in Coq}}
+
+\bibitem{coq_unival_axiom}
+Bauer, A., LeFanu~Lumsdaine, P.:
+\newblock \href{http://ncatlab.org/nlab/files/BauerLumsdaineUnivalence.pdf}{{A
+  Coq proof that Univalence Axioms implies Functional Extensionality}}.
+\newblock {} (2011)
+
+\bibitem{dybjer:internaltt}
+Dybjer, P.:
+\newblock \href{http://dx.doi.org/10.1007/3-540-61780-9_66}{Internal type
+  theory}.
+\newblock In Berardi, S., Coppo, M., eds.: Types for Proofs and Programs.
+  Volume 1158 of LNCS.
+\newblock Springer Berlin Heidelberg (1996)  120--134
+
+\bibitem{hofmann95These}
+Hofmann, M.:
+\newblock
+  \href{http://www.lfcs.inf.ed.ac.uk/reports/95/ECS-LFCS-95-327/}{Extensional
+  concepts in intensional type theory}.
+\newblock Phd thesis, Edinburgh university (1995)
+
+\bibitem{coquand:cubical}
+Bezem, M., Coquand, T., Huber, S.:
+\newblock \href{http://www.cse.chalmers.se/~coquand/mod1.pdf}{A Model of Type
+  Theory in Cubical Sets}.
+\newblock (December 2013)
+
+\bibitem{cheng2012weak}
+Cheng, E., Leinster, T.:
+\newblock \href{http://arxiv.org/abs/1212.5853}{Weak $\omega$-categories via
+  terminal coalgebras}.
+\newblock (2012)
+
+\end{thebibliography}

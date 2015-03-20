@@ -1,5 +1,3 @@
----
----
 <!doctype html>
 <html>
   <head>
@@ -39,7 +37,18 @@
 	Tabareau <a href="mailto:nicolas.tabareau@inria.fr">nicolas.tabareau@inria.fr</a>
       </section>
       <section>
-{% markdown index.md %}
+<p>Distributed under the terms of the LGPL.</p>
+
+<p>To compile the development, simply run:</p>
+
+<p><code>
+ # coq_makefile -f _CoqProject -o Makefile; make
+</code></p>
+
+<p>In the toplevel directory, with coqc in your path. You need at least Coq
+8.5beta1 to compile this code, as it makes use of universe polymorphism
+and fast projections.</p>
+
       </section>
       <footer>
         <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>

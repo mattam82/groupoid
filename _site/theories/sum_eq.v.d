@@ -1,0 +1,2 @@
+theories/sum_eq.vo theories/sum_eq.glob theories/sum_eq.v.beautified: theories/sum_eq.v theories/HoTT_light.vo theories/groupoid.vo theories/fun_eq.vo theories/groupoid_interpretation_def.vo theories/Equiv_adjoint.vo theories/fun_depfun.vo
+theories/sum_eq.vio: theories/sum_eq.v theories/HoTT_light.vio theories/groupoid.vio theories/fun_eq.vio theories/groupoid_interpretation_def.vio theories/Equiv_adjoint.vio theories/fun_depfun.vio

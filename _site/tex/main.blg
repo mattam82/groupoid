@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99d (TeX Live 2012)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: main.aux
+The style file: splncs.bst
+Database file #1: biblio.bib
+Warning--empty journal in Pelayo:2012uq
+Warning--empty publisher in hottbook
+Warning--empty journal in barras:_gener_takeut_gandy_inter
+Warning--empty journal in coquand:cubical
+Warning--empty journal in cheng2012weak
+You've used 21 entries,
+            2307 wiz_defined-function locations,
+            1529 strings with 37173 characters,
+and the built_in function-call counts, 5758 in all, are:
+= -- 581
+> -- 169
+< -- 16
++ -- 64
+- -- 43
+* -- 451
+:= -- 750
+add.period$ -- 35
+call.type$ -- 21
+change.case$ -- 1
+chr.to.int$ -- 0
+cite$ -- 26
+duplicate$ -- 312
+empty$ -- 622
+format.name$ -- 43
+if$ -- 1434
+int.to.chr$ -- 0
+int.to.str$ -- 21
+missing$ -- 18
+newline$ -- 107
+num.names$ -- 29
+pop$ -- 121
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 182
+stack$ -- 0
+substring$ -- 254
+swap$ -- 130
+text.length$ -- 16
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 5
+while$ -- 49
+width$ -- 23
+write$ -- 234
+(There were 5 warnings)

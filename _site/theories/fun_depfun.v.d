@@ -1,0 +1,2 @@
+theories/fun_depfun.vo theories/fun_depfun.glob theories/fun_depfun.v.beautified: theories/fun_depfun.v theories/HoTT_light.vo theories/groupoid.vo theories/fun_eq.vo theories/groupoid_interpretation_def.vo theories/Equiv_adjoint.vo
+theories/fun_depfun.vi: theories/fun_depfun.v theories/HoTT_light.vi theories/groupoid.vi theories/fun_eq.vi theories/groupoid_interpretation_def.vi theories/Equiv_adjoint.vi

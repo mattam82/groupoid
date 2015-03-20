@@ -1,0 +1,124 @@
+\coqlibrary{Groupoid.cwf equations}{Library }{Groupoid.cwf\_equations}
+
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+\section{Connection to internal categories with families}
+
+
+   \label{section:cwf}
+
+
+  We now turn to show that we have actually a model in the sense of
+  internal categories with families~\cite{dybjer:internaltt}. More
+  precisely, our work can be seen as a formalization of setoid-indexed
+  families of setoids, where the notion of rewriting using
+  notation \coqdocvariable{t} \coqdockw{$\coqdockw{with}$} \coqdocvariable{e} corresponds to the \emph{reindexing
+  map} of families of setoids.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+  \paragraph{\lrule{Substitution Laws}.}
+
+
+  In internal CwFs, substitution laws hold, but not definitionally. This
+  means that substitution laws for terms need explicit rewriting using
+  reindexing maps in their statements.  The situation is similar in our
+  setting: a law that does not hold definitionally can only hold with
+  respect to the notion of equality of the setoid/groupoid. Every
+  substitution law holds using \coqdocprojection{identity} once a context has been applied, 
+  which means that the only non-definitional coherences come from proofs of 
+  naturality with respect to two equal contexts.
+
+
+  We only present the substitution laws for dependent products. First,
+  the rule at the level of types:
+ \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.Prod sigma law}{$\mathsf{Prod_{\sigma law}}$}{\coqdocdefinition{$\mathsf{Prod_{\sigma law}}$}} \{\coqdocvar{Δ} \coqdocvar{Γ}\} \{σ : \coqdocnotation{[}\coqdocvariable{Δ} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Γ}\coqdocnotation{]}\} \{\coqdocvar{A} : \coqdocdefinition{Typ} \coqdocvariable{Γ}\} \{\coqdocvar{F} : \coqdocdefinition{TypFam} \coqdocvariable{A}\}:\coqdoceol
+\coqdocindent{1.00em}
+\coqdocdefinition{Prod} \coqdocvariable{F} \coqdocnotation{$⋅$} \coqdocvariable{σ} \coqdocnotation{$\sim_1$} \coqdocdefinition{Prod} (\coqdocvariable{F} \coqdocnotation{$\circ$} \coqdocvariable{σ}) := \coqdocnotation{(}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{\ensuremath{\lambda}}} \coqdocvar{t}\coqexternalref{::'xCExBB' x '..' x ',' x}{http://coq.inria.fr/stdlib/Coq.Unicode.Utf8\_core}{\coqdocnotation{,}} \coqdocprojection{identity} \coqdocvar{\_}\coqdocnotation{;} \coqref{Groupoid.cwf equations. Prod sigma law}{\coqdocdefinition{\_Prod\_sigma\_law}} \coqdocvariable{σ} \coqdocvariable{F}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+For the other substitution laws, we omit their definitions as they
+  follow the very same pattern; the witness is always the identity plus
+  a proof of naturality wrt context change. To express the
+  substitution law of dependent functions, we first need to exhibit the
+  law for type-level abstraction \coqdocdefinition{$\Lambda$}---where \coqref{Groupoid.cwf equations.SubSigma}{\coqdocdefinition{$\mathsf{Sub_\Sigma}$}} σ weakens the
+  substitution σ.  \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.LamT sigma law}{$\mathsf{\Lambda_{\sigma law}}$}{\coqdocdefinition{$\mathsf{\Lambda_{\sigma law}}$}} \{\coqdocvar{Δ} \coqdocvar{Γ}\} \{\coqdocvar{A} : \coqdocdefinition{Typ} \coqdocvariable{Γ}\} \{\coqdocvar{B} : \coqdocdefinition{TypDep} \coqdocvariable{A}\} \{σ : \coqdocnotation{[}\coqdocvariable{Δ} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Γ}\coqdocnotation{]}\}:\coqdoceol
+\coqdocindent{1.00em}
+\coqdocdefinition{$\Lambda$} \coqdocvariable{B} \coqdocnotation{$\circ$} \coqdocvariable{σ} \coqdocnotation{$\sim_1$} \coqdocdefinition{$\Lambda$} (\coqdocvariable{B} \coqdocnotation{$⋅$} \coqref{Groupoid.cwf equations.SubSigma}{\coqdocdefinition{$\mathsf{Sub_\Sigma}$}} \coqdocvariable{σ}).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+  Finally, the law for term-level abstraction can be stated, using rewriting 
+  provided by the \coqdocvariable{t} \coqdockw{$\coqdockw{with}$} \coqdocvariable{e} notation.
+ \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.Lam sigma law}{$\mathsf{Lam_{\sigma law}}$}{\coqdocdefinition{$\mathsf{Lam_{\sigma law}}$}} \{\coqdocvar{Δ} \coqdocvar{Γ}\} (σ:\coqdocnotation{[}\coqdocvariable{Δ} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Γ}\coqdocnotation{]}) \{\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}\} \{\coqdocvar{B}:\coqdocdefinition{TypDep} \coqdocvariable{A}\} (\coqdocvar{b}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{B}):\coqdoceol
+\coqdocindent{1.00em}
+\coqdocnotation{(}\coqdocdefinition{Lam} \coqdocvariable{b}\coqdocnotation{)} \coqdocnotation{$\circ$} \coqdocvariable{σ} \coqdocnotation{$\coqdockw{with}$} \coqref{Groupoid.cwf equations.Prod sigma law}{\coqdocdefinition{$\mathsf{Prod_{\sigma law}}$}} \coqdocnotation{$\coqdockw{with}$} \coqref{Groupoid.cwf equations.Prod eq}{\coqdocdefinition{Prod\_eq}} \coqref{Groupoid.cwf equations.LamT sigma law}{\coqdocdefinition{$\mathsf{\Lambda_{\sigma law}}$}} \coqdocnotation{$\sim_1$} \coqdocdefinition{Lam} (\coqdocvariable{b} \coqdocnotation{$\circ$} \coqdocnotation{(}\coqref{Groupoid.cwf equations.SubSigma}{\coqdocdefinition{$\mathsf{Sub_\Sigma}$}} \coqdocvariable{σ}\coqdocnotation{)}).\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+In the same way, to state the law for function application, we need
+   a law \coqref{Groupoid.cwf equations.SubstT sigma law}{\coqdocdefinition{$\mathsf{Subst_{\sigma law}}$}} for application at the level of type families. 
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.App sigma law}{$\mathsf{App_{\sigma law}}$}{\coqdocdefinition{$\mathsf{App_{\sigma law}}$}} \coqdocvar{Δ} \coqdocvar{Γ} (\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}) (\coqdocvar{F}:\coqdocdefinition{TypFam} \coqdocvariable{A}) (σ:\coqdocnotation{[}\coqdocvariable{Δ} \coqdocnotation{$\longrightarrow$} \coqdocvariable{Γ}\coqdocnotation{]}) (\coqdocvar{c}:\coqdocdefinition{$\mathsf{Tm}$} (\coqdocdefinition{Prod} \coqdocvariable{F}))\coqdoceol
+\coqdocindent{1.00em}
+(\coqdocvar{a}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}): \coqdocvariable{c} \coqdocnotation{$\star$} \coqdocvariable{a} \coqdocnotation{$\circ$} \coqdocvariable{σ} \coqdocnotation{$\coqdockw{with}$} \coqref{Groupoid.cwf equations.SubstT sigma law}{\coqdocdefinition{$\mathsf{Subst_{\sigma law}}$}} \coqdocnotation{$\sim_1$} \coqdocnotation{(}\coqdocvariable{c} \coqdocnotation{$\circ$} \coqdocvariable{σ} \coqdocnotation{$\coqdockw{with}$} \coqref{Groupoid.cwf equations.Prod sigma law}{\coqdocdefinition{$\mathsf{Prod_{\sigma law}}$}}\coqdocnotation{)} \coqdocnotation{$\star$} \coqdocnotation{(}\coqdocvariable{a} \coqdocnotation{$\circ$} \coqdocvariable{σ}\coqdocnotation{)}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\paragraph{\lrule{Conv}.} The $\beta$ conversion rule for term-level
+  abstractions is valid as a definitional equality (which is made explicit
+  by the use of \coqdocconstructor{eq\_refl}), where \coqdocdefinition{SubExtId} is a specialization of
+  \coqdocdefinition{SubExt} with the identity substitution.  \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.Beta}{Beta}{\coqdocdefinition{Beta}} \{\coqdocvar{Γ}\} \{\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}\} \{\coqdocvar{F}:\coqdocdefinition{TypDep} \coqdocvariable{A}\} (\coqdocvar{b}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{F}) (\coqdocvar{a}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}):\coqdoceol
+\coqdocindent{1.00em}
+\coqdocnotation{[}\coqdocdefinition{Lam} \coqdocvariable{b} \coqdocnotation{$\star$} \coqdocvariable{a}\coqdocnotation{]} \coqdocnotation{=} \coqdocnotation{[}\coqdocvariable{b} \coqdocnotation{$\circ$} \coqdocdefinition{SubExtId} \coqdocvariable{a}\coqdocnotation{]} := \coqdocconstructor{eq\_refl} \coqdocvar{\_}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+ \noindent 
+  However, $\eta$ conversion does not hold definitionally, and we need 
+  $\eta$-conversion at the level of type abstractions (rule \coqref{Groupoid.cwf equations.EtaT}{\coqdocdefinition{EtaT}}) 
+  to state it.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdef{Groupoid.cwf equations.Eta}{Eta}{\coqdocdefinition{Eta}} \{\coqdocvar{Γ}\} \{\coqdocvar{A}:\coqdocdefinition{Typ} \coqdocvariable{Γ}\} \{\coqdocvar{F}:\coqdocdefinition{TypFam} \coqdocvariable{A}\} (\coqdocvar{c}:\coqdocdefinition{$\mathsf{Tm}$} (\coqdocdefinition{Prod} \coqdocvariable{F})):\coqdoceol
+\coqdocindent{1.00em}
+\coqdocdefinition{Lam} (\coqref{Groupoid.cwf equations.::'xE2x86x91' x}{\coqdocnotation{$\shortuparrow$}} \coqdocvariable{c} \coqdocnotation{$\star$} \coqdocdefinition{Var} \coqdocvariable{A}) \coqdocnotation{$\coqdockw{with}$} \coqref{Groupoid.cwf equations.Prod eq}{\coqdocdefinition{Prod\_eq}} (\coqref{Groupoid.cwf equations.EtaT}{\coqdocdefinition{EtaT}} \coqdocvariable{F}) \coqdocnotation{$\sim_1$} \coqdocvariable{c}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\paragraph{\lrule{Coherence of the interpretation}.}
+  In~\cite{dybjer:internaltt}, the coherence of the interpretation is
+  not entirely shown, and relies on Uniqueness of Identity Proofs through
+  Alf's pattern-matching. In our setting the first level coherence can
+  be directly expressed and proved by naturality of the interpretation,
+  because we embed the setoid model inside groupoids (higher notions of coherence
+  require to move to higher groupoids).  \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdef{Groupoid.cwf equations.coherence of interpretation}{coherence\_of\_interpretation}{\coqdoclemma{coherence\_of\_interpretation}} \{\coqdocvar{Γ}\} \{\coqdocvar{A} \coqdocvar{B}:\coqdocdefinition{Typ} \coqdocvariable{Γ}\} (\coqdocvar{e} \coqdocvar{e'} : \coqdocvariable{A} \coqdocnotation{$\sim_1$} \coqdocvariable{B}) (\coqdocvar{a}:\coqdocdefinition{$\mathsf{Tm}$} \coqdocvariable{A}):\coqdoceol
+\coqdocindent{1.00em}
+\coqdocvariable{e} \coqdocnotation{$\sim_2$} \coqdocvariable{e'} \coqexternalref{:type scope:x '->' x}{http://coq.inria.fr/stdlib/Coq.Init.Logic}{\coqdocnotation{\ensuremath{\rightarrow}}} \coqdocvariable{a} \coqdocnotation{$\coqdockw{with}$} \coqdocvariable{e} \coqdocnotation{$\sim_1$} \coqdocvariable{a} \coqdocnotation{$\coqdockw{with}$} \coqdocvariable{e'}.\coqdoceol
+\end{coqdoccode}
+Thus, the coherence of our interpretation only requires to prove 
+  that the interpretation of type equalities from the source type theory 
+  only targets \textit{identity} isomorphisms (as then the \coqdocvariable{e} $\sim_2$ \coqdocvariable{e'} hypothesis would be given by 
+  the identity modification). This proof is not difficult metatheoretically as every 
+  conversion rule is interpreted by the identity isomorphism, but it can not be 
+  internalized because it is not possible to reason on definitional equality inside 
+  the theory.
+ \begin{coqdoccode}
+\end{coqdoccode}
