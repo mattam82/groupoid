@@ -244,7 +244,7 @@ Class CategoryP T := { Hom1 :> HomT1 T; Hom2 :> HomT2 eq1;
 Definition CatType := {T:Type & CategoryP T}.
 
 Hint Extern 1 (@Equivalence (@eq1 (@Hom1 ?T) ?x ?y) eq2) => 
-  apply (@Equivalence_2 T _ x y) : typeclass_instances.
+  apply (@Equivalence_2 T x y) : typeclass_instances.
 (* Hint Extern 1 (@CategoryP (proj1 ?T) (@Hom1 ?T) _) => apply (@Category_1 (proj2 T)) : typeclass_instances. *)
 Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => apply (@Hom2 T) : typeclass_instances.
 (* Hint Extern 1 (Category [?T]) => apply (proj2 T) : typeclass_instances. *)
@@ -261,9 +261,11 @@ Class GroupoidP T := { C :> CategoryP T ;  Inv :> Inverse eq1 ;
      inv :   ∀ x y (f f': x ~1 y), f ~ f' -> f ^-1 ~ f' ^-1}.
 
 (* begin hide *)
+
 (* Hint Extern 1 (@Equivalence (@eq1 (@Hom1 ?T) ?x ?y) eq2) =>  *)
 (*   apply (@Equivalence_2 T x y) : typeclass_instances. *)
 (* Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => apply (@Hom2 T) : typeclass_instances. *)
+
 Hint Extern 1 (GroupoidP [?T]) => apply (proj2 T) : typeclass_instances.
 
 Definition assoc' {T} {Hom1: HomT1 T} {Hom2: HomT2 eq1} {Category} {x y z w: T} :=
