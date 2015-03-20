@@ -19,14 +19,15 @@ Although very promising, the interpretation based on cubical sets has not
 yet been mechanically checked and only an evaluation procedure based on
 it has been implemented in Haskell. Besides, it is still based on set theory.
 
-Altenkirch et al. have introduced Observational Type Theory (OTT)
-\cite{altenkirch-mcbride-wierstra:ott-now}, an intentional type theory where
-functional extensionality is native, but equality in the universe is structural.
+Observational Type Theory (OTT)
+\cite{altenkirch-mcbride-wierstra:ott-now} is an intentional type theory
+where functional extensionality is native, but equality in the universe
+is structural.
 %
-To prove expected properties on OTT such as strong normalization,
-decidable typechecking and canonicity, they use embeddings into Agda and
-extensional type theory. A setoid interpretation clearly guides their
-design, and our model could be adapted to interpret this theory as well.
+To prove strong normalization, decidable typechecking and canonicity,
+there are embeddings of OTT into Agda and ETT. A setoid interpretation
+clearly guides this design, and our model could be adapted to interpret
+this theory as well.
 
 We have strived for generality in our definitions and while our
 interpretation is done for setoids, it illustrates the main structures

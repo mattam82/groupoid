@@ -173,13 +173,14 @@ Set Universe Polymorphism.
 (** * Connection to internal categories with families 
    %\label{section:cwf}%
 
-  We now turn to show that we have actually a model in the sense of
+  We now turn to show that we actually have a model in the sense of
   internal categories with families%~\cite{dybjer:internaltt}%. More
-  precisely, our work can be seen as a formalization of setoid-indexed
-  families of setoids, where the notion of rewriting using
-  notation [t with e] corresponds to the %\emph{reindexing
-  map}% of families of setoids.
-*)
+  precisely, our work can be seen as a formalization of proof-relevant
+  setoid-indexed families of setoids, where the notion of rewriting
+  using notation [t with e] corresponds to the %\emph{reindexing map}%
+  of families of setoids (see %\cite{PalmgrenAML}% for a detailed
+  discussion of the proof-irrelevant variant).
+  *)
 
 
 
@@ -209,8 +210,7 @@ Defined.
   which means that the only non-definitional coherences come from proofs of 
   naturality with respect to two equal contexts.
 
-  We only present the substitution laws for dependent products. First,
-  the rule at the level of types:
+  We only present the substitution laws for products; at the level of types:
  *)
 
 Definition Prod_sigma_law {Δ Γ} {σ : [Δ -|-> Γ]} {A : Typ Γ} {F : TypFam A}:
@@ -236,10 +236,9 @@ Definition SubSigma {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} :
 
 (** For the other substitution laws, we omit their definitions as they
   follow the very same pattern; the witness is always the identity plus
-  a proof of naturality wrt context change. To express the
+  a proof of naturality w.r.t. context change. To express the
   substitution law of dependent functions, we first need to exhibit the
-  law for type-level abstraction [LamT]---where [SubSigma σ] weakens the
-  substitution [σ].  *)
+  law for type-level abstraction [LamT]--- [SubSigma σ] is weakening [σ].  *)
 
 Definition LamT_sigma_law {Δ Γ} {A : Typ Γ} {B : TypDep A} {σ : [Δ -|-> Γ]}:
   LamT B °°° σ ~1 LamT (B ⋅⋅ SubSigma σ).

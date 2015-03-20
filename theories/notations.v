@@ -17,7 +17,7 @@
   are available at %\url{http://mattam82.github.io/groupoid}%). If
   you are reading the colored version of the paper, keywords are
   typeset in red, inductive types and classes in blue, inductive
-  constructors in dark red, and defined constants and lemmas in green.
+  constructors in dark red, and constants and lemmas in green.
   *)
 (* begin hide *)
 Notation Π1 := projT1.

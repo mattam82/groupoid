@@ -292,8 +292,9 @@ Infix "**" := HorComp (at level 50).
 (* end hide*)
 (**
    Groupoids are then pre-groupoids where equality at
-   dimension 2 is irrelevant. This irrelevance is defined using a
-   notion of contractibility expressed with (relevant) identity types.  *)
+   dimension 2 is irrelevant. This irrelevance is defined using the usual
+   notion of contractibility expressed with (relevant) identity types 
+   (see %\cite{hottbook}% for details).  *)
 
 (* begin hide *)
 Require Import HoTT_light.
