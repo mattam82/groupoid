@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>Groupoid.cwf_equations</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library Groupoid.cwf_equations</h1>
+
+<div class="code">
+
+<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab1"></a><h1 class="section">Connection to internal categories with families</h1>
+
+   
+
+<div class="paragraph"> </div>
+
+  We now turn to show that we have actually a model in the sense of
+  internal categories with families. More
+  precisely, our work can be seen as a formalization of setoid-indexed
+  families of setoids, where the notion of rewriting using
+  notation <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#t"><span class="id" title="variable">t</span></a></span> <span class="inlinecode"><span class="id" title="keyword">with</span></span> <span class="inlinecode"><a class="idref" href="Groupoid.cwf_equations.html#e"><span class="id" title="variable">e</span></a></span> corresponds to the  of families of setoids.
+
+</div>
+<div class="code">
+
+<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+  
+
+<div class="paragraph"> </div>
+
+  In internal CwFs, substitution laws hold, but not definitionally. This
+  means that substitution laws for terms need explicit rewriting using
+  reindexing maps in their statements.  The situation is similar in our
+  setting: a law that does not hold definitionally can only hold with
+  respect to the notion of equality of the setoid/groupoid. Every
+  substitution law holds using <span class="inlinecode"><a class="idref" href="Groupoid.groupoid.html#identity"><span class="id" title="projection">identity</span></a></span> once a context has been applied, 
+  which means that the only non-definitional coherences come from proofs of 
+  naturality with respect to two equal contexts.
+
+<div class="paragraph"> </div>
+
+  We only present the substitution laws for dependent products. First,
+  the rule at the level of types:
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Prod_sigma_law"><span class="id" title="definition">Prod_sigma_law</span></a> {<span class="id" title="var">Δ</span> <span class="id" title="var">Γ</span>} {σ : <a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">[</span></a><a class="idref" href="Groupoid.cwf_equations.html#d44f383ce45b5283439ea630afb544d5"><span class="id" title="variable">Δ</span></a> <a class="idref" href="Groupoid.groupoid.html#8203f4abdfaa641c37168bf09bae5a50"><span class="id" title="notation">-|-&gt;</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">]</span></a>} {<span class="id" title="var">A</span> : <a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a>} {<span class="id" title="var">F</span> : <a class="idref" href="Groupoid.groupoid_interpretation_def.html#TypFam"><span class="id" title="definition">TypFam</span></a> <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a>}:<br/>
+&nbsp;&nbsp;<a class="idref" href="Groupoid.groupoid_interpretation.html#Prod"><span class="id" title="definition">Prod</span></a> <a class="idref" href="Groupoid.cwf_equations.html#F"><span class="id" title="variable">F</span></a> <a class="idref" href="Groupoid.fun_depfun.html#6d0692f1baab8ffd35dcf27a05547b7a"><span class="id" title="notation">⋅⋅</span></a> <a class="idref" href="Groupoid.cwf_equations.html#3122c41ebe889f745cb9bbe1c92165c3"><span class="id" title="variable">σ</span></a> <a class="idref" href="Groupoid.groupoid.html#d2fa043617d91dc63a946fec6860382b"><span class="id" title="notation">~1</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#Prod"><span class="id" title="definition">Prod</span></a> (<a class="idref" href="Groupoid.cwf_equations.html#F"><span class="id" title="variable">F</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#19d70bb2b240d457a83e82996ca1ac6d"><span class="id" title="notation">°°°</span></a> <a class="idref" href="Groupoid.cwf_equations.html#3122c41ebe889f745cb9bbe1c92165c3"><span class="id" title="variable">σ</span></a>) := <a class="idref" href="Groupoid.groupoid.html#6135e546f0329dbebe21f0a32ce243ef"><span class="id" title="notation">(</span></a><a class="idref" href="http://coq.inria.fr/distrib/8.5beta1/stdlib/Coq.Unicode.Utf8_core.html#e347aba07034a66189f14f85f0430e87"><span class="id" title="notation">λ</span></a> <span class="id" title="var">t</span><a class="idref" href="http://coq.inria.fr/distrib/8.5beta1/stdlib/Coq.Unicode.Utf8_core.html#e347aba07034a66189f14f85f0430e87"><span class="id" title="notation">,</span></a> <a class="idref" href="Groupoid.groupoid.html#identity"><span class="id" title="projection">identity</span></a> <span class="id" title="var">_</span><a class="idref" href="Groupoid.groupoid.html#6135e546f0329dbebe21f0a32ce243ef"><span class="id" title="notation">;</span></a> <a class="idref" href="Groupoid.cwf_equations.html#_Prod_sigma_law"><span class="id" title="definition">_Prod_sigma_law</span></a> <a class="idref" href="Groupoid.cwf_equations.html#3122c41ebe889f745cb9bbe1c92165c3"><span class="id" title="variable">σ</span></a> <a class="idref" href="Groupoid.cwf_equations.html#F"><span class="id" title="variable">F</span></a><a class="idref" href="Groupoid.groupoid.html#6135e546f0329dbebe21f0a32ce243ef"><span class="id" title="notation">)</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+For the other substitution laws, we omit their definitions as they
+  follow the very same pattern; the witness is always the identity plus
+  a proof of naturality wrt context change. To express the
+  substitution law of dependent functions, we first need to exhibit the
+  law for type-level abstraction <span class="inlinecode"><a class="idref" href="Groupoid.groupoid_interpretation.html#LamT"><span class="id" title="definition">LamT</span></a></span>---where <span class="inlinecode"><a class="idref" href="Groupoid.cwf_equations.html#SubSigma"><span class="id" title="definition">SubSigma</span></a></span> <span class="inlinecode">σ</span> weakens the
+  substitution <span class="inlinecode">σ</span>.  
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="LamT_sigma_law"><span class="id" title="definition">LamT_sigma_law</span></a> {<span class="id" title="var">Δ</span> <span class="id" title="var">Γ</span>} {<span class="id" title="var">A</span> : <a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a>} {<span class="id" title="var">B</span> : <a class="idref" href="Groupoid.groupoid_interpretation_def.html#TypDep"><span class="id" title="definition">TypDep</span></a> <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a>} {σ : <a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">[</span></a><a class="idref" href="Groupoid.cwf_equations.html#d44f383ce45b5283439ea630afb544d5"><span class="id" title="variable">Δ</span></a> <a class="idref" href="Groupoid.groupoid.html#8203f4abdfaa641c37168bf09bae5a50"><span class="id" title="notation">-|-&gt;</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">]</span></a>}:<br/>
+&nbsp;&nbsp;<a class="idref" href="Groupoid.groupoid_interpretation.html#LamT"><span class="id" title="definition">LamT</span></a> <a class="idref" href="Groupoid.cwf_equations.html#B"><span class="id" title="variable">B</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#19d70bb2b240d457a83e82996ca1ac6d"><span class="id" title="notation">°°°</span></a> <a class="idref" href="Groupoid.cwf_equations.html#3122c41ebe889f745cb9bbe1c92165c3"><span class="id" title="variable">σ</span></a> <a class="idref" href="Groupoid.groupoid.html#d2fa043617d91dc63a946fec6860382b"><span class="id" title="notation">~1</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#LamT"><span class="id" title="definition">LamT</span></a> (<a class="idref" href="Groupoid.cwf_equations.html#B"><span class="id" title="variable">B</span></a> <a class="idref" href="Groupoid.fun_depfun.html#6d0692f1baab8ffd35dcf27a05547b7a"><span class="id" title="notation">⋅⋅</span></a> <a class="idref" href="Groupoid.cwf_equations.html#SubSigma"><span class="id" title="definition">SubSigma</span></a> <a class="idref" href="Groupoid.cwf_equations.html#3122c41ebe889f745cb9bbe1c92165c3"><span class="id" title="variable">σ</span></a>).<br/>
+<span class="id" title="tactic">refine</span> (<a class="idref" href="Groupoid.HoTT_light.html#Build_sigma"><span class="id" title="constructor">Build_sigma</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>). <span class="id" title="tactic">intro</span> <span class="id" title="var">t</span>. <span class="id" title="tactic">simpl</span>.<br/>
+<span class="id" title="tactic">refine</span> (<a class="idref" href="Groupoid.HoTT_light.html#Build_sigma"><span class="id" title="constructor">Build_sigma</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>). <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Groupoid.groupoid.html#identity"><span class="id" title="projection">identity</span></a>.<br/>
+<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span>. <span class="id" title="var">simpl_id_bi</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Groupoid.fun_eq.html#equiv_eq_nat_trans"><span class="id" title="definition">equiv_eq_nat_trans</span></a>. <span class="id" title="tactic">simpl</span>.<br/>
+<span class="id" title="tactic">unfold</span> <a class="idref" href="Groupoid.cwf_equations.html#SubSigma_1_obligation_1"><span class="id" title="lemma">SubSigma_1_obligation_1</span></a>. <span class="id" title="tactic">apply</span> (<a class="idref" href="Groupoid.groupoid.html#map2"><span class="id" title="abbreviation">map2</span></a> <span class="id" title="var">B</span>).<br/>
+<span class="id" title="tactic">refine</span> (<a class="idref" href="Groupoid.HoTT_light.html#Build_sigma"><span class="id" title="constructor">Build_sigma</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>). <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="Groupoid.groupoid.html#map_id"><span class="id" title="abbreviation">map_id</span></a> σ).<br/>
+<span class="id" title="tactic">simpl</span>. <span class="id" title="var">trunc1_eq</span>.<br/>
+<span class="id" title="tactic">intros</span> <span class="id" title="var">t</span> <span class="id" title="var">t&acute;</span> <span class="id" title="var">e</span>. <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">intro</span> <span class="id" title="var">H</span>. <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Groupoid.fun_eq.html#equiv_eq_nat_trans"><span class="id" title="definition">equiv_eq_nat_trans</span></a>. <span class="id" title="tactic">simpl</span>.<br/>
+<span class="id" title="tactic">refine</span> (<a class="idref" href="Groupoid.HoTT_light.html#Build_sigma"><span class="id" title="constructor">Build_sigma</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>). <span class="id" title="tactic">intro</span> <span class="id" title="var">b</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Groupoid.groupoid.html#identity"><span class="id" title="projection">identity</span></a>.<br/>
+<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span>. <span class="id" title="var">trunc1_eq</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+  Finally, the law for term-level abstraction can be stated, using rewriting 
+  provided by the <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#t"><span class="id" title="variable">t</span></a></span> <span class="inlinecode"><span class="id" title="keyword">with</span></span> <span class="inlinecode"><a class="idref" href="Groupoid.cwf_equations.html#e"><span class="id" title="variable">e</span></a></span> notation.
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Lam_sigma_law"><span class="id" title="definition">Lam_sigma_law</span></a> {<span class="id" title="var">Δ</span> <span class="id" title="var">Γ</span>} (σ:<a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">[</span></a><a class="idref" href="Groupoid.cwf_equations.html#d44f383ce45b5283439ea630afb544d5"><span class="id" title="variable">Δ</span></a> <a class="idref" href="Groupoid.groupoid.html#8203f4abdfaa641c37168bf09bae5a50"><span class="id" title="notation">-|-&gt;</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">]</span></a>) {<span class="id" title="var">A</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a>} {<span class="id" title="var">B</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#TypDep"><span class="id" title="definition">TypDep</span></a> <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a>} (<span class="id" title="var">b</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Elt"><span class="id" title="definition">Elt</span></a> <a class="idref" href="Groupoid.cwf_equations.html#B"><span class="id" title="variable">B</span></a>):<br/>
+&nbsp;&nbsp;<a class="idref" href="Groupoid.fun_depfun.html#74b6f8c7459ed319e3530b09f21d3dbb"><span class="id" title="notation">(</span></a><a class="idref" href="Groupoid.groupoid_interpretation.html#Lam"><span class="id" title="definition">Lam</span></a> <a class="idref" href="Groupoid.cwf_equations.html#b"><span class="id" title="variable">b</span></a><a class="idref" href="Groupoid.fun_depfun.html#74b6f8c7459ed319e3530b09f21d3dbb"><span class="id" title="notation">)</span></a> <a class="idref" href="Groupoid.fun_depfun.html#74b6f8c7459ed319e3530b09f21d3dbb"><span class="id" title="notation">°°°°</span></a> <a class="idref" href="Groupoid.cwf_equations.html#3122c41ebe889f745cb9bbe1c92165c3"><span class="id" title="variable">σ</span></a> <span class="id" title="keyword">with</span> <a class="idref" href="Groupoid.cwf_equations.html#Prod_sigma_law"><span class="id" title="definition">Prod_sigma_law</span></a> <span class="id" title="keyword">with</span> <a class="idref" href="Groupoid.cwf_equations.html#Prod_eq"><span class="id" title="definition">Prod_eq</span></a> <a class="idref" href="Groupoid.cwf_equations.html#LamT_sigma_law"><span class="id" title="definition">LamT_sigma_law</span></a> <a class="idref" href="Groupoid.groupoid.html#d2fa043617d91dc63a946fec6860382b"><span class="id" title="notation">~1</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#Lam"><span class="id" title="definition">Lam</span></a> (<a class="idref" href="Groupoid.cwf_equations.html#b"><span class="id" title="variable">b</span></a> <a class="idref" href="Groupoid.fun_depfun.html#74b6f8c7459ed319e3530b09f21d3dbb"><span class="id" title="notation">°°°°</span></a> <a class="idref" href="Groupoid.fun_depfun.html#74b6f8c7459ed319e3530b09f21d3dbb"><span class="id" title="notation">(</span></a><a class="idref" href="Groupoid.cwf_equations.html#SubSigma"><span class="id" title="definition">SubSigma</span></a> <a class="idref" href="Groupoid.cwf_equations.html#3122c41ebe889f745cb9bbe1c92165c3"><span class="id" title="variable">σ</span></a><a class="idref" href="Groupoid.fun_depfun.html#74b6f8c7459ed319e3530b09f21d3dbb"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">red</span>. <span class="id" title="tactic">red</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> | [ |- <a class="idref" href="Groupoid.HoTT_light.html#sigma"><span class="id" title="record">sigma</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/8.5beta1/stdlib/Coq.Unicode.Utf8_core.html#e347aba07034a66189f14f85f0430e87"><span class="id" title="notation">λ</span></a> <span class="id" title="var">α</span> : ?<span class="id" title="var">H</span><a class="idref" href="http://coq.inria.fr/distrib/8.5beta1/stdlib/Coq.Unicode.Utf8_core.html#e347aba07034a66189f14f85f0430e87"><span class="id" title="notation">,</span></a> <span class="id" title="var">_</span>)]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⇒ <span class="id" title="tactic">assert</span> <span class="id" title="var">H</span> <span class="id" title="keyword">end</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">γ</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="Groupoid.HoTT_light.html#Build_sigma"><span class="id" title="constructor">Build_sigma</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="Groupoid.groupoid.html#identity"><span class="id" title="projection">identity</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>  <span class="id" title="var">t</span> <span class="id" title="var">t&acute;</span> <span class="id" title="var">e</span>. <span class="id" title="var">trunc1_eq</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">∃</span> <span class="id" title="var">X</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">t</span> <span class="id" title="var">t&acute;</span> <span class="id" title="var">e</span> <span class="id" title="var">H</span>. <span class="id" title="var">trunc1_eq</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+In the same way, to state the law for function application, we need
+   a law <span class="inlinecode"><a class="idref" href="Groupoid.cwf_equations.html#SubstT_sigma_law"><span class="id" title="definition">SubstT_sigma_law</span></a></span> for application at the level of type families. 
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="App_sigma_law"><span class="id" title="definition">App_sigma_law</span></a> <span class="id" title="var">Δ</span> <span class="id" title="var">Γ</span> (<span class="id" title="var">A</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a>) (<span class="id" title="var">F</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#TypFam"><span class="id" title="definition">TypFam</span></a> <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a>) (σ:<a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">[</span></a><a class="idref" href="Groupoid.cwf_equations.html#d44f383ce45b5283439ea630afb544d5"><span class="id" title="variable">Δ</span></a> <a class="idref" href="Groupoid.groupoid.html#8203f4abdfaa641c37168bf09bae5a50"><span class="id" title="notation">-|-&gt;</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">]</span></a>) (<span class="id" title="var">c</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Elt"><span class="id" title="definition">Elt</span></a> (<a class="idref" href="Groupoid.groupoid_interpretation.html#Prod"><span class="id" title="definition">Prod</span></a> <a class="idref" href="Groupoid.cwf_equations.html#F"><span class="id" title="variable">F</span></a>))<br/>
+&nbsp;&nbsp;(<span class="id" title="var">a</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Elt"><span class="id" title="definition">Elt</span></a> <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a>): <a class="idref" href="Groupoid.cwf_equations.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#5c54593e9200feb0ffe169effe5c5c59"><span class="id" title="notation">@@</span></a> <a class="idref" href="Groupoid.cwf_equations.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="Groupoid.fun_depfun.html#74b6f8c7459ed319e3530b09f21d3dbb"><span class="id" title="notation">°°°°</span></a> <a class="idref" href="Groupoid.cwf_equations.html#3122c41ebe889f745cb9bbe1c92165c3"><span class="id" title="variable">σ</span></a> <span class="id" title="keyword">with</span> <a class="idref" href="Groupoid.cwf_equations.html#SubstT_sigma_law"><span class="id" title="definition">SubstT_sigma_law</span></a> <a class="idref" href="Groupoid.groupoid.html#d2fa043617d91dc63a946fec6860382b"><span class="id" title="notation">~1</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#5c54593e9200feb0ffe169effe5c5c59"><span class="id" title="notation">(</span></a><a class="idref" href="Groupoid.cwf_equations.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Groupoid.fun_depfun.html#74b6f8c7459ed319e3530b09f21d3dbb"><span class="id" title="notation">°°°°</span></a> <a class="idref" href="Groupoid.cwf_equations.html#3122c41ebe889f745cb9bbe1c92165c3"><span class="id" title="variable">σ</span></a> <span class="id" title="keyword">with</span> <a class="idref" href="Groupoid.cwf_equations.html#Prod_sigma_law"><span class="id" title="definition">Prod_sigma_law</span></a><a class="idref" href="Groupoid.groupoid_interpretation.html#5c54593e9200feb0ffe169effe5c5c59"><span class="id" title="notation">)</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#5c54593e9200feb0ffe169effe5c5c59"><span class="id" title="notation">@@</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#5c54593e9200feb0ffe169effe5c5c59"><span class="id" title="notation">(</span></a><a class="idref" href="Groupoid.cwf_equations.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="Groupoid.fun_depfun.html#74b6f8c7459ed319e3530b09f21d3dbb"><span class="id" title="notation">°°°°</span></a> <a class="idref" href="Groupoid.cwf_equations.html#3122c41ebe889f745cb9bbe1c92165c3"><span class="id" title="variable">σ</span></a><a class="idref" href="Groupoid.groupoid_interpretation.html#5c54593e9200feb0ffe169effe5c5c59"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="Groupoid.HoTT_light.html#Build_sigma"><span class="id" title="constructor">Build_sigma</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">t</span>. <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="Groupoid.groupoid.html#identity"><span class="id" title="projection">identity</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">t</span> <span class="id" title="var">t&acute;</span> <span class="id" title="var">e</span>. <span class="id" title="var">trunc1_eq</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ The  conversion rule for term-level
+  abstractions is valid as a definitional equality (which is made explicit
+  by the use of <span class="inlinecode"><a class="idref" href="Groupoid.HoTT_light.html#eq_refl"><span class="id" title="constructor">eq_refl</span></a></span>), where <span class="inlinecode"><a class="idref" href="Groupoid.groupoid_interpretation.html#SubExtId"><span class="id" title="definition">SubExtId</span></a></span> is a specialization of
+  <span class="inlinecode"><a class="idref" href="Groupoid.groupoid_interpretation.html#SubExt"><span class="id" title="definition">SubExt</span></a></span> with the identity substitution.  
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Beta"><span class="id" title="definition">Beta</span></a> {<span class="id" title="var">Γ</span>} {<span class="id" title="var">A</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a>} {<span class="id" title="var">F</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#TypDep"><span class="id" title="definition">TypDep</span></a> <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a>} (<span class="id" title="var">b</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Elt"><span class="id" title="definition">Elt</span></a> <a class="idref" href="Groupoid.cwf_equations.html#F"><span class="id" title="variable">F</span></a>) (<span class="id" title="var">a</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Elt"><span class="id" title="definition">Elt</span></a> <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a>):<br/>
+&nbsp;&nbsp;<a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">[</span></a><a class="idref" href="Groupoid.groupoid_interpretation.html#Lam"><span class="id" title="definition">Lam</span></a> <a class="idref" href="Groupoid.cwf_equations.html#b"><span class="id" title="variable">b</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#5c54593e9200feb0ffe169effe5c5c59"><span class="id" title="notation">@@</span></a> <a class="idref" href="Groupoid.cwf_equations.html#a"><span class="id" title="variable">a</span></a><a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">]</span></a> <a class="idref" href="Groupoid.HoTT_light.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">[</span></a><a class="idref" href="Groupoid.cwf_equations.html#b"><span class="id" title="variable">b</span></a> <a class="idref" href="Groupoid.fun_depfun.html#f3b9de2ded9bf79c83ac6fdf57a12a1a"><span class="id" title="notation">°°</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#SubExtId"><span class="id" title="definition">SubExtId</span></a> <a class="idref" href="Groupoid.cwf_equations.html#a"><span class="id" title="variable">a</span></a><a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">]</span></a> := <a class="idref" href="Groupoid.HoTT_light.html#eq_refl"><span class="id" title="constructor">eq_refl</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+  
+  However,  conversion does not hold definitionally, and we need 
+  -conversion at the level of type abstractions (rule <span class="inlinecode"><a class="idref" href="Groupoid.cwf_equations.html#EtaT"><span class="id" title="definition">EtaT</span></a></span>) 
+  to state it.
+
+</div>
+<div class="code">
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Eta"><span class="id" title="definition">Eta</span></a> {<span class="id" title="var">Γ</span>} {<span class="id" title="var">A</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a>} {<span class="id" title="var">F</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#TypFam"><span class="id" title="definition">TypFam</span></a> <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a>} (<span class="id" title="var">c</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Elt"><span class="id" title="definition">Elt</span></a> (<a class="idref" href="Groupoid.groupoid_interpretation.html#Prod"><span class="id" title="definition">Prod</span></a> <a class="idref" href="Groupoid.cwf_equations.html#F"><span class="id" title="variable">F</span></a>)):<br/>
+&nbsp;&nbsp;<a class="idref" href="Groupoid.groupoid_interpretation.html#Lam"><span class="id" title="definition">Lam</span></a> (<a class="idref" href="Groupoid.cwf_equations.html#72d08a6401e90a65cd482df9811c3bfb"><span class="id" title="notation">↑</span></a> <a class="idref" href="Groupoid.cwf_equations.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#5c54593e9200feb0ffe169effe5c5c59"><span class="id" title="notation">@@</span></a> <a class="idref" href="Groupoid.groupoid_interpretation.html#Var"><span class="id" title="definition">Var</span></a> <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a>) <span class="id" title="keyword">with</span> <a class="idref" href="Groupoid.cwf_equations.html#Prod_eq"><span class="id" title="definition">Prod_eq</span></a> (<a class="idref" href="Groupoid.cwf_equations.html#EtaT"><span class="id" title="definition">EtaT</span></a> <a class="idref" href="Groupoid.cwf_equations.html#F"><span class="id" title="variable">F</span></a>) <a class="idref" href="Groupoid.groupoid.html#d2fa043617d91dc63a946fec6860382b"><span class="id" title="notation">~1</span></a> <a class="idref" href="Groupoid.cwf_equations.html#c"><span class="id" title="variable">c</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="Groupoid.HoTT_light.html#Build_sigma"><span class="id" title="constructor">Build_sigma</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">γ</span>. <span class="id" title="tactic">refine</span> (<a class="idref" href="Groupoid.HoTT_light.html#Build_sigma"><span class="id" title="constructor">Build_sigma</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>). <span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="Groupoid.groupoid.html#identity"><span class="id" title="projection">identity</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>  <span class="id" title="var">t</span> <span class="id" title="var">t&acute;</span> <span class="id" title="var">e</span>. <span class="id" title="var">trunc1_eq</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">t</span> <span class="id" title="var">t&acute;</span> <span class="id" title="var">e</span>. <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>. <span class="id" title="tactic">simpl</span>. <span class="id" title="var">trunc1_eq</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+
+  In, the coherence of the interpretation is
+  not entirely shown, and relies on Uniqueness of Identity Proofs through
+  Alf's pattern-matching. In our setting the first level coherence can
+  be directly expressed and proved by naturality of the interpretation,
+  because we embed the setoid model inside groupoids (higher notions of coherence
+  require to move to higher groupoids).  
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="coherence_of_interpretation"><span class="id" title="lemma">coherence_of_interpretation</span></a> {<span class="id" title="var">Γ</span>} {<span class="id" title="var">A</span> <span class="id" title="var">B</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a> <a class="idref" href="Groupoid.cwf_equations.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a>} (<span class="id" title="var">e</span> <span class="id" title="var">e&acute;</span> : <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a> <a class="idref" href="Groupoid.groupoid.html#d2fa043617d91dc63a946fec6860382b"><span class="id" title="notation">~1</span></a> <a class="idref" href="Groupoid.cwf_equations.html#B"><span class="id" title="variable">B</span></a>) (<span class="id" title="var">a</span>:<a class="idref" href="Groupoid.groupoid_interpretation_def.html#Elt"><span class="id" title="definition">Elt</span></a> <a class="idref" href="Groupoid.cwf_equations.html#A"><span class="id" title="variable">A</span></a>):<br/>
+&nbsp;&nbsp;<a class="idref" href="Groupoid.cwf_equations.html#e"><span class="id" title="variable">e</span></a> <a class="idref" href="Groupoid.groupoid.html#7f7a7c59db5ad67a4748b21e9710d2b2"><span class="id" title="notation">~2</span></a> <a class="idref" href="Groupoid.cwf_equations.html#e&acute;"><span class="id" title="variable">e&acute;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.5beta1/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">→</span></a> <a class="idref" href="Groupoid.cwf_equations.html#a"><span class="id" title="variable">a</span></a> <span class="id" title="keyword">with</span> <a class="idref" href="Groupoid.cwf_equations.html#e"><span class="id" title="variable">e</span></a> <a class="idref" href="Groupoid.groupoid.html#d2fa043617d91dc63a946fec6860382b"><span class="id" title="notation">~1</span></a> <a class="idref" href="Groupoid.cwf_equations.html#a"><span class="id" title="variable">a</span></a> <span class="id" title="keyword">with</span> <a class="idref" href="Groupoid.cwf_equations.html#e&acute;"><span class="id" title="variable">e&acute;</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Thus, the coherence of our interpretation only requires to prove 
+  that the interpretation of type equalities from the source type theory 
+  only targets <i>identity</i> isomorphisms (as then the <span class="inlinecode"><a class="idref" href="Groupoid.cwf_equations.html#e"><span class="id" title="variable">e</span></a></span> <span class="inlinecode">~2</span> <span class="inlinecode"><a class="idref" href="Groupoid.cwf_equations.html#e&acute;"><span class="id" title="variable">e&acute;</span></a></span> hypothesis would be given by 
+  the identity modification). This proof is not difficult metatheoretically as every 
+  conversion rule is interpreted by the identity isomorphism, but it can not be 
+  internalized because it is not possible to reason on definitional equality inside 
+  the theory.
+ 
+</div>
+<div class="code">
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

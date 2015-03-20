@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>Groupoid.groupoid_interpretation_def</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library Groupoid.groupoid_interpretation_def</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+  We now organize our formalization of groupoids into a model of the dependent 
+  type theory introduced in Section.
+  The interpretation is based on the notion of categories with families 
+  introduced by Dybjer later used in .
+  This interpretation can also be seen as an extension of the Takeuti-Gandy interpretation of simple type theory, recently generalized to dependent type theory by Coquand et al. using Kan semisimplicial sets or cubical sets. 
+  The main novelty of our interpretation is to
+  take advantage of universe polymorphism to interpret dependent types
+  directly as functors into <span class="inlinecode"><a class="idref" href="Groupoid.groupoid.html#Type0"><span class="id" title="definition">Type0</span></a></span>. 
+  We only present the computational part of the interpretation, the
+  proofs of functoriality and naturality are available in the  development.
+
+<div class="paragraph"> </div>
+
+<a name="lab5"></a><h2 class="section">Dependent types</h2>
+
+
+<div class="paragraph"> </div>
+
+  The judgment context  of Section
+   is represented in  as a setoid, noted
+  <span class="inlinecode"><span class="id" title="keyword">Context</span></span> <span class="inlinecode">:=</span> <span class="inlinecode"><a class="idref" href="Groupoid.groupoid.html#SetoidType"><span class="id" title="definition">SetoidType</span></a></span>. The empty context (Rule )
+  is interpreted as the setoid with exactly one element at each
+  dimension.  Types in a context <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a></span>, noted <span class="inlinecode"><a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a></span> <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a></span>, are (context)
+  functors from <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a></span> to the groupoid of setoids <span class="inlinecode"><a class="idref" href="Groupoid.groupoid.html#Type0"><span class="id" title="definition">Type0</span></a></span>.  Thus, a
+  judgment  is represented as a term <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span> of
+  type <span class="inlinecode"><a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a></span> <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a></span>. Context extension (Rule ) is given by
+  dependent sums, i.e., the judgment  is represented
+  as <span class="inlinecode"><span class="id" title="var">_Sum</span></span> <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span>.
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+</div>
+
+<div class="doc">
+Terms of <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span> introduced by a sequent  are
+  dependent (context) functors from <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a></span> to <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span> that return for each
+  context valuation <span class="inlinecode"><a class="idref" href="Groupoid.cwf_equations.html#b0e5ed29efd576246de3282fa163293b"><span class="id" title="variable">γ</span></a></span>, an object of <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span> <span class="inlinecode">@</span> <span class="inlinecode"><a class="idref" href="Groupoid.cwf_equations.html#b0e5ed29efd576246de3282fa163293b"><span class="id" title="variable">γ</span></a></span> respecting equality of
+  contexts.  The type of terms of <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span> is noted <span class="inlinecode"><a class="idref" href="Groupoid.groupoid_interpretation_def.html#Elt"><span class="id" title="definition">Elt</span></a></span> <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span> <span class="inlinecode">:=</span> <span class="inlinecode">[<a class="idref" href="Groupoid.groupoid.html#_Prod"><span class="id" title="definition">_Prod</span></a></span> <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a>]</span>
+  (context is implicit).  
+<div class="paragraph"> </div>
+
+  A dependent type  is interpreted in two
+  equivalent ways: simply as a type <span class="inlinecode"><a class="idref" href="Groupoid.groupoid_interpretation_def.html#TypDep"><span class="id" title="definition">TypDep</span></a></span> <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span> <span class="inlinecode">:=</span> <span class="inlinecode"><a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a></span> <span class="inlinecode">(<span class="id" title="var">_Sum</span></span> <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a>)</span> over the
+  dependent sum of <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a></span> and <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span> or as a type family <span class="inlinecode"><a class="idref" href="Groupoid.groupoid_interpretation_def.html#TypFam"><span class="id" title="definition">TypFam</span></a></span> <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span> over <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span>
+  (corresponding to a family of sets in constructive mathematics). A
+  type family can be seen as a fibration (or bundle) from <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#B"><span class="id" title="variable">B</span></a></span> to <span class="inlinecode"><a class="idref" href="Groupoid.fun_ext.html#A"><span class="id" title="variable">A</span></a></span>.
+  In what follows, the indice  is given to proofs of 
+  (dependent) functoriality.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="TypFam"><span class="id" title="definition">TypFam</span></a> {<span class="id" title="var">Γ</span> : <span class="id" title="keyword">Context</span>} (<span class="id" title="var">A</span>: <a class="idref" href="Groupoid.groupoid_interpretation_def.html#Typ"><span class="id" title="definition">Typ</span></a> <a class="idref" href="Groupoid.groupoid_interpretation_def.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a>) := <br/>
+&nbsp;&nbsp;<a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">[</span></a><a class="idref" href="Groupoid.groupoid.html#_Prod"><span class="id" title="definition">_Prod</span></a> <a class="idref" href="Groupoid.groupoid.html#6135e546f0329dbebe21f0a32ce243ef"><span class="id" title="notation">(</span></a><a class="idref" href="http://coq.inria.fr/distrib/8.5beta1/stdlib/Coq.Unicode.Utf8_core.html#e347aba07034a66189f14f85f0430e87"><span class="id" title="notation">λ</span></a> <span class="id" title="var">γ</span><a class="idref" href="http://coq.inria.fr/distrib/8.5beta1/stdlib/Coq.Unicode.Utf8_core.html#e347aba07034a66189f14f85f0430e87"><span class="id" title="notation">,</span></a> <a class="idref" href="Groupoid.groupoid_interpretation_def.html#6451a62582f031cf9b1d5ad156a0c4aa"><span class="id" title="notation">[[</span></a> <a class="idref" href="Groupoid.groupoid_interpretation_def.html#6451a62582f031cf9b1d5ad156a0c4aa"><span class="id" title="notation">(</span></a><a class="idref" href="Groupoid.groupoid_interpretation_def.html#A"><span class="id" title="variable">A</span></a> <a class="idref" href="Groupoid.groupoid.html#c08910e202733241c0ff38b25be5a0c9"><span class="id" title="notation">@</span></a> <a class="idref" href="Groupoid.groupoid_interpretation_def.html#b0e5ed29efd576246de3282fa163293b"><span class="id" title="variable">γ</span></a><a class="idref" href="Groupoid.groupoid_interpretation_def.html#6451a62582f031cf9b1d5ad156a0c4aa"><span class="id" title="notation">)</span></a> <a class="idref" href="Groupoid.groupoid_interpretation_def.html#6451a62582f031cf9b1d5ad156a0c4aa"><span class="id" title="notation">]]</span></a> <a class="idref" href="Groupoid.groupoid.html#7556b1b60735a63b0d8b9e6dae67d8df"><span class="id" title="notation">-||-&gt;</span></a> <a class="idref" href="Groupoid.groupoid.html#Type0"><span class="id" title="definition">Type0</span></a><a class="idref" href="Groupoid.groupoid.html#6135e546f0329dbebe21f0a32ce243ef"><span class="id" title="notation">;</span></a> <a class="idref" href="Groupoid.groupoid_interpretation_def.html#TypFam_1"><span class="id" title="instance">TypFam_1</span></a> <span class="id" title="var">_</span><a class="idref" href="Groupoid.groupoid.html#6135e546f0329dbebe21f0a32ce243ef"><span class="id" title="notation">)</span></a><a class="idref" href="Groupoid.groupoid.html#f3e214866e2119d9deedec43b0cb7c8d"><span class="id" title="notation">]</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
