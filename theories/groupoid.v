@@ -261,9 +261,9 @@ Class GroupoidP T := { C :> CategoryP T ;  Inv :> Inverse eq1 ;
      inv :   ∀ x y (f f': x ~1 y), f ~ f' -> f ^-1 ~ f' ^-1}.
 
 (* begin hide *)
-Hint Extern 1 (@Equivalence (@eq1 (@Hom1 ?T) ?x ?y) eq2) => 
-  apply (@Equivalence_2 T _ x y) : typeclass_instances.
-Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => apply (@Hom2 T) : typeclass_instances.
+(* Hint Extern 1 (@Equivalence (@eq1 (@Hom1 ?T) ?x ?y) eq2) =>  *)
+(*   apply (@Equivalence_2 T x y) : typeclass_instances. *)
+(* Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => apply (@Hom2 T) : typeclass_instances. *)
 Hint Extern 1 (GroupoidP [?T]) => apply (proj2 T) : typeclass_instances.
 
 Definition assoc' {T} {Hom1: HomT1 T} {Hom2: HomT2 eq1} {Category} {x y z w: T} :=
@@ -593,8 +593,8 @@ Hint Extern 1 (@Identity (@eq1 (@Hom1 ?T) ?x ?y) eq2) =>
 
 Instance arrow_id (T:UGroupoidType) : Functor (id (A := [T])) :=
   { _map x y e := e;
-    _map_id x := identity (identity (id x))}.
-Next Obligation. apply identity. Defined. 
+    _map_id x := identity (identity (id x)) }.
+Next Obligation. apply identity. Defined.
     (* _map_comp x y z e e' := identity (e' ° e) }. *)
   
 Instance id_fun : Identity Fun_Type :=
@@ -736,7 +736,7 @@ Program Instance modification_eq T U (f g : T ---> U) :
 
 Instance nat_groupoid (T U : GroupoidType) : Groupoid (T ---> U).
 Next Obligation.
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ E E'))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ E E'))).
   apply contr_forall. intros z.
   apply (@is_Trunc_2 _ _ _ _ _ _ (E z) (E' z)).
 Defined.
@@ -841,7 +841,7 @@ Definition _Fun_Setoid_ T U (f g : T -S-> U) (e e' : nat_trans f g) : e = e'.
   assert (e.1 = e'.1).
   apply path_forall. intros z.
   apply is_Trunc_1.
-  apply (path_sigma _ _ H). 
+  apply (path_sigma _ _ X). 
   apply NaturalTransformationEq2.
 Defined.
 
@@ -850,15 +850,15 @@ Instance _Fun_Setoid (T U : SetoidType) : Setoid (T -S-> U).
 Next Obligation. 
   apply (@contr_equiv _ _ _ (path_sigma_equiv e e')).
   apply (@contr_sigma _ (fun p => p # e.2 = e'.2)).
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ [e] [e']))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ [e] [e']))).
   apply contr_forall. intros z.
   apply (@is_Trunc_1 _ _ _ _ (e @ z) (e' @ z)).
   intros.   destruct e, e'. simpl in *. destruct a. simpl. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
   apply contr_forall. intros t. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
   apply contr_forall. intros t'. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
   apply contr_forall. intros e. 
   apply (@is_Trunc_2 _ _ _ _ _ _ _ _).
 Defined.
@@ -1074,12 +1074,12 @@ Ltac simpl_id' ::=
              eapply composition;
                [apply comp; simpl_id' | idtac];
                simpl_id_end_extended'
-           | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply (identity e)]
+           | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply identity]
            | [ |- _ ] => idtac
          end].
 
 Program Instance IsoToEquiv_ A B (f : Iso A B) : Equiv_struct [f].
-Next Obligation. simpl_id'. simpl_id'. 
+Next Obligation. simpl_id'. simpl_id' .
   unfold IsoToEquiv''_obligation_3.
   eapply (right_simplify' B). eapply composition. apply assoc.
   eapply composition. apply comp. apply inv_L. apply identity.
@@ -1830,7 +1830,7 @@ Program Instance Equiv_Groupoid : Groupoid SetoidType.
 Next Obligation.  apply (@contr_equiv _ _ _ (path_sigma_equiv E E')).
   apply (@contr_sigma _ (fun p => p # E.2 = E'.2)).
   apply _Fun_Setoid_obligation_1. destruct E, E'. intro X. simpl in *. destruct X.
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
   apply contr_forall. intros a'.
   apply (@is_Trunc_2 _ _ _ _ _ _ _ _).
 Defined. 
@@ -1980,7 +1980,7 @@ Next Obligation. intro t. apply inv. exact (X t). Defined.
 
 Instance _Fun_Groupoid (T U : [Type1]) : Groupoid (T -G-> U).
 Next Obligation. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ E E'))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ E E'))).
   apply contr_forall. intros z.
   apply (@is_Trunc_2 _ _ _ _ (e @ z) (e' @ z)).
 Defined.
@@ -2075,12 +2075,12 @@ Definition Trunc_1 (T:[Type0]) (x y : [T])
 
 Ltac trunc1_eq :=   match goal with
     | [ |- ?e ~ ?e'] =>
-      (* let X := fresh in *)
-      (* let X':=fresh in  *)
-      (* set(X:=e) in *;  *)
-      (* set(X':=e') in *;  *)
+      let X := fresh in
+      let X':=fresh in
+      set(X:=e) in *;
+      set(X':=e') in *;
       let H := fresh in
-      assert (H:=@HoTT_light.center _ (Trunc_1 _ _ _ e e'));
+      assert (H:=@HoTT_light.center _ (Trunc_1 _ _ _ X X'));
       try ((destruct H; apply identity)
              || (simpl in *; destruct H; apply identity))    
   end. 
@@ -2097,11 +2097,11 @@ Ltac trunc1_eq :=   match goal with
 
 Ltac trunc1_eq_expl T :=   match goal with
     | [ |- ?e ~ ?e'] =>
-      (* let X := fresh in *)
-      (* let X':=fresh in  *)
-      (* set(X:=e) in *;  *)
-      (* set(X':=e') in *;  *)
-      apply (eq_is_eq2 T (@HoTT_light.center _ (Trunc_1 _ _ _ e e')))
+      let X := fresh in
+      let X':=fresh in
+      set(X:=e) in *;
+      set(X':=e') in *;
+      apply (eq_is_eq2 T (@HoTT_light.center _ (Trunc_1 _ _ _ X X')))
   end.
 
 
@@ -2313,7 +2313,7 @@ Definition Type1_Type T : [T --> Type1] -> [T --> _Type] :=
 Program Instance prod_Groupoid (T:[Type1]) (U:[|T|g --> Type1]) : 
   Groupoid (Prod_Type (Type1_Type U)).
 Next Obligation.
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ E E'))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ E E'))).
   apply contr_forall. intros z.
   apply (@is_Trunc_2 _ _ _ _ _ _ (E z) (E' z)).
 Defined.
@@ -2392,7 +2392,7 @@ Defined.
 Program Instance prod_Groupoid1 T (U:[T --> Type0]) : 
   Groupoid (Prod_Type (Type0_Type U)).
 Next Obligation.
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ E E'))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ E E'))).
   apply contr_forall. intros z.
   apply (@is_Trunc_2 _ _ _ _ _ _ (E z) (E' z)).
 Defined.
@@ -2402,15 +2402,15 @@ Program Instance Prod_setoid T (U:[T --> Type0]) :
 Next Obligation.
   apply (@contr_equiv _ _ _ (path_sigma_equiv e e')).
   apply (@contr_sigma _ (fun p => p # e.2 = e'.2)).
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ [e] [e']))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ [e] [e']))).
   apply contr_forall. intros z.
   apply (@is_Trunc_1 _ _ _ _ (e @ z) (e' @ z)).
   intros.   destruct e, e'. simpl in *. destruct a. simpl. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
   apply contr_forall. intros t. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
   apply contr_forall. intros t'. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
   apply contr_forall. intros e. 
   apply (@is_Trunc_2 _ _ _ _ _ _ _ _).
 Defined.

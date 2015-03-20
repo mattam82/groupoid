@@ -279,9 +279,9 @@ Program Definition _Prop : SetoidType :=
   (PropoidType; {| S := IrrRelGroupoid {| eq1 := (λ P Q, P <-> Q) |} |}).
 Next Obligation. apply (@contr_equiv _ _ _ isequiv_path_prod).
                  apply contr_prod.
-                 apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+                 apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
                  apply contr_forall. intros t. apply is_Trunc_0.
-                 apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))).
+                 apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
                  apply contr_forall. intros t. apply is_Trunc_0.
 Defined.
 
@@ -328,7 +328,7 @@ Definition TypDep {Γ : Context} (A: Typ Γ) := Typ (_Sum0 A).
 (* begin hide *)
 
 (* Program Instance _Fun_Groupoid T U : Groupoid (T -S-> U). *)
-(* Next Obligation. apply (@contr_equiv _ _ _ (isequiv_inverse _ _ _ (isequiv_apD10 _ _ _))). *)
+(* Next Obligation. apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))). *)
 (*                  apply contr_forall. intros z. *)
 (*                  apply is_Trunc_2. *)
 (* Defined. *)

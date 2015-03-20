@@ -306,7 +306,7 @@ Next Obligation. exact (X ; Dmap t X). Defined.
 Next Obligation. exists (identity _). simpl. eapply composition. exact (Dmap_id t). 
                  unfold transport_eq. apply inverse. eapply composition.
                  apply comp. simpl. apply (map2_id A). apply identity. simpl. 
-                 simpl_id_bi. Defined.
+                 simpl_id_bi. apply identity. Defined.
 Next Obligation. exists (identity _). eapply composition.
                  exact (Dmap_comp t e e'). simpl. unfold transport_eq.
                  eapply composition. Focus 2. apply comp. 

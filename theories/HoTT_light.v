@@ -9,10 +9,10 @@ Set Implicit Arguments.
 
 Section TypeEq.
   Local Definition T := Type.
-  (* Inductive equality (A : T) : A -> A -> T := *)
-  (* | eq_refl a : equality a a. *)
+  Inductive equality (A : T) : A -> A -> T :=
+  | eq_refl a : equality a a.
 
-  Definition equality (A:Type) := @eq A.
+  (* Definition equality (A:Type) := @eq A. *)
   
   Lemma eq_sym (A : T) (x y : A) : equality x y -> equality y x.
   Proof.
@@ -26,8 +26,27 @@ Section TypeEq.
 
 End TypeEq.
 
+Require Import CRelationClasses CMorphisms.
+
+Instance eq_reflexive A : Reflexive (@equality A).
+Proof. exact (@eq_refl A). Defined.
+
+Instance eq_symmetric A : Symmetric (@equality A).
+Proof. exact (@eq_sym A). Defined.
+
+Instance eq_transitive A : Transitive (@equality A).
+Proof. exact (@eq_trans A). Defined.
+
 Notation " x = y " := (@equality _ x y).
 Notation " x = y " := (@equality _ x y) : type_scope.
+
+Inductive prod (A B : Type) := pair : A -> B -> prod A B.
+
+Notation " X * Y " := (prod X Y) : type_scope.
+Notation " ( x , p ) " := (@pair _ _ x p).
+
+Definition fst {A B} (p : A * B) : A := match p with pair a b => a end.
+Definition snd {A B} (p : A * B) : B := match p with pair a b => b end.
 
 Record sigma {A : Type} (P : A -> Type) := Build_sigma
   { proj1 : A ; proj2 : P proj1 }.
@@ -92,21 +111,21 @@ Defined.
 
 Definition path_prod_uncurried {A B : Type} (z z' : A * B)
            (pq : (fst z = fst z') * (snd z = snd z')): (z = z').
-  destruct pq. destruct z, z'. simpl in *. destruct H , H0. reflexivity. 
+  destruct pq. destruct z, z'. simpl in *. destruct e , e0. reflexivity. 
 Defined.
 
 Definition path_prod {A B : Type} (z z' : A * B) :
   (fst z = fst z') -> (snd z = snd z') -> (z = z')
-  := fun p q => path_prod_uncurried z z' (p,q).
+  := fun p q => path_prod_uncurried z z' (pair p q).
 
 Definition eta_path_prod {A B : Type} {z z' : A * B} (p : z = z') :
   path_prod _ _(ap fst p) (ap snd p) = p.
-  destruct p, z. reflexivity.
+  destruct p, a. reflexivity.
 Defined.
 
 Definition path_prod' {A B : Type} {x x' : A} {y y' : B}
   : (x = x') -> (y = y') -> ((x,y) = (x',y'))
-  := fun p q => path_prod (x,y) (x',y') p q.
+  := fun p q => path_prod (pair x y) (pair x' y') p q.
 
 Definition ap_fst_path_prod {A B : Type} {z z' : A * B}
   (p : fst z = fst z') (q : snd z = snd z') :
@@ -194,13 +213,28 @@ Definition concat_p_pp {A : Type} {x y z t : A} (p : x = y) (q : y = z) (r : z =
   destruct p, q; reflexivity.
 Defined.
 
+Arguments equality {A} _ _.
+Arguments eq_refl {A} [a].
+
+Instance equality_equiv A :
+  Equivalence (@equality A) := {}.
+
+Instance concat_morphism (A : Type@{i}) x y z :
+  Proper@{i i i} (equality ==> equality ==> equality) (@concat A x y z).
+Proof. reduce. destruct x0. destruct X. destruct x1. destruct X0. reflexivity. Defined.
+
+Instance trans_co_eq_inv_arrow_morphism :
+  ∀ (A : Type@{i}) (R : crelation@{i i} A),
+    Transitive R → Proper@{j Prop i} (R ==> respectful @{i j i i j i} equality (flip arrow)) R.
+Proof. reduce. transitivity y. assumption. now destruct X1. Defined.
+
 Definition concat_pp_A1 {A : Type} {g : A -> A} (p : forall x, x = g x)
   {x y : A} (q : x = y)
   {w : A} (r : w = x)
   :
     (r @@ p x) @@ ap g q = (r @@ q) @@ p y.
-  destruct q. simpl.
-  repeat rewrite concat_p1.
+  destruct q. simpl. 
+  repeat rewrite concat_p1. 
   reflexivity.
 Defined.
 
@@ -215,8 +249,8 @@ Definition whiskerR {A : Type} {x y z : A} {p q : x = y}
 Defined. 
 
 Definition moveL_M1 {A : Type} {x y : A} (p q : x = y) :
-  eq_sym q @@ p = eq_refl _ -> p = q.
-  destruct q. exact id.
+  eq_sym q @@ p = eq_refl -> p = q. 
+  destruct q. trivial.
 Defined.
 
 Definition inverse2 {A : Type} {x y : A} {p q : x = y} (h : p = q)
@@ -245,7 +279,7 @@ Defined.
 
 Definition concat_A1p {A : Type} {f : A -> A} (p : forall x, f x = x) {x y : A} (q : x = y) :
   (ap f q) @@ (p y) = (p x) @@ q.
-  destruct q, (p x). reflexivity.
+  destruct q; simpl; destruct (p a). reflexivity.
 Defined.
 
 Definition ap_pp {A B : Type} (f : A -> B) {x y z : A} (p : x = y) (q : y = z) :
@@ -286,10 +320,18 @@ Definition concat_pA1_p {A : Type} {f : A -> A} (p : forall x, f x = x)
   destruct q; simpl. repeat rewrite concat_p1. reflexivity.
 Defined.
 
-Program Instance isequiv_inverse A B (f:A -> B) (H:IsEquiv f) : IsEquiv (f^^-1) | 1000
-    := BuildIsEquiv (@eissect _ _ f _) (@eisretr _ _ f _) _.
-Next Obligation.
-  rename x into b.
+Instance ap_morphism (A : Type@{i}) (B : Type@{j}) x y f :
+  Proper@{k Prop k} (@equality (@equality A x y) ==> @equality (@equality B (f x) (f y))) (@ap A B f x y).
+Proof. reduce. destruct x0. destruct X. reflexivity. Defined.
+
+Instance reflexive_proper_proxy :
+  ∀ (A : Type@{i}) (R : crelation@{i i} A), Reflexive R → ∀ x : A, ProperProxy@{i Prop i} R x.
+Proof. intros. reduce. apply X. Defined.
+
+Definition isequiv_inverse' A B (f:A -> B) (H:IsEquiv f) : IsEquiv (f^^-1) .
+Proof.
+  refine (BuildIsEquiv (@eissect _ _ f _) (@eisretr _ _ f _) _).
+  intros b.
   rewrite <- (concat_1p (eissect _)).
   rewrite <- (concat_Vp  (ap f^^-1 (eisretr (f (f^^-1 b))))).
   rewrite (whiskerR (inverse2 (ap02 f^^-1 (eisadj (f^^-1 b)))) _).
@@ -317,6 +359,8 @@ Next Obligation.
   rewrite (concat_pA1_p (@eissect _ _ f _) _).
   rewrite concat_pV_p; apply concat_Vp.
 Defined. 
+
+Definition isequiv_inverse A B f H := @isequiv_inverse'@{univ univ1 univ2 univ3 Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop univ14 Prop Prop Prop Prop Prop univ20 Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop} A B f H.
 
 Definition path_contr A {H:Contr A} (x y : A) : x = y
   := concat (eq_sym (@contr _ H x)) (@contr _ H y).
@@ -372,24 +416,24 @@ Definition path_sigma_equiv {A : Type} (P : A -> Type) (u v : sigma P):
   refine (BuildIsEquiv _ _ _).
   - exact (fun r => (r..1; r..2)).
   - intro. apply eta_path_sigma.
-  - destruct u, v; intros [p q]; simpl in *;
-    destruct q, p; simpl in *.
+  - destruct u, v; intros [p q]; simpl in *.
+    destruct p. simpl in *. destruct q.
     reflexivity.
-  - destruct u, v; intros [p q]; simpl in *;
-    destruct q, p; simpl in *.
+  - destruct u, v; intros [p q]; simpl in *.
+    destruct p; simpl in *; destruct q.
     reflexivity.
 Defined.
 
 Instance contr_unit : Contr unit | 0 := let x := {|
   center := tt;
-  contr := fun t : unit => match t with tt => eq_refl _ end
+  contr := fun t : unit => match t with tt => eq_refl end
 |} in x.
 
 
 Definition path2_contr A {H:Contr A} {x y : A} (p q : x = y) : p = q.
   assert (K : forall (r : x = y), r = path_contr x y).
   intro r; destruct r; symmetry; now apply concat_Vp.
-  transitivity (path_contr x y).
+  apply (transitivity (y:=path_contr x y)).
   - apply K.
   - symmetry; apply K.
 Defined.

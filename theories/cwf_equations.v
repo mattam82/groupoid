@@ -323,7 +323,7 @@ Definition foo := @SubExt. (* for documentation interpolation... *)
   [SubExt] with the identity substitution.  *)
 
 Definition Beta {Γ} {A:Typ Γ} {F:TypDep A} (b:Elt F) (a:Elt A):
-  [Lam b @@ a] = [b °° SubExtId a] := eq_refl _.
+  [Lam b @@ a] = [b °° SubExtId a] := eq_refl.
 
 (**
  %\noindent% 
@@ -351,7 +351,7 @@ Definition EtaT Γ (A:Typ Γ) (F:TypFam A): LamT ((F °°° Sub) {{Var A}}) ~1 F
   intros t t' e X. simpl. unfold id, groupoid_interpretation.substF_1_obligation_1.
   simpl. apply equiv_eq_nat_trans. simpl.
   refine (Build_sigma _ _ _).
-  intro f. simpl. refine (map _ _).
+  intro f. simpl. refine (@_map _ _ _ _ _ _ _).
   assert ((map (F @ t)) (equiv_adjoint (Var A) (sum_id_right e X)) ~1 identity _).
   unfold equiv_adjoint. simpl.
   eapply composition; try exact (map_id (F @ t)). 

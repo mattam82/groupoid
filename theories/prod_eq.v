@@ -140,14 +140,14 @@ Next Obligation. simpl; red; intros; simpl. apply (map2 [Dmap F e @ t] (X _)). D
 
 Definition Prod_eq {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y): 
  _Prod ([[[F @ x]]]) ---> _Prod ([[[F @ y]]]) := (_; Prod_eq_3 A F e).
-
+Unset Printing Primitive Projection Parameters.
 Definition Prod_eq_comp'' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
         (e:x~1 y) (e' : y ~1 z):
   ∀ t a , [Prod_eq F e' ° Prod_eq F e] t @ a ~1 [Prod_eq F (e' ° e)] t @ a.
 Proof.
 intros. simpl. unfold Prod_eq_1. simpl. unfold id.
 apply inverse. eapply composition. apply ([Dmap_comp F e e' a]). simpl. unfold id.
-refine (map _ _). refine (map _ _). apply (Dmap t).
+refine (@_map _ _ _ _ _ _ _). refine (@_map _ _ _ _ _ _ _). apply (Dmap t).
 Defined.
 
 Definition Prod_eq_comp' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
@@ -167,7 +167,7 @@ Definition Prod_eq_map'' {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]}
   [Prod_eq F e] t @ a ~1 [Prod_eq F e'] t @ a.
 simpl. unfold Prod_eq_1. simpl. unfold id.
 eapply composition. apply ([Dmap2 F H a]). simpl. unfold id.
-refine (map _ _). apply (Dmap t).
+refine (@_map _ _ _ _ _ _ _). apply (Dmap t).
 Defined.
 
 Definition Prod_eq_map' {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]}
