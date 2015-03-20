@@ -15,3 +15,5 @@ theories/notations.tex
 theories/fun_ext.tex
 theories/cwf_equations.tex
 tex/main.*
+/tex/auto/
+/theories/.coq-native/
