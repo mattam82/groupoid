@@ -244,7 +244,7 @@ Class CategoryP T := { Hom1 :> HomT1 T; Hom2 :> HomT2 eq1;
 Definition CatType := {T:Type & CategoryP T}.
 
 Hint Extern 1 (@Equivalence (@eq1 (@Hom1 ?T) ?x ?y) eq2) => 
-  apply (@Equivalence_2 T x y) : typeclass_instances.
+  apply (@Equivalence_2 T _ x y) : typeclass_instances.
 (* Hint Extern 1 (@CategoryP (proj1 ?T) (@Hom1 ?T) _) => apply (@Category_1 (proj2 T)) : typeclass_instances. *)
 Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => apply (@Hom2 T) : typeclass_instances.
 (* Hint Extern 1 (Category [?T]) => apply (proj2 T) : typeclass_instances. *)
@@ -262,7 +262,7 @@ Class GroupoidP T := { C :> CategoryP T ;  Inv :> Inverse eq1 ;
 
 (* begin hide *)
 Hint Extern 1 (@Equivalence (@eq1 (@Hom1 ?T) ?x ?y) eq2) => 
-  apply (@Equivalence_2 T x y) : typeclass_instances.
+  apply (@Equivalence_2 T _ x y) : typeclass_instances.
 Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => apply (@Hom2 T) : typeclass_instances.
 Hint Extern 1 (GroupoidP [?T]) => apply (proj2 T) : typeclass_instances.
 
@@ -588,10 +588,14 @@ Defined.
 
 Opaque map_inv.
 
+Hint Extern 1 (@Identity (@eq1 (@Hom1 ?T) ?x ?y) eq2) => 
+  apply (@Equivalence_Identity _ _ (@Equivalence_2 T _ x y)) : typeclass_instances.
+
 Instance arrow_id (T:UGroupoidType) : Functor (id (A := [T])) :=
-  { _map x y e := e ;
-    _map_id x := identity _;
-    _map_comp x y z e e' := identity _ }.
+  { _map x y e := e;
+    _map_id x := identity (identity (id x))}.
+Next Obligation. apply identity. Defined. 
+    (* _map_comp x y z e e' := identity (e' ° e) }. *)
   
 Instance id_fun : Identity Fun_Type :=
   { identity x := (id (A:=[x]) ; arrow_id _) }.
@@ -837,7 +841,7 @@ Definition _Fun_Setoid_ T U (f g : T -S-> U) (e e' : nat_trans f g) : e = e'.
   assert (e.1 = e'.1).
   apply path_forall. intros z.
   apply is_Trunc_1.
-  apply (path_sigma _ _ X). 
+  apply (path_sigma _ _ H). 
   apply NaturalTransformationEq2.
 Defined.
 
@@ -1009,7 +1013,7 @@ Ltac simpl_id_end' := eapply composition ; [match goal with
 
 Ltac simpl_id_end_extended' := first [ simpl_id_end' |
                                       match goal with
-                   | [ |- eq2 ?e _ ] => apply (identity e)
+                   | [ |- eq2 ?e _ ] => apply identity
                    | [ |- _ ] => idtac
                  end].
 
@@ -1031,7 +1035,7 @@ Ltac simpl_id' := first [simpl_id_end' ; simpl_id' |
                    | [ |- eq2 (?Q ° ?P) _] => eapply composition;
                                              [apply comp; simpl_id' | idtac];
                                             simpl_id_end_extended'
-                   | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply (identity e)]
+                   | [ |- eq2 ?e _ ] => first [has_evar e; idtac | apply identity]
                    | [ |- _ ] => idtac
                  end].
 
@@ -1075,8 +1079,7 @@ Ltac simpl_id' ::=
          end].
 
 Program Instance IsoToEquiv_ A B (f : Iso A B) : Equiv_struct [f].
-Next Obligation. 
-  simpl. simpl_id'. simpl_id'.
+Next Obligation. simpl_id'. simpl_id'. 
   unfold IsoToEquiv''_obligation_3.
   eapply (right_simplify' B). eapply composition. apply assoc.
   eapply composition. apply comp. apply inv_L. apply identity.
@@ -1488,16 +1491,23 @@ Proof.
 Defined.
 
 Lemma Equiv_adjoint_idR X Y (f : X <~> Y)
-      (H := nat_id_R [f]:[f ° identity X] ~1 [f]) (y : [Y]) :
-  Equiv_adjoint H @ y ~ identity (adjoint f) @ y.
+      (H := nat_id_R [f]:[f ° identity X] ~1 [f]) (y : [Y])
+      (e := Equiv_adjoint H @ y)
+      (e':= identity (adjoint f) @ y) :
+  e ~ e'.
+(* Lemma Equiv_adjoint_idR X Y (f : X <~> Y) *)
+(*       (H := nat_id_R [f]:[f ° identity X] ~1 [f]) (y : [Y]) : *)
+(*   Equiv_adjoint H @ y ~ identity (adjoint f) @ y. *)
   eapply composition. apply Equiv_adjoint_simpl. simpl.
   unfold id, _Equiv_comp_obligation_1.
   simpl_id'. simpl_id'. simpl. apply (triangle_inv' f).
 Defined.
 
 Lemma Equiv_adjoint_idL X Y (f : X <~> Y) 
-      (H := (nat_id_L [f]:[identity _°f] ~1 [f])) (y : [Y]) :
-   Equiv_adjoint H @ y ~ identity (adjoint f) @ y.
+      (H := (nat_id_L [f]:[identity _°f] ~1 [f])) (y : [Y])
+      (e := Equiv_adjoint H @ y)
+      (e':= identity (adjoint f) @ y):
+   e ~ e'.
 Proof.
   eapply composition. apply Equiv_adjoint_simpl. simpl.
   unfold id, _Equiv_comp_obligation_1.
@@ -2065,12 +2075,12 @@ Definition Trunc_1 (T:[Type0]) (x y : [T])
 
 Ltac trunc1_eq :=   match goal with
     | [ |- ?e ~ ?e'] =>
-       let X := fresh in
-      let X':=fresh in 
-      set(X:=e) in *; 
-      set(X':=e') in *; 
+      (* let X := fresh in *)
+      (* let X':=fresh in  *)
+      (* set(X:=e) in *;  *)
+      (* set(X':=e') in *;  *)
       let H := fresh in
-      assert (H:=@HoTT_light.center _ (Trunc_1 _ _ _ X X'));
+      assert (H:=@HoTT_light.center _ (Trunc_1 _ _ _ e e'));
       try ((destruct H; apply identity)
              || (simpl in *; destruct H; apply identity))    
   end. 
@@ -2087,11 +2097,11 @@ Ltac trunc1_eq :=   match goal with
 
 Ltac trunc1_eq_expl T :=   match goal with
     | [ |- ?e ~ ?e'] =>
-      let X := fresh in
-      let X':=fresh in 
-      set(X:=e) in *; 
-      set(X':=e') in *; 
-      apply (eq_is_eq2 T (@HoTT_light.center _ (Trunc_1 _ _ _ X X')))
+      (* let X := fresh in *)
+      (* let X':=fresh in  *)
+      (* set(X:=e) in *;  *)
+      (* set(X':=e') in *;  *)
+      apply (eq_is_eq2 T (@HoTT_light.center _ (Trunc_1 _ _ _ e e')))
   end.
 
 
