@@ -25,6 +25,9 @@ Section TypeEq.
 
 End TypeEq.
 
+Arguments equality {A} _ _.
+Arguments eq_refl {A} [a].
+
 Require Import CRelationClasses CMorphisms.
 
 Instance eq_reflexive A : Reflexive (@equality A).
@@ -65,14 +68,13 @@ Definition ap {A B:Type} (f:A -> B) {x y:A} (p:x = y) : f x = f y.
   destruct p. constructor. 
 Defined.
 
-(** A typeclass that includes the data making [f] into an isomorphism*)
-(* we do not need adjoint equivalences in our development . *)
+(** A typeclass that includes the data making [f] into an adjoin equivalence*)
 
 Class IsEquiv {A B : Type} (f : A -> B) := BuildIsEquiv {
   equiv_inv : B -> A ;
   eisretr : Sect equiv_inv f;
-  eissect : Sect f equiv_inv
-  (* eisadj : forall x : A, eisretr (f x) = ap f (eissect x) *)
+  eissect : Sect f equiv_inv;
+  eisadj : forall x : A, eisretr (f x) = ap f (eissect x)
 }.
 
 Notation "f ^^-1" := (@equiv_inv _ _ f _) (at level 3).
@@ -86,7 +88,7 @@ Notation "f == g" := (pointwise_paths f g) (at level 70, no associativity) : typ
 
 Definition apD10 {A} {B:A->Type} {f g : forall x, B x} (h:f=g)
   : f == g
-  := fun x => match h with eq_refl _ => eq_refl _ end.
+  := fun x => match h with eq_refl => eq_refl end.
 
 Class Funext :=
   { isequiv_apD10 :> forall (A : Type) (P : A -> Type) f g, IsEquiv (@apD10 A P f g) }.
@@ -147,15 +149,15 @@ Defined.
 Instance isequiv_path_prod {A B : Type} {z z' : A * B}
 : IsEquiv (path_prod_uncurried z z').
 Proof.
-  refine (BuildIsEquiv _ _).
+  refine (BuildIsEquiv _ _ _).
   - exact (fun r => (ap fst r, ap snd r)).
   - intro; apply eta_path_prod.
   - intros [p q]. exact (path_prod'
                           (ap_fst_path_prod p q)
                           (ap_snd_path_prod p q)). 
-  (* - destruct z as [x y], z' as [x' y']. *)
-  (*   intros [p q]; simpl in p, q. *)
-  (*   destruct p, q; apply eq_refl. *)
+  - destruct z as [x y], z' as [x' y'].
+    intros [p q]; simpl in p, q.
+    destruct p, q; apply eq_refl.
 Defined.
 
 Class Contr (A : Type) := BuildContr {
@@ -190,22 +192,22 @@ Proof.
 Qed.
 
 Definition concat_1p {A : Type} {x y : A} (p : x = y) :
-  eq_refl _ @@ p = p.
+  eq_refl @@ p = p.
   apply eq_refl.
 Defined. 
 
 Definition concat_p1 {A : Type} {x y : A} (p : x = y) :
-  p @@ eq_refl _  = p.
+  p @@ eq_refl  = p.
   destruct p. apply eq_refl. 
 Defined.
 
 Definition concat_Vp {A : Type} {x y : A} (p : x = y) :
-  eq_sym p @@ p = eq_refl _. 
+  eq_sym p @@ p = eq_refl. 
   destruct p. apply eq_refl.
 Defined. 
 
 Definition concat_pV {A : Type} {x y : A} (p : x = y) :
-  p @@ eq_sym p = eq_refl _.
+  p @@ eq_sym p = eq_refl.
   destruct p; apply eq_refl.
 Defined.
 
@@ -213,9 +215,6 @@ Definition concat_p_pp {A : Type} {x y z t : A} (p : x = y) (q : y = z) (r : z =
   p @@ (q @@ r) = (p @@ q) @@ r.
   destruct p, q; apply eq_refl.
 Defined.
-
-Arguments equality {A} _ _.
-Arguments eq_refl {A} [a].
 
 Instance equality_equiv A :
   Equivalence (@equality A) := {}.
@@ -321,114 +320,49 @@ Definition ap_p {A B : Type} (f : A -> B) {x y : A} (p q: x = y) (e : p = q) :
   destruct e. apply eq_refl.
 Defined.
 
-(* Instance ap_morphism (A : Type@{i}) (B : Type@{j}) x y f : *)
-(*   Proper@{k Prop k} (@equality (@equality A x y) ==> @equality (@equality B (f x) (f y))) (@ap A B f x y). *)
-(* Proof. reduce. destruct x0. destruct X. reflexivity. Defined. *)
+Instance ap_morphism (A : Type@{i}) (B : Type@{j}) x y f :
+  Proper@{k Prop k} (@equality (@equality A x y) ==> @equality (@equality B (f x) (f y))) (@ap A B f x y).
+Proof. reduce. destruct x0. destruct X. reflexivity. Defined.
 
-(* Instance reflexive_proper_proxy : *)
-(*   ∀ (A : Type@{i}) (R : crelation@{i i} A), Reflexive R → ∀ x : A, ProperProxy@{i Prop i} R x. *)
-(* Proof. intros. reduce. apply X. Defined. *)
+Instance reflexive_proper_proxy :
+  ∀ (A : Type@{i}) (R : crelation@{i i} A), Reflexive R → ∀ x : A, ProperProxy@{i Prop i} R x.
+Proof. intros. reduce. apply X. Defined.
 
-(* Definition isequiv_inverse' A B (f:A -> B) (H:IsEquiv f) : IsEquiv (f^^-1) . *)
-(* Proof. *)
-(*   refine (BuildIsEquiv (@eissect _ _ f _) (@eisretr _ _ f _) _). *)
-(*   intros b. *)
-(*   rewrite <- (concat_1p (eissect _)). *)
-(*   rewrite <- (concat_Vp  (ap f^^-1 (eisretr (f (f^^-1 b))))). *)
-(*   rewrite (whiskerR (inverse2 (ap02 f^^-1 (eisadj (f^^-1 b)))) _). *)
-(*   refine (whiskerL _ (eq_sym (concat_1p (eissect _))) @@ _). *)
-(*   rewrite <- (concat_Vp (eissect (f^^-1 (f (f^^-1 b))))). *)
-(*   rewrite <- (whiskerL _ (concat_1p (eissect (f^^-1 (f (f^^-1 b)))))). *)
-(*   rewrite <- (concat_pV (ap f^^-1 (eisretr (f (f^^-1 b))))). *)
-(*   apply moveL_M1. *)
-(*   repeat rewrite concat_p_pp. *)
-(*     (* Now we apply lots of naturality and cancel things. *) *)
-(*   rewrite <- (concat_pp_A1 (fun a => eq_sym (eissect a)) _ _). *)
-(*   rewrite (ap_compose' f f^^-1). *)
-(*   rewrite <- (ap_p_pp _ _ (ap f (ap f^^-1 (eisretr (f (f^^-1 b))))) _). *)
-(*   rewrite <- (ap_compose f^^-1 f). *)
-(*   rewrite (concat_A1p (@eisretr _ _ f _) _). *)
-(*   rewrite ap_pp, concat_p_pp. *)
-(*   rewrite (concat_pp_V _ (ap f^^-1 (eisretr (f (f^^-1 b))))). *)
-(*   repeat rewrite <- ap_V. rewrite <- ap_pp. *)
-(*   rewrite <- (concat_pA1 (fun y => eq_sym (eissect y)) _). *)
-(*   rewrite ap_compose', <- (ap_compose f^^-1 f). *)
-(*   rewrite <- ap_p_pp. *)
-(*   rewrite (concat_A1p (@eisretr _ _ f _) _). *)
-(*   rewrite concat_p_Vp. *)
-(*   rewrite <- ap_compose. *)
-(*   rewrite (concat_pA1_p (@eissect _ _ f _) _). *)
-(*   rewrite concat_pV_p; apply concat_Vp. *)
-(* Defined.  *)
+Definition isequiv_inverse' A B (f:A -> B) (H:IsEquiv f) : IsEquiv (f^^-1) .
+Proof.
+  refine (BuildIsEquiv (@eissect _ _ f _) (@eisretr _ _ f _) _).
+  intros b.
+  rewrite <- (concat_1p (eissect _)).
+  rewrite <- (concat_Vp  (ap f^^-1 (eisretr (f (f^^-1 b))))).
+  rewrite (whiskerR (inverse2 (ap02 f^^-1 (eisadj (f^^-1 b)))) _).
+  refine (whiskerL _ (eq_sym (concat_1p (eissect _))) @@ _).
+  rewrite <- (concat_Vp (eissect (f^^-1 (f (f^^-1 b))))).
+  rewrite <- (whiskerL _ (concat_1p (eissect (f^^-1 (f (f^^-1 b)))))).
+  rewrite <- (concat_pV (ap f^^-1 (eisretr (f (f^^-1 b))))).
+  apply moveL_M1.
+  repeat rewrite concat_p_pp.
+    (* Now we apply lots of naturality and cancel things. *)
+  rewrite <- (concat_pp_A1 (fun a => eq_sym (eissect a)) _ _).
+  rewrite (ap_compose f f^^-1).
+    rewrite <- (ap_p_pp _ _ (ap f (ap f^^-1 (eisretr (f (f^^-1 b))))) _).
+  rewrite <- (ap_compose f^^-1 f).
+  rewrite (concat_A1p (@eisretr _ _ f _) _).
+  rewrite ap_pp, concat_p_pp.
+  rewrite (concat_pp_V _ (ap f^^-1 (eisretr (f (f^^-1 b))))).
+  repeat rewrite <- ap_V. rewrite <- ap_pp.
+  rewrite <- (concat_pA1 (fun y => eq_sym (eissect y)) _).
+  rewrite ap_compose, <- (ap_compose f^^-1 f).
+  rewrite <- ap_p_pp.
+  rewrite (concat_A1p (@eisretr _ _ f _) _).
+  rewrite concat_p_Vp.
+  rewrite <- ap_compose.
+  rewrite (concat_pA1_p (@eissect _ _ f _) _).
+  rewrite concat_pV_p; apply concat_Vp.
+Defined.
 
-(* Definition isequiv_inverse A B f H := @isequiv_inverse'@{univ univ1 univ2 univ3 Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop univ14 Prop Prop Prop Prop Prop univ20 Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop} A B f H. *)
+(* raise down the number of universes *)
 
-Program Instance isequiv_inverse A B (f:A -> B) (H:IsEquiv f) : IsEquiv (f^^-1) | 1000
-    := BuildIsEquiv (@eissect _ _ f _) (@eisretr _ _ f _).
-(* Next Obligation. *)
-(*   rename x into b. *)
-(*   eapply eq_trans. apply eq_sym, (concat_1p (eissect (f ^^-1 b))). *)
-(*   eapply eq_trans. apply eq_sym. eapply whiskerR. *)
-(*   apply (concat_Vp  (ap f^^-1 (eisretr (f (f^^-1 b))))). *)
-(*   eapply eq_trans. eapply whiskerR. *)
-(*   apply (whiskerR (inverse2 (ap02 f^^-1 (eisadj (f^^-1 b)))) _). *)
-(*   refine (whiskerL _ (eq_sym (concat_1p (eissect _))) @@ _). *)
-(*   eapply eq_trans. eapply whiskerL. eapply whiskerR. *)
-(*   eapply eq_sym. exact (concat_Vp (eissect (f^^-1 (f (f^^-1 b))))). *)
-(*   (* rewrite <- (concat_Vp (eissect (f^^-1 (f (f^^-1 b))))). *) *)
-(*   pose (concat_1p (eissect (f^^-1 (f (f^^-1 b))))). *)
-(*   eapply eq_trans. eapply whiskerL. eapply whiskerR. eapply whiskerL. *)
-(*   eapply eq_trans.   apply eq_sym. exact e. *)
-(*   eapply whiskerR. *)
-(*   (* rewrite <- (whiskerL _ (concat_1p (eissect (f^^-1 (f (f^^-1 b)))))). *) *)
-(*   apply eq_sym. exact (concat_pV (ap f^^-1 (eisretr (f (f^^-1 b))))). *)
-(*   (* rewrite <- (concat_pV (ap f^^-1 (eisretr (f (f^^-1 b))))). *) *)
-(*   clear e. apply moveL_M1. *)
-(*   eapply eq_trans. apply concat_p_pp. *)
-(*   eapply eq_trans. apply concat_p_pp. *)
-(*   eapply eq_trans. eapply whiskerR. apply concat_p_pp. *)
-(*   eapply eq_trans. eapply whiskerR. apply concat_p_pp. *)
-(*   eapply eq_trans. eapply whiskerR. eapply whiskerR. apply concat_p_pp. *)
-(*   (* repeat rewrite concat_p_pp. *) *)
-(*   (* Now we apply lots of naturality and cancel things. *) *)
-(*   eapply eq_trans. eapply whiskerR. eapply whiskerR. eapply whiskerR. eapply whiskerR. *)
-(*   apply eq_sym.  *)
-(*   refine (concat_pp_A1 (fun a => eq_sym (eissect a)) _ _). *)
-(*   (* rewrite <- (concat_pp_A1 (fun a => eq_sym (eissect a)) _ _). *) *)
-(*   eapply eq_trans. eapply whiskerR. eapply whiskerR. eapply whiskerR. eapply whiskerR. *)
-(*   eapply whiskerL. apply (ap_compose f f^^-1). *)
-(*   (* rewrite (ap_compose' f f^^-1). *) *)
-(*   eapply eq_trans. eapply whiskerR. eapply whiskerR. eapply whiskerR. *)
-(*   apply eq_sym. apply ap_p_pp. *)
-(*   (*   rewrite <- (ap_p_pp _ _ (ap f (ap f^^-1 (eisretr (f (f^^-1 b))))) _). *) *)
-(*   eapply eq_trans. eapply whiskerR. eapply whiskerR. eapply whiskerR. *)
-(*   eapply whiskerL. eapply ap_p. *)
-(*   eapply eq_trans. eapply whiskerR. apply ap_pp. eapply eq_trans. apply eq_sym. *)
-(*   apply concat_p_pp. apply whiskerL. eapply eq_trans. eapply whiskerR. *)
-(*   apply eq_sym. apply ap_compose.  *)
-(*   (*   rewrite <- (ap_compose f^^-1 f). *) *)
-(*   apply (concat_A1p (@eisretr _ _ f _)). *)
-(*   (*   rewrite (concat_A1p (@eisretr _ _ f _) _). *) *)
-  
-(*   eapply eq_trans. eapply whiskerR. eapply whiskerR. eapply whiskerR. *)
-(*   eapply whiskerL. eapply eq_trans. apply ap_pp. eapply whiskerL. apply ap_pp. *)
-(*   eapply eq_trans. eapply whiskerR. eapply whiskerR. eapply whiskerR. apply concat_p_pp. *)
-(*   eapply eq_trans. eapply whiskerR. eapply whiskerR. eapply whiskerR. apply concat_p_pp. *)
-(*   (*   rewrite ap_pp, concat_p_pp. *) *)
-  
-(* (*   rewrite (concat_pp_V _ (ap f^^-1 (eisretr (f (f^^-1 b))))). *) *)
-(* (*   repeat rewrite <- ap_V. rewrite <- ap_pp. *) *)
-(* (*   rewrite <- (concat_pA1 (fun y => eq_sym (eissect y)) _). *) *)
-(* (*   rewrite ap_compose', <- (ap_compose f^^-1 f). *) *)
-(* (*   rewrite <- ap_p_pp. *) *)
-(* (*   rewrite (concat_A1p (@eisretr _ _ f _) _). *) *)
-(* (*   rewrite concat_p_Vp. *) *)
-(* (*   rewrite <- ap_compose. *) *)
-(* (*   rewrite (concat_pA1_p (@eissect _ _ f _) _). *) *)
-(* (*   rewrite concat_pV_p; apply concat_Vp. *) *)
-(* (*   admit. *) *)
-(* (* Defined.  *) *)
-
+Definition isequiv_inverse A B f H := @isequiv_inverse'@{univ univ1 univ2 univ3 Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop univ14 Prop Prop Prop Prop Prop univ20 Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop } A B f H.
 
 Definition path_contr A {H:Contr A} (x y : A) : x = y
   := concat (eq_sym (@contr _ H x)) (@contr _ H y).
@@ -465,8 +399,6 @@ Definition pr2_path A `{P : A -> Type} {u v : sigma P} (p : u = v)
 : p..1 # u.2 = v.2.
   destruct p. apply eq_refl.
 Defined.
-  (* := eq_sym (transport_compose P proj1 p u.2) *)
-  (*    @@ (@apD {x:A & P x} _ proj2 _ _ p). *)
 
 Notation "p ..2" := (pr2_path p) (at level 3).
 
@@ -481,15 +413,15 @@ Definition eta_path_sigma A `{P : A -> Type} {u v : sigma P} (p : u = v)
 
 Definition path_sigma_equiv {A : Type} (P : A -> Type) (u v : sigma P):
   IsEquiv (path_sigma_uncurried u v).
-  refine (BuildIsEquiv _ _).
+  refine (BuildIsEquiv _ _ _).
   - exact (fun r => (r..1; r..2)).
   - intro. apply eta_path_sigma.
   - destruct u, v; intros [p q]; simpl in *.
     destruct p. simpl in *. destruct q.
     reflexivity.
-  (* - destruct u, v; intros [p q]; simpl in *; *)
-  (*   destruct p. simpl in *. destruct q; simpl in *. *)
-  (*   apply eq_refl. *)
+  - destruct u, v; intros [p q]; simpl in *;
+    destruct p. simpl in *. destruct q; simpl in *.
+    apply eq_refl.
 Defined.
 
 Instance contr_unit : Contr unit | 0 := let x := {|
