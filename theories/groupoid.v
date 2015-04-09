@@ -116,7 +116,6 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Add LoadPath "." as Groupoid.
 Require Import Groupoid.HoTT_light.
 
 Set Universe Polymorphism.

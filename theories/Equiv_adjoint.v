@@ -1,4 +1,3 @@
-Add LoadPath "." as Groupoid.
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 Require Import Groupoid.groupoid.

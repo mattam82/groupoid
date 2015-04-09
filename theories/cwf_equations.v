@@ -160,7 +160,6 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Add LoadPath "." as Groupoid.
 Require Import HoTT_light groupoid fun_eq.
 Require Import groupoid_interpretation_def Equiv_adjoint fun_depfun.
 Require Import sum_id prod_eq sum_eq groupoid_interpretation fun_ext.

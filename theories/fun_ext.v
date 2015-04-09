@@ -153,7 +153,6 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Add LoadPath "." as Groupoid.
 Require Import HoTT_light.
 Require Import groupoid.
 Require Import fun_eq.
