@@ -160,7 +160,6 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Add LoadPath "." as Groupoid.
 Require Import HoTT_light groupoid fun_eq.
 Require Import groupoid_interpretation_def Equiv_adjoint fun_depfun.
 Require Import sum_id prod_eq sum_eq groupoid_interpretation fun_ext.
@@ -191,7 +190,7 @@ Definition _Prod_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) (A:Typ Γ) (F:TypFam A) :
                          (λ t : [Δ], identity ((Prod F ⋅⋅ σ) @ t)).
   intros t t' e. refine (Build_sigma _ _ _).
   simpl_id_bi. refine (Build_sigma _ _ _). intro X. exact (identity _).
-  intros X X' E. trunc1_eq.
+  intros X X' E. apply Trunc_1.
   apply equiv_eq_nat_trans.
 Defined.
                       
@@ -222,11 +221,11 @@ Program Instance SubSigma_1 {Δ Γ: Context} (σ:[Δ -|-> Γ]) (T : Typ Γ)
          : Functor (T:=[[_Sum0 (T ⋅⋅ σ)]]) (U := [[_Sum0 T]]) (λ γt , (σ @ [γt]; γt.2)).
 Next Obligation. exact (map σ [X]; X.2). Defined.
 Next Obligation. refine (Build_sigma _ _ _). apply (map_id σ).
-                 trunc1_eq. Defined.
+                 apply Trunc_1. Defined.
 Next Obligation. refine (Build_sigma _ _ _). apply (map_comp σ).
-                 trunc1_eq. Defined.
+                 apply Trunc_1. Defined.
 Next Obligation. refine (Build_sigma _ _ _). apply (map2 σ [X]).
-                 trunc1_eq. Defined.
+                 apply Trunc_1. Defined.
 
 Definition SubSigma {Δ Γ: Context} (σ:[Δ -|-> Γ]) {T : Typ Γ} :
   [_Sum0 (T ⋅⋅ σ) -|-> _Sum0 T] :=  (_;  SubSigma_1 _ _).
@@ -247,10 +246,10 @@ refine (Build_sigma _ _ _). intro X. apply identity.
 intros x y z. simpl_id_bi. apply equiv_eq_nat_trans. simpl. 
 unfold SubSigma_1_obligation_1. apply (map2 B).
 refine (Build_sigma _ _ _). simpl. apply (map_id σ).
-simpl. trunc1_eq.
+simpl. apply Trunc_1.
 intros t t' e. simpl. intro H. simpl. apply equiv_eq_nat_trans. simpl.
 refine (Build_sigma _ _ _). intro b. apply identity.
-intros x y z. trunc1_eq.
+intros x y z. apply Trunc_1.
 (* begin hide *)
 Defined.
 
@@ -262,8 +261,8 @@ Definition Prod_eq {Γ} (A:Typ Γ) (F F':TypFam A) : F ~1 F' -> Prod F ~1 Prod F
   refine (Build_sigma _ _ _).
   intros X. refine (Build_sigma _ _ _).
   intro a. simpl. exact ([α_Dmap H e a] @ _).
-  intros a a' Ha. trunc1_eq.
-  intros a a' Ha. trunc1_eq.
+  intros a a' Ha. apply Trunc_1.
+  intros a a' Ha. apply Trunc_1.
   apply equiv_eq_nat_trans. 
 Defined.
 
@@ -288,8 +287,8 @@ Definition Lam_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) {A:Typ Γ} {B:TypDep A} (b:El
                   (* => assert H' end. *)
   refine (Build_sigma _ _ _).
   intro a. exact (identity _).
-  intros  t t' e. trunc1_eq.
-  exists X. intros t t' e H. trunc1_eq.
+  intros  t t' e. apply Trunc_1.
+  exists X. intros t t' e H. apply Trunc_1.
 (* begin hide *)
 Defined.
 
@@ -310,7 +309,7 @@ Definition App_sigma_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:Elt 
   (a:Elt A): c @@ a °°°° σ with SubstT_sigma_law ~1 (c °°°° σ with Prod_sigma_law) @@ (a °°°° σ).
   refine (Build_sigma _ _ _). 
   intro t. simpl. exact (identity _). 
-  intros t t' e. trunc1_eq. 
+  intros t t' e. apply Trunc_1. 
 (* begin hide *)
 Defined.
 Definition foo := @SubExt. (* for documentation interpolation... *)
@@ -340,8 +339,8 @@ intros t t' e. simpl_id_bi. apply equiv_eq_nat_trans.
 refine (Build_sigma _ _ _).
 intro X. apply inverse. eapply composition. refine ([Dmap_id F t'] @ _).
 eapply composition. eapply inverse. refine ([map_comp (F @ γ) _ _] @ X).
-refine ([map2 (F @ γ) _] @ X). trunc1_eq.
-intros a a' X. simpl. trunc1_eq.
+refine ([map2 (F @ γ) _] @ X). apply Trunc_1.
+intros a a' X. simpl. apply Trunc_1.
 Defined.
 
 
@@ -356,7 +355,7 @@ Definition EtaT Γ (A:Typ Γ) (F:TypFam A): LamT ((F °°° Sub) {{Var A}}) ~1 F
   eapply composition; try exact (map_id (F @ t)). 
   refine (map2 (F @ t) _). refine (triangle_inv' _ _ ).
   refine ([X0] @ f). 
-  intros a a' H. trunc1_eq.
+  intros a a' H. apply Trunc_1.
 Defined.
 (* end hide *)
 
@@ -364,8 +363,8 @@ Definition Eta {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)):
   Lam (↑ c @@ Var A) with Prod_eq (EtaT F) ~1 c.
   refine (Build_sigma _ _ _).
   intro γ. refine (Build_sigma _ _ _). intro a. exact (identity _).
-  intros  t t' e. trunc1_eq.
-  intros t t' e. intro X. simpl. trunc1_eq.
+  intros  t t' e. apply Trunc_1.
+  intros t t' e. intro X. simpl. apply Trunc_1.
   (* begin hide *)
 Defined.
 (* end hide *)
@@ -382,7 +381,7 @@ Theorem coherence_of_interpretation {Γ} {A B:Typ Γ} (e e' : A ~1 B) (a:Elt A):
   e ~2 e' -> a with e ~1 a with e'.
 (* begin hide *)
   intro P. exists (fun γ => ((P γ).1 @ (a @ γ))).
-  intros γ γ' eγ. trunc1_eq.
+  intros γ γ' eγ. apply Trunc_1.
 Defined. 
 (* end hide *)
 

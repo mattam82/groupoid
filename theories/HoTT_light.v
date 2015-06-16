@@ -223,8 +223,8 @@ Defined.
 Instance equality_equiv A :
   Equivalence (@equality A) := {}.
 
-Instance concat_morphism (A : Type@{i}) x y z :
-  Proper@{i i} (equality ==> equality ==> equality) (@concat A x y z).
+Instance concat_morphism (A : Type) x y z :
+  Proper (equality ==> equality ==> equality) (@concat A x y z).
 Proof. reduce. destruct x0. destruct X. destruct x1. destruct X0. reflexivity. Defined.
 
 Instance trans_co_eq_inv_arrow_morphism :
@@ -324,15 +324,15 @@ Definition ap_p {A B : Type} (f : A -> B) {x y : A} (p q: x = y) (e : p = q) :
   destruct e. apply eq_refl.
 Defined.
 
-Instance ap_morphism (A : Type@{i}) (B : Type@{j}) x y f :
+Instance ap_morphism (A : Type) (B : Type) x y f :
   Proper (@equality (@equality A x y) ==> @equality (@equality B (f x) (f y))) (@ap A B f x y).
 Proof. reduce. destruct x0. destruct X. reflexivity. Defined.
 
 Instance reflexive_proper_proxy :
-  ∀ (A : Type@{i}) (R : crelation@{i i} A), Reflexive R → ∀ x : A, ProperProxy R x.
+  ∀ (A : Type) (R : crelation A), Reflexive R → ∀ x : A, ProperProxy R x.
 Proof. intros. reduce. apply X. Defined.
 
-Definition isequiv_inverse' A B (f:A -> B) (H:IsEquiv f) : IsEquiv (f^^-1) .
+Instance isequiv_inverse A B (f:A -> B) (H:IsEquiv f) : IsEquiv (f^^-1) | 1000.
 Proof.
   refine (BuildIsEquiv (@eissect _ _ f _) (@eisretr _ _ f _) _).
   intros b.
@@ -348,7 +348,7 @@ Proof.
     (* Now we apply lots of naturality and cancel things. *)
   rewrite <- (concat_pp_A1 (fun a => eq_sym (eissect a)) _ _).
   rewrite (ap_compose f f^^-1).
-    rewrite <- (ap_p_pp _ _ (ap f (ap f^^-1 (eisretr (f (f^^-1 b))))) _).
+  rewrite <- (ap_p_pp _ _ (ap f (ap f^^-1 (eisretr (f (f^^-1 b))))) _).
   rewrite <- (ap_compose f^^-1 f).
   rewrite (concat_A1p (@eisretr _ _ f _) _).
   rewrite ap_pp, concat_p_pp.
@@ -363,10 +363,6 @@ Proof.
   rewrite (concat_pA1_p (@eissect _ _ f _) _).
   rewrite concat_pV_p; apply concat_Vp.
 Defined.
-
-(* raise down the number of universes *)
-
-Definition isequiv_inverse A B f H := @isequiv_inverse' A B f H.
 
 Definition path_contr A {H:Contr A} (x y : A) : x = y
   := concat (eq_sym (@contr _ H x)) (@contr _ H y).

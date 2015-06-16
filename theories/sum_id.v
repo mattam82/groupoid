@@ -1,6 +1,5 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Add LoadPath "." as Groupoid.
 Require Import Groupoid.HoTT_light.
 Require Import Groupoid.groupoid.
 Require Import Groupoid.fun_eq.
@@ -96,5 +95,5 @@ Definition sum_id_left_right {Γ: Context} {A : Typ Γ}
   sum_id_left e' ° sum_id_right e t ~
   sum_id_right e t' ° sum_id_left (map (adjoint (map A e)) e').
   exists (inverse  (id_R _ _ _) ° id_L _ y e). simpl.
-  trunc1_eq.
+  apply Trunc_1.
 Defined.

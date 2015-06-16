@@ -153,7 +153,6 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Add LoadPath "." as Groupoid.
 Require Import HoTT_light.
 Require Import groupoid.
 Require Import fun_eq.
@@ -189,7 +188,7 @@ Definition _Prod_sigma_law {Δ Γ} (σ:[Δ -|-> Γ]) (A:Typ Γ) (F:TypFam A) :
                          (λ t : [Δ], identity ((Prod F ⋅⋅ σ) @ t)).
   intros t t' e. refine (Build_sigma _ _ _).
   simpl_id_bi. refine (Build_sigma _ _ _). intro X. exact (identity _).
-  intros X X' E. trunc1_eq.
+  intros X X' E. apply Trunc_1.
   apply equiv_eq_nat_trans.
 Defined.
                       
@@ -203,8 +202,7 @@ Definition FunExt_1 (Γ: Context) (A : Typ Γ)
            (F : TypDep A) (M N : Elt (Prod (LamT F)))
            (α : Elt (Prod (LamT (Id (↑ M @@ Var A) (↑ N @@ Var A))))):
   ∀ t : [Γ], [([[[Id M N]]]) @ t] :=
-  fun t => ((α @ t).1; fun a a' e =>
-                         eq_is_eq2 _ (@HoTT_light.center _ (Trunc_1 _ _ _ _ _))).
+  fun t => ((α @ t).1; fun a a' e => Trunc_1 _ _ _ _ _).
 
 (*end hide*)
 
@@ -213,7 +211,7 @@ Definition FunExt Γ (A:Typ Γ) (F:TypDep A) (M N:Elt (Prod (LamT F)))
 (*begin hide*)
   exists (FunExt_1 α).
   refine (Build_DependentFunctor _ _ _ _ _ _).
-  intros x y e t. trunc1_eq.
+  intros x y e t. apply Trunc_1.
   intros; exact tt.
   intros; exact tt.
   intros; exact tt.

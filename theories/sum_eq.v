@@ -1,6 +1,5 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Add LoadPath "." as Groupoid.
 Require Import Groupoid.HoTT_light.
 Require Import Groupoid.groupoid.
 Require Import Groupoid.fun_eq.
@@ -26,14 +25,14 @@ Next Obligation. exists ([X]).
                  apply (map [eqTU @[y] ] (Π2 X)).
                  apply inverse. apply ([α_map eqTU [X] ] @ (eq_section x)).
 Defined.
-Next Obligation. exists (identity _). trunc1_eq. Defined.
-Next Obligation. exists (identity _). trunc1_eq. Defined.
-Next Obligation. exists [X]. trunc1_eq. Defined.
+Next Obligation. exists (identity _). apply Trunc_1. Defined.
+Next Obligation. exists (identity _). apply Trunc_1. Defined.
+Next Obligation. exists [X]. apply Trunc_1. Defined.
 
 Definition sum_eq (A: [Type0]) (T U : [([[A]]) --> Type0]) (e:T ~1 U) : [([[_Sum0 (T:=A) T]]) --> ([[_Sum0 U]])] := (_ ; sum_eq2 A T U e).
 
-Hint Extern 4 (@Composition (@sigma _ GroupoidP) Fun_Type) => exact comp_fun : typeclass_instances.
-Hint Extern 4 (@HomT2 (@sigma _ GroupoidP) Fun_Type) => exact nat_transHom' : typeclass_instances.
+Hint Extern 4 (@Composition (@sigma _ Groupoid) Fun_Type) => exact comp_fun : typeclass_instances.
+Hint Extern 4 (@HomT2 (@sigma _ Groupoid) Fun_Type) => exact nat_transHom' : typeclass_instances.
 
 Definition sum_eq_comp' (A: [Type0]) (T U V : [([[A]]) --> Type0])
         (e:T ~1 U) (e' : U ~1 V) : 
@@ -46,7 +45,7 @@ Definition sum_eq_comp (A: [Type0]) (T U V : [([[A]]) --> Type0])
   sum_eq e' ° sum_eq e ~ sum_eq (e' °e) := (sum_eq_comp' e e'; _).
 Next Obligation. intros t t' X. 
                  exists (inverse (id_R _ _ _) ° id_L _ _ _ ). 
-                 trunc1_eq. 
+                 apply Trunc_1. 
 Defined.
 
 Definition sum_eq_map' (A: [Type0]) (T U : [([[A]]) --> Type0])
@@ -62,10 +61,10 @@ Definition sum_eq_map (A: [Type0]) (T U : [([[A]]) --> Type0])
 := (sum_eq_map' H; _ ). 
 Next Obligation. intros t t' X.
                  exists (inverse (id_R _ _ _) ° id_L _ _ _ ). 
-                 trunc1_eq.
+                 apply Trunc_1.
 Defined.
 
-Hint Extern 4 (@Identity (@sigma _ GroupoidP) _) => exact id_fun : typeclass_instances.
+Hint Extern 4 (@Identity (@sigma _ Groupoid) _) => exact id_fun : typeclass_instances.
 
 Definition sum_eq_id'  (A: [Type0]) (T : [([[A]]) --> Type0])
  : ∀ t : [_Sum0 T], 
@@ -77,7 +76,7 @@ Definition sum_eq_id  (A: [Type0]) (T : [([[A]]) --> Type0])
   := (sum_eq_id' (T:=T); _).
 Next Obligation. intros t t' X.
                  exists (inverse (id_R _ _ _) ° id_L _ _ _ ). 
-                 trunc1_eq.
+                 apply Trunc_1.
 Defined.
 
 Definition sum_eq_iso_section (A: [Type0]) (T U : [([[A]]) --> Type0])
@@ -126,9 +125,9 @@ Next Obligation.
   eapply composition. apply (inverse (α_map (Sum_eq_ F e) [X])).
   exact (map ([Sum_eq_ F e @ [y0] ]) X.2).
 Defined.
-Next Obligation. exists (map_id [map A e]). trunc1_eq. Defined.
-Next Obligation. exists (map_comp [map A e] [e0] [e']). trunc1_eq. Defined.
-Next Obligation. exists (map2 [map A e] [X]). trunc1_eq. Defined.
+Next Obligation. exists (map_id [map A e]). apply Trunc_1. Defined.
+Next Obligation. exists (map_comp [map A e] [e0] [e']). apply Trunc_1. Defined.
+Next Obligation. exists (map2 [map A e] [X]). apply Trunc_1. Defined.
 
 Definition Sum_eq {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y):
  [[_Sum0 (F @ x) ]] ---> [[_Sum0 (F @ y) ]] := (_; Sum_eq_3 A F e).
@@ -164,10 +163,10 @@ Definition Sum_eq_comp' {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
   eapply composition. eapply inverse. apply (map_comp (F @ x)).
   eapply composition. eapply inverse. apply (map_comp (F @ x)).
   apply inverse.  eapply composition. eapply inverse. apply (map_comp (F @ x)).
-  apply (map2 (F @ x)). trunc1_eq.
+  apply (map2 (F @ x)). apply Trunc_1.
 Defined.
 
-Ltac trunc1_eq_arg t :=   match goal with
+Ltac apply Trunc_1_arg t :=   match goal with
     | [ |- ?e ~ ?e'] =>
       let X := fresh in
       let X':=fresh in 
@@ -184,7 +183,7 @@ Definition Sum_eq_comp {Γ} (A:Typ Γ) (F:TypFam A) {x y z: [Γ]}
         (e:x~1 y) (e' : y ~1 z) : 
   (Sum_eq F e' ° Sum_eq F e) ~ Sum_eq F (e' °e):=
   (Sum_eq_comp' F e e' ; _).
-Next Obligation. red. intros. trunc1_eq_arg (_Sum0 (F @ z)).
+Next Obligation. red. intros. apply Trunc_1.
 Defined.
 
 Definition Sum_eq_map' {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]}
@@ -203,13 +202,13 @@ Definition Sum_eq_map' {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]}
   apply (map [Dmap F e' @ ([map A e] @ [t])]).
   eapply composition. eapply inverse. apply (map_comp (F @ x)).
   apply inverse. eapply composition. eapply inverse. apply (map_comp (F @ x)).
-  apply (map2 (F @ x)). trunc1_eq. 
+  apply (map2 (F @ x)). apply Trunc_1. 
 Defined.
 
 Definition Sum_eq_map {Γ} (A:Typ Γ) (F:TypFam A) {x y: [Γ]}
         (e e':x ~1 y) (H : e ~ e') :  Sum_eq F e ~1 Sum_eq F e' :=
   (Sum_eq_map' F _ _ H ; _).
-Next Obligation. red. intros. trunc1_eq_arg (_Sum0 (F @ y)). Defined.
+Next Obligation. red. intros. apply Trunc_1. Defined.
 
 Definition Sum_eq_id' {Γ} (A:Typ Γ) (F:TypFam A) {x: [Γ]} t
   :  Sum_eq F (identity x) @ t  ~1 identity ([[_Sum0 (F @ x)]]) @t.
@@ -219,13 +218,13 @@ Definition Sum_eq_id' {Γ} (A:Typ Γ) (F:TypFam A) {x: [Γ]} t
   simpl; unfold id.  eapply composition. eapply inverse. apply (map_comp (F @ x)).
   eapply composition. eapply inverse. apply (map_comp (F @ x)).
   eapply composition. Focus 2. apply (map_id (F @ x)).
-  apply (map2 (F @ x)). trunc1_eq.
+  apply (map2 (F @ x)). apply Trunc_1.
 Defined.
 
 Definition Sum_eq_id {Γ} (A:Typ Γ) (F:TypFam A) {x: [Γ]}
   :  Sum_eq F (identity x) ~1 identity _ :=
   (Sum_eq_id' F ; _).
-Next Obligation. red. intros. trunc1_eq_arg (_Sum0 (F @ x)). Defined.
+Next Obligation. red. intros. apply Trunc_1. Defined.
 
 Definition Sum_eq_iso_section  {Γ} (A:Typ Γ) (F:TypFam A) {x y  : [Γ]} (e:x~1 y) :
   Sum_eq F e ° Sum_eq F e^-1 ~ identity ([[_Sum0 (F @ _)]])
