@@ -96,7 +96,8 @@ endif
 #                    #
 ######################
 
-VFILES:=theories/fun_ext.v\
+VFILES:=theories/UIP.v\
+  theories/fun_ext.v\
   theories/cwf_equations.v\
   theories/groupoid_interpretation.v\
   theories/sum_eq.v\

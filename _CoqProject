@@ -13,3 +13,4 @@ theories/sum_eq.v
 theories/groupoid_interpretation.v
 theories/cwf_equations.v
 theories/fun_ext.v
+theories/UIP.v
