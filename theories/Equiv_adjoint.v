@@ -1,4 +1,4 @@
-Add LoadPath "." as Groupoid.
+(* Add LoadPath "." as Groupoid. *)
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 Require Import Groupoid.groupoid.
@@ -20,13 +20,13 @@ Definition equiv_adjoint {Γ:Context} {A:Typ Γ} (a:Elt A)
 Definition Equiv_adjoint_comp {Γ:Context} {A:Typ Γ} (a:Elt A) (x y z:[Γ]) (e:x~1 y) (e': y ~1 z):
 [Equiv_adjoint [map_comp A e e'] ] ([a] z) ° equiv_adjoint a (e' ° e) ~
    map (adjoint (map A e)) (equiv_adjoint a e') ° equiv_adjoint a e.
-trunc1_eq.
+apply Trunc_1. 
 Defined. 
 
 Definition Equiv_adjoint_eq {Γ:Context} {A:Typ Γ} (a:Elt A) (x y:[Γ]) (e e':x~1 y) (E: e ~ e'):
 [Equiv_adjoint [map2 A E] ] ([a] y) ° equiv_adjoint a e ~
    equiv_adjoint a e'.
-  trunc1_eq.
+  apply Trunc_1. 
   (* unfold equiv_adjoint. simpl. eapply composition. apply comp. *)
 
   (* apply identity. apply (Equiv_adjoint_simpl _ _[(map2 A) E]). *)
@@ -59,5 +59,5 @@ Definition equiv_adjoint_map (Γ: Context) (A : Typ Γ)  (γ γ' : [Γ]) (e0 : �
         (x y : Elt A) (e : x ~1 y) : 
    map (adjoint (map A e0)) ([e] γ') ° equiv_adjoint x e0 ~
    equiv_adjoint y e0 ° [e] γ.
-  trunc1_eq.
+  apply Trunc_1. 
 Defined.

@@ -152,7 +152,7 @@
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
 
-Add LoadPath "." as Groupoid.
+(* Add LoadPath "." as Groupoid. *)
 
 Require Import HoTT_light.
 Require Import groupoid.
@@ -222,10 +222,10 @@ Definition IrrRelEquiv T : Equivalence (Hom_irr T).
   econstructor; econstructor; firstorder. Defined.
 
 Program Definition IrrRelCat {T} {Hom : HomT1 T} (id : Identity eq1) (comp : Composition eq1): 
-  CategoryP T := {| Hom2 := @_Hom_irr T Hom |}.
+  Category T := {| Hom2 := @_Hom_irr T Hom |}.
 Next Obligation. simpl. apply IrrRelEquiv. Defined.
   
-Program Definition IrrRelGrp {T} {Hom : HomT1 T} (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1): GroupoidP T := {| C := IrrRelCat id comp|}.
+Program Definition IrrRelGrp {T} {Hom : HomT1 T} (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1): Groupoid T := {| C := IrrRelCat id comp|}.
 
 Definition IrrRelId T (Hom : HomT1 T) (x y : T) : Identity (Hom_irr (x ~1 y)).
   econstructor; econstructor; firstorder. Defined.
@@ -239,9 +239,7 @@ Definition IrrRelInverse T (Hom : HomT T) (x y : T) : Inverse (Hom_irr (Hom x y)
 Definition IrrRelEq T (Hom : HomT T) (x y : T) : Equivalence (Hom_irr (Hom x y)). 
   econstructor; econstructor; firstorder. Defined.
 
-Definition IrrRelGroupoid T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1) : Groupoid T := 
-  {| G := IrrRelGrp id comp inv; is_Trunc_2 := λ (x y : T) (e e' : x ~1 y) (E E' : e ~ e'),
-              contr_paths_contr (e ~ e') E E'|}.
+Definition IrrRelGroupoid T (Hom : HomT1 T) (id : Identity eq1) (comp : Composition eq1) (inv : Inverse eq1) : Groupoid T := IrrRelGrp id comp inv.
 (* Next Obligation. *)
 (*   unfold IrrRelGrp in E, E'. simpl in E, E'. red in E, E'.  *)
 (*   destruct E, E'. apply contr_paths_contr. apply contr_unit. *)
@@ -249,14 +247,14 @@ Definition IrrRelGroupoid T (Hom : HomT1 T) (id : Identity eq1) (comp : Composit
 
 Arguments IrrRelGroupoid {T} Hom {id comp inv}.
 
-Program Instance prop_WG (T : PropoidType) : Groupoid [T] := 
-  @IrrRelGroupoid T.1 {| eq1 := Hom_irr T.1|} _ _ _.
+(* Program Instance prop_WG (T : PropoidType) : Groupoid [T] :=  *)
+(*   @IrrRelGroupoid T.1 {| eq1 := Hom_irr T.1|} _ _ _. *)
 
-Program Instance prop_setoid (T : PropoidType) : Setoid [T].
+(* Program Instance prop_setoid (T : PropoidType) : Setoid [T]. *)
 
-Definition eq_Prop (P Q : PropoidType) := prod (P.1 -> Q.1) (Q.1 -> P.1).
+(* Definition eq_Prop (P Q : PropoidType) := prod (P.1 -> Q.1) (Q.1 -> P.1). *)
 
-Infix "<->" := eq_Prop.
+(* Infix "<->" := eq_Prop. *)
 
 (** Equality between propositions of type [Propoids] is given by
 logical equivalence on the underlying propositions, i.e., propositional
@@ -264,26 +262,26 @@ extensionality. This is a degenerate case of univalence, where the
 proofs that the two maps form an isomorphism is trivial due to
 the above definition of equality of witnesses: they are all equal.  *)
   
-Program Instance Prop_id : Identity eq_Prop. 
-Next Obligation. firstorder. Defined.
+(* Program Instance Prop_id : Identity eq_Prop.  *)
+(* Next Obligation. firstorder. Defined. *)
 
-Program Instance Prop_inv : Inverse eq_Prop.
-Next Obligation. firstorder. Defined.
+(* Program Instance Prop_inv : Inverse eq_Prop. *)
+(* Next Obligation. firstorder. Defined. *)
 
-Program Instance Prop_comp : Composition eq_Prop.
-Next Obligation. firstorder. Defined.
+(* Program Instance Prop_comp : Composition eq_Prop. *)
+(* Next Obligation. firstorder. Defined. *)
 
-Program Instance Prop_equiv : Equivalence eq_Prop. 
+(* Program Instance Prop_equiv : Equivalence eq_Prop.  *)
 
-Program Definition _Prop : SetoidType := 
-  (PropoidType; {| S := IrrRelGroupoid {| eq1 := (λ P Q, P <-> Q) |} |}).
-Next Obligation. apply (@contr_equiv _ _ _ isequiv_path_prod).
-                 apply contr_prod.
-                 apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
-                 apply contr_forall. intros t. apply is_Trunc_0.
-                 apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
-                 apply contr_forall. intros t. apply is_Trunc_0.
-Defined.
+(* Program Definition _Prop : SetoidType :=  *)
+(*   (PropoidType; {| S := IrrRelGroupoid {| eq1 := (λ P Q, P <-> Q) |} |}). *)
+(* Next Obligation. apply (@contr_equiv _ _ _ isequiv_path_prod). *)
+(*                  apply contr_prod. *)
+(*                  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))). *)
+(*                  apply contr_forall. intros t. apply is_Trunc_0. *)
+(*                  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))). *)
+(*                  apply contr_forall. intros t. apply is_Trunc_0. *)
+(* Defined. *)
 
 (* Next Obligation. exact (@contr_paths_contr _ contr_unit e e'). Defined. *)
 
@@ -296,7 +294,7 @@ Program Definition setoid_unit : Setoid unit :=
 Next Obligation. econstructor. firstorder. Defined.
 Next Obligation. econstructor. firstorder. Defined.
 Next Obligation. econstructor. firstorder. Defined.
-Next Obligation. exact (@contr_paths_contr _ contr_unit e e'). Defined.
+Next Obligation. exact tt. Defined.
 
 Definition Empty : SetoidType := Build_sigma (fun T : Type => Setoid T) unit setoid_unit.
 
@@ -339,7 +337,7 @@ Instance FunTypeHomS : HomT1 [Type0] := {eq1 := Fun_Type_Setoid}.
 
 Instance nat_transHomS' : HomT2 Fun_Type_Setoid := {eq2 := nat_trans}.
 
-Program Instance category_funS : CategoryP [Type0].
+Program Instance category_funS : Category [Type0].
 Next Obligation. econstructor. intro. apply id_fun. Defined.
 Next Obligation. econstructor. intros. eapply comp_fun; eauto. Defined.
 Next Obligation.
@@ -374,7 +372,7 @@ Notation "[[ x ']]'" := (SetoidTypeToGroupoidType x) (at level 50).
 
 Definition TypFam_1_map {Γ : Context} (A: Typ Γ) (x y : [Γ]) (X: x ~1 y)
   : ([[A @ x]] -||-> Type0) ~1 ([[A @ y]] -||-> Type0) :=
-  fun_eqT (map A X) (identity (|Type0|g)).
+  fun_eqT (map A X) (identity Type0).
 
 Program Instance TypFam_1 {Γ : Context} (A: Typ Γ) : Functor (T := [[Γ]]) (U:=_Type) (λ s : [Γ], [[A @ s]] -||-> Type0) :=
   {| _map :=  TypFam_1_map A; 
@@ -384,7 +382,7 @@ Program Instance TypFam_1 {Γ : Context} (A: Typ Γ) : Functor (T := [[Γ]]) (U:
   |}.
 
 Class Action {T} (homAc : T -> Type) :=
-{  AC :> CategoryP T;
+{  AC :> Category T;
    eqAc : ∀ {x}, HomT (homAc x);
    action : ∀ {x y : T}, (x ~1 y) -> (homAc y) -> (homAc x) ;
    idAc : ∀ {x} (f : homAc x), eqAc (action (identity x) f) f ;

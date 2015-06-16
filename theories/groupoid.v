@@ -116,7 +116,7 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Add LoadPath "." as Groupoid.
+(* Add LoadPath "." as Groupoid. *)
 Require Import Groupoid.HoTT_light.
 
 Set Universe Polymorphism.
@@ -223,7 +223,7 @@ working with pre-categories and pre-groupoids allows to share more
 structure and is closer to the ω-groupoid model which is itself enriched.
 *)
 
-Class CategoryP T := { Hom1 :> HomT1 T; Hom2 :> HomT2 eq1;
+Class Category T := { Hom1 :> HomT1 T; Hom2 :> HomT2 eq1;
      Id :> Identity eq1; Comp :> Composition eq1;
      Equivalence_2 :> ∀ x y, (Equivalence (eq2 (x:=x) (y:=y)));
      id_R : ∀ x y (f : x ~1 y), f ° identity x ~ f ;
@@ -241,7 +241,7 @@ Class CategoryP T := { Hom1 :> HomT1 T; Hom2 :> HomT2 eq1;
 *)
 (* begin hide *)
 
-Definition CatType := {T:Type & CategoryP T}.
+Definition CatType := {T:Type & Category T}.
 
 Hint Extern 1 (@Equivalence (@eq1 (@Hom1 ?T) ?x ?y) eq2) => 
   apply (@Equivalence_2 T x y) : typeclass_instances.
@@ -255,7 +255,7 @@ Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => apply (@Hom2 T) : typeclass_instan
  and subject to additional compatibility laws for inverses.
 *)
 
-Class GroupoidP T := { C :> CategoryP T ;  Inv :> Inverse eq1 ;
+Class Groupoid T := { C :> Category T ;  Inv :> Inverse eq1 ;
      inv_R : ∀ x y (f: x ~1 y), f ° f ^-1 ~ identity y ;
      inv_L : ∀ x y (f: x ~1 y), f ^-1 ° f ~ identity x ;
      inv :   ∀ x y (f f': x ~1 y), f ~ f' -> f ^-1 ~ f' ^-1}.
@@ -266,19 +266,19 @@ Class GroupoidP T := { C :> CategoryP T ;  Inv :> Inverse eq1 ;
 (*   apply (@Equivalence_2 T x y) : typeclass_instances. *)
 (* Hint Extern 1 (@HomT2 _ (@eq1 (@Hom1 ?T))) => apply (@Hom2 T) : typeclass_instances. *)
 
-Hint Extern 1 (GroupoidP [?T]) => apply (proj2 T) : typeclass_instances.
+Hint Extern 1 (Groupoid [?T]) => apply (proj2 T) : typeclass_instances.
 
 Definition assoc' {T} {Hom1: HomT1 T} {Hom2: HomT2 eq1} {Category} {x y z w: T} :=
-  assoc (CategoryP := Category) x y z w.
+  assoc (Category := Category) x y z w.
 
 Definition id_L' {T} {Hom1: HomT1 T} {Hom2: HomT2 eq1} {Category} {x y: T} := 
-  id_L (CategoryP := Category) x y .
+  id_L (Category := Category) x y .
 
 Definition id_R' {T} {Hom1: HomT1 T} {Hom2: HomT2 eq1} {Category} {x y: T} := 
-  id_R (CategoryP := Category) x y .
+  id_R (Category := Category) x y .
 
 Definition HorComp {T} 
-           {Category_1 : CategoryP T} {x y z}
+           {Category_1 : Category T} {x y z}
            {f f' : x ~1 y} {g g' : y ~1 z} :
   f ~2 f' -> g ~2 g' -> g ° f ~2 g' ° f' :=
   comp _ _ _ f f' g g'.
@@ -297,27 +297,24 @@ Infix "**" := HorComp (at level 50).
    (see %\cite{hottbook}% for details).  *)
 
 (* begin hide *)
-Require Import HoTT_light.
+(* Require Import HoTT_light. *)
 (* end hide *)
 (** This is a way to require that all higher-cells are trivial. In our setting, we do not have the possibility to say that all 2-cells are related by a 3-cell, and so on. The price to pay will be explicit reasoning on identity types when proving for instance contractedness for the function space. In that case, we need the axiom of functional extensionality.
 By analogy to homotopy type theory, we note [Groupoid] the property of being a groupoid. 
 *)
 
-Class Groupoid T := { G :> GroupoidP T ;
-  is_Trunc_2 : ∀ (x y : T) (e e' : x ~1 y) (E E' : e ~2 e'), Contr (E = E')}.
+(* Class Groupoid T := { G :> GroupoidP T ; *)
+(*   is_Trunc_2 : ∀ (x y : T) (e e' : x ~1 y) (E E' : e ~2 e'), Contr (E = E')}. *)
 
 (** %\noindent% 
     In the same way, we define [Setoid] when equality is irrelevant at dimension 1.
 *)
 
 Class Setoid T := { S :> Groupoid T ; 
-  is_Trunc_1 : ∀ (x y : T) (e e' : x ~1 y) , Contr (e = e')}.
+  is_Trunc_1 : ∀ (x y : T) (e e' : x ~1 y) , e ~2 e'}.
 
 (* begin hide *)
-(* and [Propoid] at dimension 0.  *)
 
-Class Propoid T := { P :> Setoid T ; 
-  is_Trunc_0 : ∀ (x y : T), Contr (x = y)}.
 
 (* end hide *)
 (**    We note [GroupoidType] for the types that form a [Groupoid].
@@ -331,20 +328,18 @@ Class Propoid T := { P :> Setoid T ;
 
 Definition GroupoidType := {T: Type & Groupoid T}.
 
-Definition UGroupoidType := {T: Type & GroupoidP T}.
+(* Definition UGroupoidType := {T: Type & GroupoidP T}. *)
 
 Definition SetoidType := {T: Type & Setoid T}.
-
-Definition PropoidType := {T: Type & Propoid T}.
 
 
 Hint Extern 0 (Setoid [?T]) => apply T.2 : typeclass_instances.
 Hint Extern 0 (Groupoid [?T]) => apply T.2 : typeclass_instances.
-Hint Extern 0 (CategoryP [?T]) => apply T.2 : typeclass_instances.
-Hint Extern 0 (GroupoidP [?T]) => apply T.2 : typeclass_instances.
-Hint Extern 0 (Propoid [?T]) => apply T.2 : typeclass_instances.
+Hint Extern 0 (Category [?T]) => apply T.2 : typeclass_instances.
+(* Hint Extern 0 (GroupoidP [?T]) => apply T.2 : typeclass_instances. *)
+(* Hint Extern 0 (Propoid [?T]) => apply T.2 : typeclass_instances. *)
 Hint Extern 1 (Groupoid [?T]) => apply T.(proj2).(S) : typeclass_instances.
-Hint Extern 1 (Setoid [?T]) => apply T.(proj2).(P) : typeclass_instances.
+(* Hint Extern 1 (Setoid [?T]) => apply T.(proj2).(P) : typeclass_instances. *)
 
 (* Instance eq_pi1 (T : SetoidType) : Setoid [T] := T.2. *)
 (* Instance eq_pi1' (T : GroupoidType) : Groupoid [T] := T.2. *)
@@ -357,42 +352,42 @@ Hint Extern 1 (Setoid [?T]) => apply T.(proj2).(P) : typeclass_instances.
 
 (* Instance eq_PWG (T : PropoidType) : Setoid [T] := P. *)
 
-Definition UGroupoidTypeToCatType (T : UGroupoidType) : CatType := 
+Definition GroupoidTypeToCatType (T : GroupoidType) : CatType := 
   (T.1 ; C).
 
-Coercion UGroupoidTypeToCatType : UGroupoidType >-> CatType. 
+Coercion GroupoidTypeToCatType : GroupoidType >-> CatType. 
 
-Definition GroupoidTypeToUGroupoidType (T : GroupoidType) : UGroupoidType := 
-  (T.1 ; G).
+(* Definition GroupoidTypeToUGroupoidType (T : GroupoidType) : UGroupoidType :=  *)
+(*   (T.1 ; G). *)
 
-Coercion GroupoidTypeToUGroupoidType : GroupoidType >-> UGroupoidType. 
+(* Coercion GroupoidTypeToUGroupoidType : GroupoidType >-> UGroupoidType.  *)
 
 Definition SetoidTypeToGroupoidType (T : SetoidType) : GroupoidType := 
   (T.1 ; S).
 
 Coercion SetoidTypeToGroupoidType :SetoidType >-> GroupoidType. 
 
-Definition SetoidTypeToUGroupoidType (T : SetoidType) : UGroupoidType := 
-  GroupoidTypeToUGroupoidType (SetoidTypeToGroupoidType T).
+(* Definition SetoidTypeToUGroupoidType (T : SetoidType) : UGroupoidType :=  *)
+(*   GroupoidTypeToUGroupoidType (SetoidTypeToGroupoidType T). *)
 
-Coercion SetoidTypeToUGroupoidType : SetoidType >-> UGroupoidType. 
+(* Coercion SetoidTypeToUGroupoidType : SetoidType >-> UGroupoidType.  *)
 
 (* Notation "| x '|s'" := (SetoidTypeToGroupoidType x) (at level 50). *)
  
-Notation "| x '|g'" := (GroupoidTypeToUGroupoidType x) (at level 50).
+(* Notation "| x '|g'" := (GroupoidTypeToUGroupoidType x) (at level 50). *)
 
-Notation "[[ x ']]'" := (SetoidTypeToUGroupoidType x) (at level 50).
+Notation "[[ x ']]'" := (SetoidTypeToGroupoidType x) (at level 50).
 
 Definition setoid_irr2 (S :SetoidType) (x y : [S]) (e e' : x ~1 y) : e ~2 e'.
-  pose (@center _ (is_Trunc_1 x y e e')). destruct e0. apply identity.
+  apply (is_Trunc_1 x y e e'). 
 Defined.
 
-Definition proposition_irr1 (P :PropoidType) (x y : [P]) : x ~1 y.
-  pose (@center _ (is_Trunc_0 x y)). destruct e. apply identity.
-Defined.
+(* Definition proposition_irr1 (P :PropoidType) (x y : [P]) : x ~1 y. *)
+(*   apply (is_Trunc_0 x y). *)
+(* Defined. *)
 
 Lemma left_simplify_gen {T}
-      (cat:CategoryP T)
+      (cat:Category T)
       (equiv : forall x y, Equivalence (eq2 (x:=x) (y:=y)))
       (x y z: T) (f f': x ~1 y) (g : y ~1 z) 
       (inv_g : z ~1 y) (inv_L : inv_g ° g ~2 identity y) : 
@@ -417,7 +412,7 @@ Proof.
 Qed.
 
 Lemma right_simplify_gen {T}
-      (cat:CategoryP T)
+      (cat:Category T)
       (equiv : forall x y, Equivalence (eq2 (x:=x) (y:=y)))
       (x y z: T) (f: x ~1 y) (g g' : y ~1 z) 
       (inv_f : y ~1 x) (inv_R : f ° inv_f ~2 identity y) : 
@@ -484,23 +479,23 @@ Proof.
   eapply inverse; auto.
 Qed.
 
-Definition left_simplify' (T:UGroupoidType) (x y z: [T]) (f f': x ~1 y) 
+Definition left_simplify' (T:GroupoidType) (x y z: [T]) (f f': x ~1 y) 
            (g : y ~1 z) : g ° f ~ g ° f' -> f ~ f' := 
   left_simplify T x y z f f' g (inverse g) (inv_L _ _ _).
 
-Definition right_simplify' (T:UGroupoidType) (x y z: [T]) (f : x ~1 y)
+Definition right_simplify' (T:GroupoidType) (x y z: [T]) (f : x ~1 y)
            (g g' : y ~1 z)
   := right_simplify T x y z f g g' (inverse f) (inv_R _ _ _).
 
-Definition left_compose' (T:UGroupoidType) (x y z:[T]) (f f': x ~1 y) 
+Definition left_compose' (T:GroupoidType) (x y z:[T]) (f f': x ~1 y) 
            (g: y ~1 z) 
   := left_compose T x y z f f' g (inverse g) (inv_R _ _ _ ) (inv_L _ _ _ ). 
 
-Definition right_compose' (T:UGroupoidType) (x y z:[T]) (f : x ~1 y) 
+Definition right_compose' (T:GroupoidType) (x y z:[T]) (f : x ~1 y) 
            (g g': y ~1 z)
   := right_compose T x y z f g g' (inverse f) (inv_R _ _ _) (inv_L _ _ _).
 
-Lemma comp_inv (T:UGroupoidType) (x y z:[T]) (f : x ~1 y) (g : y ~1 z) : 
+Lemma comp_inv (T:GroupoidType) (x y z:[T]) (f : x ~1 y) (g : y ~1 z) : 
   inverse f ° inverse g ~ inverse (g ° f).
 Proof.
   apply (left_simplify' _ _ _ _ _ _ (g°f)).
@@ -517,21 +512,21 @@ Proof.
   apply identity.
  Qed.
 
-Lemma inv_inv (T:UGroupoidType) (x y:[T]) (e : x ~1 y) : 
+Lemma inv_inv (T:GroupoidType) (x y:[T]) (e : x ~1 y) : 
   inverse (inverse e) ~ e.
 Proof.
   apply (left_simplify' _ _ _ _ _ _ (inverse e)).
   eapply composition. apply inv_R. eapply inverse. apply inv_L. 
 Defined.
 
-Lemma inv_id (T:UGroupoidType) (x:[T]) : 
+Lemma inv_id (T:GroupoidType) (x:[T]) : 
   inverse (identity x) ~ identity x.
 Proof.
   eapply inverse. eapply composition; [idtac | apply id_L]. 
   eapply inverse. apply inv_R. 
 Qed.
 
-Lemma comp_id (T:UGroupoidType) (x:[T]) : 
+Lemma comp_id (T:GroupoidType) (x:[T]) : 
   identity x ° identity x ~ identity x.
 Proof.
   eapply composition; try apply id_L. apply identity.
@@ -545,13 +540,13 @@ between objects of the groupoids that transports homs and
 subject to compatibility laws. 
 *)
 
-Class Functor {T U : UGroupoidType} (f : [T] -> [U]) : Type :=
+Class Functor {T U : GroupoidType} (f : [T] -> [U]) : Type :=
 { _map : ∀ {x y}, x ~1 y -> f x ~1 f y ;
   _map_id : ∀ {x}, _map (identity x) ~ identity (f x) ;
   _map_comp : ∀ {x y z} (e:x ~1 y) (e':y ~1 z), _map (e' ° e) ~2 _map e' ° _map e ;
   _map2 : ∀ {x y:[T]} {e e' : x ~1 y}, (e ~2 e') -> _map  e ~2 _map e' }.
 
-Definition Fun_Type (T U : UGroupoidType) := {f : [T] -> [U] & Functor f}.
+Definition Fun_Type (T U : GroupoidType) := {f : [T] -> [U] & Functor f}.
 
 (* begin hide *)
 
@@ -594,7 +589,7 @@ Opaque map_inv.
 Hint Extern 1 (@Identity (@eq1 (@Hom1 ?T) ?x ?y) eq2) => 
   apply (@Equivalence_Identity _ _ (@Equivalence_2 T _ x y)) : typeclass_instances.
 
-Instance arrow_id (T:UGroupoidType) : Functor (id (A := [T])) :=
+Instance arrow_id (T:GroupoidType) : Functor (id (A := [T])) :=
   { _map x y e := e;
     _map_id x := identity (identity (id x)) }.
 Next Obligation. apply identity. Defined.
@@ -723,13 +718,13 @@ Next Obligation. rename X into E, X0 into  F. exact (λ t, (F t) ° (E t)). Defi
 Program Instance nat2_equiv T U (f g : T ---> U) :
   Equivalence (modification (f:=f) (g:=g)).
 
-Program Instance nat_trans_cat T U : CategoryP (T ---> U).
+Program Instance nat_trans_cat T U : Category (T ---> U).
 Next Obligation. intro t. apply id_R. Defined.
 Next Obligation. intro t. apply id_L. Defined.
 Next Obligation. intro t. apply assoc. Defined.
 Next Obligation. intro t. apply comp. apply X. apply X0 . Defined.
 
-Program Instance nat_trans_grp T U : GroupoidP (T ---> U).
+Program Instance nat_trans_grp T U : Groupoid (T ---> U).
 Next Obligation. intro t. apply inv_R. Defined.
 Next Obligation. intro t. apply inv_L. Defined.
 Next Obligation. intro t. apply inv, X. Defined.
@@ -737,20 +732,20 @@ Next Obligation. intro t. apply inv, X. Defined.
 Program Instance modification_eq T U (f g : T ---> U) : 
   Equivalence (modification (f:=f) (g:=g)).
 
-Instance nat_groupoid (T U : GroupoidType) : Groupoid (T ---> U).
+(*Instance nat_groupoid (T U : GroupoidType) : Groupoid (T ---> U).
 Next Obligation.
   apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ E E'))).
   apply contr_forall. intros z.
   apply (@is_Trunc_2 _ _ _ _ _ _ (E z) (E' z)).
 Defined.
-
+*)
 (* end hide *)
 (** %\noindent%
     We can now equip the functor space with a groupoid structure. Note
     here that we (abusively) use the same notation for the functor type and 
     its corresponding groupoid. *)
 
-Definition _fun T U : UGroupoidType := (T ---> U ; nat_trans_grp T U).
+Definition _fun T U : GroupoidType := (T ---> U ; nat_trans_grp T U).
 
 (* begin hide *)
 
@@ -763,11 +758,11 @@ Infix "-->" := _fun (at level 90).
 
 (* begin hide *)
 
-Instance FunTypeHom : HomT1 UGroupoidType := {eq1 := Fun_Type}.
+Instance FunTypeHom : HomT1 GroupoidType := {eq1 := Fun_Type}.
 
 Instance nat_transHom' : HomT2 Fun_Type := {eq2 := nat_trans}.
 
-Program Instance category_fun : CategoryP UGroupoidType. 
+Program Instance category_fun : Category GroupoidType. 
 
 Next Obligation. 
 Proof. 
@@ -798,7 +793,7 @@ Proof.
   eapply inverse. simpl. apply (map_comp g'). 
 Defined.
 
-Program Instance _eq : ∀ (T U : UGroupoidType), 
+Program Instance _eq : ∀ (T U : GroupoidType), 
                          Equivalence (nat_trans (T:=T) (U:=U)).
  
 Definition nat_id_R  := (@id_R _ category_fun).
@@ -819,7 +814,7 @@ Proof.
   intro a. simpl in *. eapply composition. apply id_R. apply (map_id g).
 Defined.
 
-Definition NaturalTransformationEq2 (T U : SetoidType)
+(*Definition NaturalTransformationEq2 (T U : SetoidType)
   (f g : T ---> U) (α : ∀ t : [T], [f] t ~1 [g] t)
   (H H' : NaturalTransformation (T:=[[T]]) (U:=[[U]]) α):
   H = H'.
@@ -827,7 +822,7 @@ Definition NaturalTransformationEq2 (T U : SetoidType)
   apply path_forall. intros E.
   apply is_Trunc_2.
 Defined.
-
+*)
 (* end hide *)
 (**  ** Homotopic equivalences
  %\label{sec:homequiv}%   
@@ -840,35 +835,20 @@ Definition Fun_Type_Setoid (T U : SetoidType) := [[T]] ---> [[U]].
 
 Infix "-S->" := Fun_Type_Setoid (at level 55). 
 
-Definition _Fun_Setoid_ T U (f g : T -S-> U) (e e' : nat_trans f g) : e = e'.
-  assert (e.1 = e'.1).
-  apply path_forall. intros z.
-  apply is_Trunc_1.
-  apply (path_sigma _ _ X). 
-  apply NaturalTransformationEq2.
-Defined.
 
+Definition _Fun_Setoid_ T U (f g : T -S-> U) (e e' : nat_trans f g) : e ~2 e'.
+  intro z. apply is_Trunc_1.
+Defined.
 
 Instance _Fun_Setoid (T U : SetoidType) : Setoid (T -S-> U).
 Next Obligation. 
-  apply (@contr_equiv _ _ _ (path_sigma_equiv e e')).
-  apply (@contr_sigma _ (fun p => p # e.2 = e'.2)).
-  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ [e] [e']))).
-  apply contr_forall. intros z.
-  apply (@is_Trunc_1 _ _ _ _ (e @ z) (e' @ z)).
-  intros.   destruct e, e'. simpl in *. destruct a. simpl. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
-  apply contr_forall. intros t. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
-  apply contr_forall. intros t'. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
-  apply contr_forall. intros e. 
-  apply (@is_Trunc_2 _ _ _ _ _ _ _ _).
+  exact (_Fun_Setoid_ e e').
 Defined.
 
 Definition Fun_Setoid (T U : SetoidType) := (T -S-> U; _Fun_Setoid T U) : SetoidType.
 
 Infix "-|->" := Fun_Setoid (at level 55). 
+
 
 (* end hide *)
 
@@ -1408,7 +1388,7 @@ Proof.
   apply (ExLawComp_nat _ _ _ _ u).
   eapply composition. 
   eapply nat_comp2. apply (Equiv_adjoint_inv _). 
-  apply (inv_R (GroupoidP := nat_trans_grp T U)).
+  apply (inv_R (Groupoid := nat_trans_grp T U)).
   apply (nat_comp_id _ _ u). apply identity. apply id_R.
 Defined.
 
@@ -1429,31 +1409,31 @@ Proof.
   eapply inverse, Equiv_adjoint_comp.
 Defined.
 
-Instance Equiv_eqHom (T U :UGroupoidType) : HomT1 (Equiv T U) := 
+Instance Equiv_eqHom (T U :GroupoidType) : HomT1 (Equiv T U) := 
   {eq1 := Equiv_eq (T:=T) (U:=U) }.
 
-Definition Equiv_eq2 (T U :UGroupoidType) (f g : Equiv T U) : HomT (Equiv_eq f g) :=
+Definition Equiv_eq2 (T U :GroupoidType) (f g : Equiv T U) : HomT (Equiv_eq f g) :=
   λ (e e' : Equiv_eq f g), [e] ~ [e'].
 
-Instance Equiv_eq2Hom (T U :UGroupoidType) : HomT2 (Equiv_eq (T:=T) (U:=U)) := 
+Instance Equiv_eq2Hom (T U :GroupoidType) : HomT2 (Equiv_eq (T:=T) (U:=U)) := 
   {eq2 := Equiv_eq2 (T:=T) (U:=U) }.
 
-Instance Equiv2_id (T U :UGroupoidType) (f g : T <~> U) : 
+Instance Equiv2_id (T U :GroupoidType) (f g : T <~> U) : 
   Identity (Equiv_eq2 (f:=f) (g:=g)) := 
   { identity x t := identity _ }.
 
-Program Instance Equiv2_inv (T U :UGroupoidType) (f g : T <~> U) : 
+Program Instance Equiv2_inv (T U :GroupoidType) (f g : T <~> U) : 
   Inverse (Equiv_eq2 (f:=f) (g:=g)) :=
   { inverse X Y e t := inverse (e t) }.
 
-Program Instance Equiv2_comp (T U :UGroupoidType) (f g : T <~> U) : 
+Program Instance Equiv2_comp (T U :GroupoidType) (f g : T <~> U) : 
   Composition (Equiv_eq2 (f:=f) (g:=g)) :=
   { composition X Y Z e e' t := composition (e t) (e' t) }.
 
-Program Instance Equiv2_equiv (T U :UGroupoidType) (f g : T <~> U) : 
+Program Instance Equiv2_equiv (T U :GroupoidType) (f g : T <~> U) : 
   Equivalence (Equiv_eq2 (f:=f) (g:=g)).
 
-Program Instance Equiv_eq_cat T U : CategoryP (T <~> U).
+Program Instance Equiv_eq_cat T U : Category (T <~> U).
 Next Obligation. intro t. destruct f. apply id_R. Defined.
 Next Obligation. intro t. destruct f; apply id_L. Defined.
 Next Obligation. intro t. destruct f, g, h. apply assoc. Defined.
@@ -1462,26 +1442,26 @@ Next Obligation.
   apply comp. apply X. apply X0 . 
 Defined.
 
-Program Instance Equiv_eq_grp T U : GroupoidP (T <~> U).
+Program Instance Equiv_eq_grp T U : Groupoid (T <~> U).
 Next Obligation. intro t. destruct f; apply inv_R. Defined.
 Next Obligation. intro t. destruct f; apply inv_L. Defined.
 Next Obligation. intro t. destruct f, f'. apply inv. exact (X t). Defined.
 
-Program Instance Equiv_eq2_cat (T U :UGroupoidType) (f g : T <~> U) : 
+Program Instance Equiv_eq2_cat (T U :GroupoidType) (f g : T <~> U) : 
   Equivalence (Equiv_eq2 (f:=f) (g:=g)).
 
-Definition section_comp_l (X Y Z : UGroupoidType) 
+Definition section_comp_l (X Y Z : GroupoidType) 
            (f : X <~> Y) (g : Y <~> Z) (z : [Z]) :=
   (section (g ° f) @ z).
 
-Lemma section_comp (X Y Z : UGroupoidType) 
+Lemma section_comp (X Y Z : GroupoidType) 
       (f : X <~> Y) (g : Y <~> Z) (z : [Z]) :
   section_comp_l f g z ~ (section g @ z) ° map [g] (section f @ (adjoint g @ z)).
 Proof.  
   unfold section_comp_l. simpl. simpl_id_bi'.
 Defined.
 
-Definition retraction_comp_l (X Y Z : UGroupoidType) 
+Definition retraction_comp_l (X Y Z : GroupoidType) 
            (f : X <~> Y) (g : Y <~> Z) (z : [X]) :=
   retraction (g ° f) @ z.
 
@@ -1517,11 +1497,11 @@ Proof.
   simpl_id'. apply (triangle_inv' f).
 Defined.
 
-Instance EquivHom : HomT1 UGroupoidType := {eq1 := Equiv}.
+Instance EquivHom : HomT1 GroupoidType := {eq1 := Equiv}.
 
 Instance Equiv_eqHom' : HomT2 eq1 := {eq2 := Equiv_eq}.
 
-Definition Equiv_adjoint_assoc (X Y Z W : UGroupoidType)
+Definition Equiv_adjoint_assoc (X Y Z W : GroupoidType)
         (f : X <~> Y) (g : Y <~> Z) (h : Z <~> W) (w:[W]) 
         (H := (nat_assoc [f] [g] [h] : [(h ° g) °f] ~1 [h ° (g ° f)])) : 
     (Equiv_adjoint H @ w) ~2 (identity (adjoint ((h ° g) °f)) @ w).
@@ -1574,7 +1554,7 @@ Proof.
   apply (triangle_inv' f).
 Defined.
 
-Definition Equiv_adjoint_comp' (X Y Z : UGroupoidType)
+Definition Equiv_adjoint_comp' (X Y Z : GroupoidType)
         (f f': X <~> Y) (g g': Y <~> Z) (e : f ~ f') (e' : g ~ g')
         (H := Equiv_adjoint (e' .1 °' e .1 : [g ° f] ~1 [g' ° f'])) :
   H ~ nat_comp' (Equiv_adjoint (e' .1)) ((Equiv_adjoint (e.1))).  
@@ -1623,7 +1603,7 @@ Defined.
 
 Program Instance Equiv_Equiv_eq T U : Equivalence (Equiv_eq (T:=T) (U:=U)).
 
-Program Instance Equiv_cat : CategoryP UGroupoidType. 
+Program Instance Equiv_cat : Category GroupoidType. 
 Next Obligation. 
   set (H := nat_id_R [f]). exists H. 
   intro.
@@ -1699,7 +1679,7 @@ Next Obligation.
   apply identity.
 Defined.
 
-Program Instance Equiv_grp : GroupoidP UGroupoidType.
+Program Instance Equiv_grp : Groupoid GroupoidType.
 Next Obligation. 
   exists (section f). 
   intro; simpl; simpl_id_bi'.
@@ -1762,11 +1742,10 @@ Next Obligation. exists (Equiv_adjoint [X]). intro.
                  apply id_L.
 Defined.
 
-Program Instance Equiv_eq2_equ (T U : UGroupoidType) (f g : T <~> U) :
+Program Instance Equiv_eq2_equ (T U : GroupoidType) (f g : T <~> U) :
   Equivalence (Equiv_eq2 (f:=f) (g:=g)).
 
 Program Instance Equiv_eqEquivalence T U : Equivalence (Equiv_eq (T:=T) (U:=U)).
-
 
 Definition Equiv' := (λ T T' : SetoidType, [[T]] <~> [[T']]).
 
@@ -1784,18 +1763,20 @@ Instance _Type_inv' : Inverse Equiv' :=
 Instance _Type_comp' : Composition Equiv' :=
   { composition T U V f g := ([g] ° [f] ; _Equiv_comp f g) }.
 
-Program Instance Equiv_cat_Setoid : CategoryP SetoidType.
+Program Instance Equiv_cat_Setoid : Category SetoidType.
 Next Obligation. exact (Equiv_cat_obligation_1 f). Defined.
 Next Obligation. exact (Equiv_cat_obligation_2 f). Defined.
 Next Obligation. exact (Equiv_cat_obligation_3 f g h). Defined.
 Next Obligation. exact (Equiv_cat_obligation_4 X X0). Defined.
 
+(*
 Definition EquivEqEq2 (T U : GroupoidType) 
 (f g : T <~> U) (α : [f] ~ [g]) (H H' : EquivEq α) :
   H = H'.
   apply path_forall. intros u. 
   apply is_Trunc_2.
 Defined.
+ *)
 
 Definition Equiv'' := (λ T T' : GroupoidType, T <~> T').
 
@@ -1805,7 +1786,7 @@ Program Instance Equiv_eqHom_Groupoid : HomT2 Equiv'' :=
 {| eq2 := fun T T' : GroupoidType => Equiv_eq (T:=T) (U:=T') |}.
 
 Instance _Type_id'' : Identity Equiv'' := 
- { identity T := (identity (|T|g); _Equiv_Id) }.
+ { identity T := (identity T; _Equiv_Id) }.
 
 Instance _Type_inv'' : Inverse Equiv'' :=
   { inverse T U f := (adjoint f ; _Equiv_inv f) }.
@@ -1813,33 +1794,25 @@ Instance _Type_inv'' : Inverse Equiv'' :=
 Instance _Type_comp'' : Composition Equiv'' :=
   { composition T U V f g := ([g] ° [f] ; _Equiv_comp f g) }.
 
-Program Instance Equiv_cat_Groupoid : CategoryP GroupoidType.
+Program Instance Equiv_cat_Groupoid : Category GroupoidType.
 Next Obligation. exact (Equiv_cat_obligation_1 f). Defined.
 Next Obligation. exact (Equiv_cat_obligation_2 f). Defined.
 Next Obligation. exact (Equiv_cat_obligation_3 f g h). Defined.
 Next Obligation. exact (Equiv_cat_obligation_4 X X0). Defined.
 
-Program Instance Equiv_Groupoid_G : GroupoidP GroupoidType. 
+Program Instance Equiv_Groupoid_G : Groupoid GroupoidType. 
 Next Obligation. exact (Equiv_grp_obligation_1 f). Defined.
 Next Obligation. exact (Equiv_grp_obligation_2 f). Defined.
 Next Obligation. exact (Equiv_grp_obligation_3 X). Defined.
 
-Program Instance Equiv_Groupoid_S : GroupoidP SetoidType. 
+Program Instance Equiv_Groupoid_S : Groupoid SetoidType. 
 Next Obligation. exact (Equiv_grp_obligation_1 f). Defined.
 Next Obligation. exact (Equiv_grp_obligation_2 f). Defined.
 Next Obligation. exact (Equiv_grp_obligation_3 X). Defined.
 
-Program Instance Equiv_Groupoid : Groupoid SetoidType.
-Next Obligation.  apply (@contr_equiv _ _ _ (path_sigma_equiv E E')).
-  apply (@contr_sigma _ (fun p => p # E.2 = E'.2)).
-  apply _Fun_Setoid_obligation_1. destruct E, E'. intro X. simpl in *. destruct X.
-  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
-  apply contr_forall. intros a'.
-  apply (@is_Trunc_2 _ _ _ _ _ _ _ _).
-Defined. 
 
-(* Definition _Type : UGroupoidType := (UGroupoidType ; Equiv_grp). *)
-Definition Type1 : UGroupoidType := (GroupoidType ; Equiv_Groupoid_G).
+(* Definition _Type : GroupoidType := (GroupoidType ; Equiv_grp). *)
+Definition Type1 : GroupoidType := (GroupoidType ; Equiv_Groupoid_G).
 
 Notation _Type := Type1.
 (*end hide *)
@@ -1851,7 +1824,7 @@ Notation _Type := Type1.
  setting. Nevertheless, we can state that setoids (inhabitants of
  [SetoidType]) form a groupoid.  *)
 
-Definition Type0 : GroupoidType := (SetoidType ; Equiv_Groupoid).
+Definition Type0 : GroupoidType := (SetoidType ; Equiv_Groupoid_S).
 
 (** %\noindent% In the definition above, [Equiv_Groupoid] is a proof
 that [Equiv] and [Equiv_eq] form a groupoid. It makes again use of
@@ -1965,7 +1938,7 @@ Ltac simpl_id := first [simpl_id_end ; simpl_id |
 
 Ltac simpl_id_bi := simpl_id; eapply inverse; simpl_id.
 
-Definition Fun_Type_Groupoid (T U : [Type1]) := |T|g ---> |U|g.
+Definition Fun_Type_Groupoid (T U : [Type1]) := T ---> U.
 
 Program Instance comp_funG : Composition Fun_Type_Groupoid :=
   { composition x y z X X0 := (λ x, X0 @ (X @ x) ; arrow_comp _ _ _ _ _) }.
@@ -1976,17 +1949,20 @@ Instance id_funG : Identity Fun_Type_Groupoid :=
 Infix "--->" := Fun_Type_Groupoid (at level 55).
 Infix "-G->" := Fun_Type_Groupoid (at level 55). 
 
-Instance _Fun_GroupoidP (T U : [Type1]) : GroupoidP (T -G-> U).
+Instance _Fun_Groupoid (T U : [Type1]) : Groupoid (T -G-> U).
 Next Obligation. intro t. apply inv_R. Defined.
 Next Obligation. intro t. apply inv_L. Defined.
 Next Obligation. intro t. apply inv. exact (X t). Defined.
 
+(*
 Instance _Fun_Groupoid (T U : [Type1]) : Groupoid (T -G-> U).
 Next Obligation. 
   apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ E E'))).
   apply contr_forall. intros z.
   apply (@is_Trunc_2 _ _ _ _ (e @ z) (e' @ z)).
 Defined.
+
+ *)
 
 Definition Fun_Groupoid (T U : [Type1]) := (T -G-> U; _Fun_Groupoid T U) : GroupoidType.
 
@@ -2051,29 +2027,29 @@ Proof.
   apply transport_id. 
 Defined.
 
-Definition Trunc_2 (T:GroupoidType) (x y : [T])
-  (e e' : x ~1 y) (E E' : e ~2 e') : Contr (E = E') :=
-  is_Trunc_2 x y e e' E E'.
+(* Definition Trunc_2 (T:GroupoidType) (x y : [T]) *)
+(*   (e e' : x ~1 y) (E E' : e ~2 e') : Contr (E = E') := *)
+(*   is_Trunc_2 x y e e' E E'. *)
 
-Definition eq_is_eq2 (T:[Type0]) {x y : [T]}
-  (e e' : x ~1 y) (E : e = e') : e ~2 e'.
-  destruct E. apply identity.
-Defined.
+(* Definition eq_is_eq2 (T:[Type0]) {x y : [T]} *)
+(*   (e e' : x ~1 y) (E : e = e') : e ~2 e'. *)
+(*   destruct E. apply identity. *)
+(* Defined. *)
 
-Definition eq_is_eq2_Type0 {x y : [Type0]}
-  (e e' : x ~1 y)  (E E' : e ~2 e') (H : E = E') : E ~2 E'.
-  destruct H. apply identity.
-Defined.
+(* Definition eq_is_eq2_Type0 {x y : [Type0]} *)
+(*   (e e' : x ~1 y)  (E E' : e ~2 e') (H : E = E') : E ~2 E'. *)
+(*   destruct H. apply identity. *)
+(* Defined. *)
 
-Ltac trunc_eq := match goal with
-                     | [ |- ?e ~ ?e'] =>
-                       let H := fresh in
-                       let H':=fresh in 
-                       set(H':=e) in *; clearbody H';
-                       apply (eq_is_eq2_Type0 (@center _ (Trunc_2 (Type0) _ _ _ _ H' e')))                   end.
+(* Ltac trunc_eq := match goal with *)
+(*                      | [ |- ?e ~ ?e'] => *)
+(*                        let H := fresh in *)
+(*                        let H':=fresh in  *)
+(*                        set(H':=e) in *; clearbody H'; *)
+(*                        apply (eq_is_eq2_Type0 (@center _ (Trunc_2 (Type0) _ _ _ _ H' e')))                   end. *)
        
 Definition Trunc_1 (T:[Type0]) (x y : [T])
-  (e e' : x ~1 y)  : Contr (e = e') :=
+  (e e' : x ~1 y)  : e ~ e' :=
   is_Trunc_1 x y e e' .
 
 Ltac trunc1_eq :=   match goal with
@@ -2098,19 +2074,20 @@ Ltac trunc1_eq :=   match goal with
 (*   end.  *)
 
 
-Ltac trunc1_eq_expl T :=   match goal with
-    | [ |- ?e ~ ?e'] =>
-      let X := fresh in
-      let X':=fresh in
-      set(X:=e) in *;
-      set(X':=e') in *;
-      apply (eq_is_eq2 T (@HoTT_light.center _ (Trunc_1 _ _ _ X X')))
-  end.
+(* Ltac trunc1_eq_expl T :=   match goal with *)
+(*     | [ |- ?e ~ ?e'] => *)
+(*       let X := fresh in *)
+(*       let X':=fresh in *)
+(*       set(X:=e) in *; *)
+(*       set(X':=e') in *; *)
+(*       apply (eq_is_eq2 T (@HoTT_light.center _ (Trunc_1 _ _ _ X X'))) *)
+(*   end. *)
 
+Ltac trunc_eq := intro; apply Trunc_1.
 
 Lemma map2_id : forall T (f : [T --> Type0]) {x y:[T]} (e: x ~1 y), 
                   map2 f (identity e) ~2 identity (map f e).
-Proof. intros. pose (identity (map f e)).  trunc_eq. Defined.
+Proof. intros. pose (identity (map f e)). trunc_eq. Defined.
 
 Lemma map2_comp : forall T (f : [T --> Type0]) {x y:[T]} (e e' e'':x ~1 y) 
                        (E:e ~2 e') (E':e'~2 e''),
@@ -2129,7 +2106,7 @@ Proof. intros. trunc_eq. Defined.
 
 Definition assoc'' {T} {Hom1 : HomT1 T} {Hom2: HomT2 eq1} {Category} 
            {x y z w : T} {e e' e''} := 
-  assoc (CategoryP := Category) x y z w e e' e''.
+  assoc (Category := Category) x y z w e e' e''.
 
 Lemma map2_assoc : ∀ T (f : [T --> Type0]) {x y z w : [T]} 
                      (e:x ~1 y) (e':y ~1 z) (e'':z ~1 w),
@@ -2282,13 +2259,13 @@ Instance Dnat2_equiv T (U:[T --> _Type]) (f g : Prod_Type U) :
   Equivalence (Dmodification f g).
 
 Instance Dnat_trans_cat T (U:[T --> _Type]) :
-  CategoryP (Prod_Type U).
+  Category (Prod_Type U).
 Next Obligation. intro t. apply id_R. Defined.
 Next Obligation. intro t. apply id_L. Defined.
 Next Obligation. intro t. apply assoc. Defined.
 Next Obligation. intro t. apply comp. apply X. apply X0. Defined.
 
-Program Instance Dnat_trans_grp T (U:[T --> _Type]) : GroupoidP (Prod_Type U).
+Program Instance Dnat_trans_grp T (U:[T --> _Type]) : Groupoid (Prod_Type U).
 Next Obligation. intro t. apply inv_R.  Defined.
 Next Obligation. intro t. apply inv_L.  Defined.
 Next Obligation. intro t. apply inv. exact (X t).  Defined.
@@ -2313,6 +2290,7 @@ Instance Type1_Type_ T (f: [T --> Type1]) : @Functor T _Type (λ X : [T], f @ X 
 Definition Type1_Type T : [T --> Type1] -> [T --> _Type] := 
   fun f => (fun X => f @ X ; Type1_Type_ f).
 
+(*
 Program Instance prod_Groupoid (T:[Type1]) (U:[|T|g --> Type1]) : 
   Groupoid (Prod_Type (Type1_Type U)).
 Next Obligation.
@@ -2320,10 +2298,11 @@ Next Obligation.
   apply contr_forall. intros z.
   apply (@is_Trunc_2 _ _ _ _ _ _ (E z) (E' z)).
 Defined.
+*)
 
 Definition _Prod T (U:[T --> _Type]) := (Prod_Type U ; Dnat_trans_grp T U).
 
-Definition Prod1 T (U:[|T|g --> Type1]) := (Prod_Type (Type1_Type U) ; prod_Groupoid T U).
+(* Definition Prod1 T (U:[|T|g --> Type1]) := (Prod_Type (Type1_Type U) ; prod_Groupoid T U). *)
 
 Notation "[[ x ']]'" := (SetoidTypeToGroupoidType x) (at level 50).
 
@@ -2383,6 +2362,7 @@ Instance DepFun0DepFun T (U : [T --> Type0]) (f : Prod_Type0 U) :
   _Dmap2 := fun x y e e' => Dmap20 f
 |}.
 
+(*
 Definition DNaturalTransformationEq2 T (U:[T --> Type0]) 
  {f g: Prod_Type (Type0_Type U)} (α : ∀ t : [T], f @ t ~1 g @ t)
   (H H' : DNaturalTransformation (T:=T) (U:=Type0_Type U) α):
@@ -2391,31 +2371,16 @@ Definition DNaturalTransformationEq2 T (U:[T --> Type0])
   apply path_forall. intros E.
   apply is_Trunc_2.
 Defined.
+ *)
+
 
 Program Instance prod_Groupoid1 T (U:[T --> Type0]) : 
-  Groupoid (Prod_Type (Type0_Type U)).
-Next Obligation.
-  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ E E'))).
-  apply contr_forall. intros z.
-  apply (@is_Trunc_2 _ _ _ _ _ _ (E z) (E' z)).
-Defined.
+  Groupoid (Prod_Type (Type0_Type U)) := Dnat_trans_grp _ _.
 
 Program Instance Prod_setoid T (U:[T --> Type0]) : 
   Setoid (Prod_Type (Type0_Type U)).
 Next Obligation.
-  apply (@contr_equiv _ _ _ (path_sigma_equiv e e')).
-  apply (@contr_sigma _ (fun p => p # e.2 = e'.2)).
-  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ [e] [e']))).
-  apply contr_forall. intros z.
-  apply (@is_Trunc_1 _ _ _ _ (e @ z) (e' @ z)).
-  intros.   destruct e, e'. simpl in *. destruct a. simpl. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
-  apply contr_forall. intros t. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
-  apply contr_forall. intros t'. 
-  apply (@contr_equiv _ _ _ (isequiv_inverse (isequiv_apD10 _ _ _))).
-  apply contr_forall. intros e. 
-  apply (@is_Trunc_2 _ _ _ _ _ _ _ _).
+  intro z. apply (@is_Trunc_1 _ _ _ _ (e @ z) (e' @ z)).
 Defined.
 
 (* end hide *)
@@ -2426,7 +2391,8 @@ dependent product over a family of setoids is also a setoid. We note
 
 (* begin hide *)
 
-Definition Prod0 T (U:[T --> Type0]) : [Type0] := (Prod_Type ([[[U]]]); Prod_setoid T U). 
+Definition Prod0 T (U:[T --> Type0]) : [Type0] := (Prod_Type ([[[U]]]); Prod_setoid T U).
+
 (* end hide *)
 (** ** Dependent sums 
 
@@ -2444,7 +2410,7 @@ groupoid of Σ types over a groupoid [T] and a morphism of type [ [T -||-> Type0
 (* first component cannot be a type itself.  *)
 
 
-Definition sum_type T (U : [T -||-> Type0]) := {t : [T] & [U @ t]}.
+Definition sum_type T (U : [T --> Type0]) := {t : [T] & [U @ t]}.
 
 (** %\noindent%
   The 1-equality between dependent pairs is given by 1-equality on the
@@ -2452,7 +2418,7 @@ Definition sum_type T (U : [T -||-> Type0]) := {t : [T] & [U @ t]}.
   projection on the left.
 *)
 
-Definition sum_eq T (U : [T -||-> Type0]) : HomT (sum_type U) := 
+Definition sum_eq T (U : [T --> Type0]) : HomT (sum_type U) := 
   λ m n, {P : [m] ~1 [n] & transport ([[[U]]]) P @ (Π2 m) ~1 Π2 n}.
 
 (* begin hide *)
@@ -2467,7 +2433,7 @@ Proof.
   exists (inverse [H]).
   apply (Equiv_injective (map U [H])).
   eapply composition; try exact (inverse (Π2 H)). unfold transport. 
-  assert (map_inv_R : forall {T U} (U : T ---> U) x y (e : x ~1 y),
+  assert (map_inv_R : forall {T U} (U : Fun_Type T U) x y (e : x ~1 y),
                         map U e ° map U (inverse e) ~ identity (U @ y)). 
   - intros. eapply composition. apply comp. apply map_inv. 
     apply identity. apply inv_R.
@@ -2485,7 +2451,7 @@ Next Obligation.
   apply (map [map U [H2] ] (Π2 H1)).
 Defined.
 
-Program Instance sum_eqHom T (U : [T -||-> Type0]) : HomT1 (sum_type U) := 
+Program Instance sum_eqHom T (U : [T --> Type0]) : HomT1 (sum_type U) := 
   {eq1 := sum_eq (T:=T) (U:=U)}.
 
 (* end hide *)
@@ -2494,7 +2460,7 @@ Program Instance sum_eqHom T (U : [T -||-> Type0]) : HomT1 (sum_type U) :=
   and rewriting.
 *)
 
-Definition sum_eq2 T (U : [T -||-> Type0]) (M N : sum_type U) : HomT (M ~1 N) 
+Definition sum_eq2 T (U : [T --> Type0]) (M N : sum_type U) : HomT (M ~1 N) 
   := λ e e' , {P : [e] ~ [e'] & Π2 e ~ Π2 e' ° (transport_eq ([[[U]]]) P @ (Π2 M))}.
 
 (* begin hide *)
@@ -2532,13 +2498,13 @@ Next Obligation.
   exists (composition [X] [X0]). apply (setoid_irr2 _). 
 Defined.
 
-Program Instance sum_eq2Hom T (U : [T -||-> Type0])  : HomT2 (sum_eq (U:=U)) := 
+Program Instance sum_eq2Hom T (U : [T --> Type0])  : HomT2 (sum_eq (U:=U)) := 
   {eq2 := sum_eq2 (T:=T) (U:=U)}.
 
 Program Instance sum_eq2_eq T U (M N : sum_type (T:=T) U) :
   Equivalence (sum_eq2 (M:=M) (N:=N)).
 
-Program Instance sum_category2 T U : CategoryP (sum_type (T:=T) U).
+Program Instance sum_category2 T U : Category (sum_type (T:=T) U).
 
 Next Obligation.
   exists (id_R _ _ [f]). unfold transport_eq. 
@@ -2564,33 +2530,20 @@ Lemma id_R'' (T : CatType) (x y : [T]) (f g : x ~1 y) :
   f ~2 g -> f ° identity x ~2 g.
 Proof. intros. eapply composition. apply id_R'. apply X. Defined.
 
-Program Instance sum_groupoidP T (U : [T -||-> Type0]) :
-  GroupoidP (sum_type U).
+Program Instance sum_groupoidP T (U : [T --> Type0]) :
+  Groupoid (sum_type U).
 Next Obligation. exists (inv_R _ _ _). apply (setoid_irr2 _). Defined.
 Next Obligation. simpl in *. exists (inv_L _ _ _). apply (setoid_irr2 _). Defined.
 Next Obligation. simpl in *. exists (inv _ _ _ _ [X]). apply (setoid_irr2 _). Defined.
 
-Program Instance sum_groupoid (T : [Type1]) U : Groupoid (sum_type (T:=T) U).
-Next Obligation.
-  apply (@contr_equiv _ _ _ (path_sigma_equiv E E')).
-  apply @contr_sigma.
-  apply (@is_Trunc_2 _ _ _ _ _ _ _ _). intro X. destruct E, E'. simpl in *. destruct X.
-  simpl. 
-  apply (@is_Trunc_2 _ _ _ _ _ _ _ _).
-Defined.
-
 Program Instance sum_setoid (T : [Type0]) U : Setoid (sum_type (T:=[[T]]) U).
 Next Obligation.
-  apply (@contr_equiv _ _ _ (path_sigma_equiv _ _)).
-  apply @contr_sigma.
-  apply (@is_Trunc_1  _ _ _ _ _ _). intro X. destruct e, e'. simpl in *. destruct X.
-  simpl. 
+  refine (Build_sigma _ _ _ ).
+  apply (@is_Trunc_1  _ _ _ _ _ _). 
   apply (@is_Trunc_1 _ _ _ _ _ _).
 Defined.
 
 (* Definition _Sum T (U:[T-->Type0]) : [_Type] := (sum_type U ; sum_groupoidP _ U).  *)
-
-Definition _Sum1 T (U:[T-||->Type0]) : [Type1] := (sum_type U ; sum_groupoid _ U). 
 
 Definition _Sum0 T (U:[ [[T]] -->Type0]) : [Type0] := (sum_type U ; sum_setoid T U). 
 

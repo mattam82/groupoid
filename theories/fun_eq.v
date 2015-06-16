@@ -1,6 +1,6 @@
 Require Export Unicode.Utf8_core.
 Require Coq.Program.Tactics.
-Add LoadPath "." as Groupoid.
+(* Add LoadPath "." as Groupoid. *)
 Require Import HoTT_light groupoid.
 
 Set Universe Polymorphism.
@@ -42,51 +42,51 @@ Next Obligation. exact (fun t => map2 g (X t)). Defined.
 Program Definition right_comp A B C (g: [B --> C]) : (A --> B) ---> (A --> C) :=
   (fun f => g ° f; right_comp_1 _ _ _ _).
 
-Definition fun_eq {T T' U U': UGroupoidType} (e:T <~> T') (e': U <~> U') : 
+Definition fun_eq {T T' U U': GroupoidType} (e:T <~> T') (e': U <~> U') : 
   (T --> U) ---> (T' --> U') := right_comp T' [e'] ° left_comp U (adjoint e).
 
-Definition right_comp_eq (T T' U : UGroupoidType) (f f':[T --> T'])
+Definition right_comp_eq (T T' U : GroupoidType) (f f':[T --> T'])
            (H : f ~2 f')  : right_comp U f ~2 right_comp U f'.
 exists (fun g => nat_comp' (identity g) H). red.
 intros; simpl. red. simpl. intro. simpl_id_bi. eapply inverse. apply (α_map H). 
 Defined.
 
-Definition right_comp_eq' (T T' T'' U : UGroupoidType) (f:[T --> T']) (f' :[T' --> T''])
+Definition right_comp_eq' (T T' T'' U : GroupoidType) (f:[T --> T']) (f' :[T' --> T''])
            : right_comp U (f' ° f) ~2 right_comp U f' ° right_comp U f.
 exists (fun g => nat_assoc g f f'). red.
 intros; simpl. red. intro. simpl. simpl_id_bi. Defined.
 
-Definition left_comp_eq (T U U' : UGroupoidType) (g g':[U --> U'])
+Definition left_comp_eq (T U U' : GroupoidType) (g g':[U --> U'])
            (H : g ~2 g')  : left_comp T g ~2 left_comp T g'.
 exists (fun f => nat_comp' H (identity f)). red.
 intros; simpl. red. simpl. intro. simpl_id_bi. apply (α_map e).
 Defined.
 
-Definition nat_assoc_inv (T U U' U'' : UGroupoidType) (g:[U --> U']) (g' :[U' --> U'']) (f : U'' ---> T) :
+Definition nat_assoc_inv (T U U' U'' : GroupoidType) (g:[U --> U']) (g' :[U' --> U'']) (f : U'' ---> T) :
   (f ° (g' ° g)) ~1 ((f ° g') ° g).
   red; apply inverse. refine (nat_assoc g g' f). Defined.
 
-Definition left_comp_eq' (T U U' U'' : UGroupoidType) (g:[U --> U']) (g' :[U' --> U'']) 
+Definition left_comp_eq' (T U U' U'' : GroupoidType) (g:[U --> U']) (g' :[U' --> U'']) 
            : left_comp T (g' ° g) ~2 left_comp T g ° left_comp T g'.
   exists (nat_assoc_inv g g'). red. intros.
   simpl. intro. simpl. simpl_id_bi'. apply identity. Defined.
 
-Definition right_left_comp (T T' U U' : UGroupoidType) (g :[T --> T']) (f: [U --> U'])
+Definition right_left_comp (T T' U U' : GroupoidType) (g :[T --> T']) (f: [U --> U'])
            : right_comp T f ° left_comp U g ~1 left_comp U' g ° right_comp T' f.
 simpl. red. simpl. exists (fun t => nat_assoc_inv g t f). red. intros.
   simpl. intro. simpl. simpl_id_bi'. apply identity. Defined.
 
-Definition left_comp_id (T U : UGroupoidType) : left_comp T (identity U) ~2 identity _.
+Definition left_comp_id (T U : GroupoidType) : left_comp T (identity U) ~2 identity _.
   exists (fun t => nat_id_R t). red. intros. simpl. 
   intro. simpl. simpl_id_bi. Defined.
 
-Definition right_comp_id (T U : UGroupoidType) : right_comp U (identity T) ~2 identity _.
+Definition right_comp_id (T U : GroupoidType) : right_comp U (identity T) ~2 identity _.
   exists (fun t => nat_id_L t). red. intros. simpl. 
   intro. simpl. simpl_id_bi. Defined.
 
 Typeclasses Transparent nat_trans. 
 
-Program Instance fun_eq2 (T T' U U' : UGroupoidType) (e:T <~> T') (e': U <~> U') : Iso_struct (fun_eq e e').
+Program Instance fun_eq2 (T T' U U' : GroupoidType) (e:T <~> T') (e': U <~> U') : Iso_struct (fun_eq e e').
 Next Obligation. exact (right_comp T (adjoint e') ° left_comp U' [e]). Defined.
 Next Obligation. 
   unfold fun_eq, fun_eq2_obligation_1. eapply composition. 
@@ -112,14 +112,14 @@ Next Obligation.
   eapply composition. apply right_comp_eq. eapply inverse. apply (inverse (retraction e')). apply right_comp_id.
 Defined.
 
-Definition fun_eqT (T T' U U' : UGroupoidType) (e:T <~> T') (e': U <~> U') : (T --> U) <~> (T' --> U')
+Definition fun_eqT (T T' U U' : GroupoidType) (e:T <~> T') (e': U <~> U') : (T --> U) <~> (T' --> U')
   := IsoToEquiv (fun_eq e e'; fun_eq2 _ _ _ _ _ _).
 
-Definition fun_eq_eq (T T' U U' : UGroupoidType) (e e':T <~> T') (f f': U <~> U')
+Definition fun_eq_eq (T T' U U' : GroupoidType) (e e':T <~> T') (f f': U <~> U')
            (H : Equiv_eq e e') (H' : Equiv_eq f f') : fun_eq e f ~1 fun_eq e' f' :=
 nat_comp' (left_comp_eq _ (Equiv_adjoint [H])) (right_comp_eq _ [H']).
 
-Definition fun_eq_eq' (T T' T'' U U' U'' : UGroupoidType) (e:T <~> T') (e':T' <~> T'') 
+Definition fun_eq_eq' (T T' T'' U U' U'' : GroupoidType) (e:T <~> T') (e':T' <~> T'') 
            (f : U <~> U') (f' : U' <~> U'') : 
   fun_eq (e' ° e) (f' ° f) ~1 fun_eq e' f' ° fun_eq e f.
 eapply composition. apply nat_comp'. apply left_comp_eq'. apply right_comp_eq'.
@@ -129,14 +129,14 @@ eapply composition. eapply inverse. apply nat_assoc. eapply inverse.
 eapply composition. eapply inverse. apply nat_assoc. apply nat_comp'; try apply identity.
 apply right_left_comp. Defined.
 
-Program Definition fun_eq_map {Γ : UGroupoidType} (A: [Γ --> _Type]) (x y z : [Γ]) (e : x ~1 y) (e' : y ~1 z) : 
+Program Definition fun_eq_map {Γ : GroupoidType} (A: [Γ --> _Type]) (x y z : [Γ]) (e : x ~1 y) (e' : y ~1 z) : 
   fun_eq (map A (e' ° e)) (identity _Type) ~1
   fun_eq (map A e') (identity _Type) ° fun_eq (map A e) (identity _Type).
 eapply composition. apply fun_eq_eq. apply (map_comp A). eapply inverse.
 apply (@id_R _ Equiv_cat). 
 apply fun_eq_eq'. Defined.
 
-Program Definition fun_eq_id {Γ : UGroupoidType} (A: [Γ --> _Type]) (x : [Γ]) :
+Program Definition fun_eq_id {Γ : GroupoidType} (A: [Γ --> _Type]) (x : [Γ]) :
   fun_eq (map A (identity x)) (identity _Type) ~1
   identity _.
 eapply composition. apply fun_eq_eq. apply (map_id A). apply identity. 
@@ -149,7 +149,7 @@ Definition fun_eq_map' {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ])
   (fun_eq (map A (e' ° e)) (identity (Identity := _Type_id) Type0))
   ~1 ((fun_eq (map A e') (identity (Identity := _Type_id) Type0)) ° (fun_eq (map A e) (identity (Identity := _Type_id) Type0))).
 eapply composition. apply fun_eq_eq. apply (map_comp A). eapply inverse.
-apply (id_R (CategoryP:=Equiv_cat)).
+apply (id_R (Category:=Equiv_cat)).
 apply fun_eq_eq'. Defined.
 
 Definition equiv_eq_nat_trans :forall {A B : SetoidType} (f g : A <~> B), [f] ~ [g] -> f ~ g.
@@ -178,8 +178,8 @@ Definition Equiv_ajoint_map_id {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x : [Γ
   eapply composition. eapply inverse. apply (map_comp t).
   eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
   eapply composition. eapply inverse. apply (map_comp t).
-  apply (map2 t). trunc1_eq_expl (A @ x).
-  exists X. red; intros. trunc1_eq_expl (t@t0).
+  apply (map2 t). apply Trunc_1. 
+  exists X. red; intros. apply Trunc_1. 
 Defined. 
 
 Unset Printing Primitive Projection Parameters.
@@ -200,8 +200,8 @@ Next Obligation.
     eapply composition. eapply inverse. apply (map_comp t). 
     apply inverse. eapply composition. apply Equiv_ajoint_map_id.
     eapply composition. eapply inverse. apply (map_comp t).
-    apply (map2 t). trunc1_eq_expl (A @ x).
-    red; intros. trunc1_eq_expl (t @ t0).
+    apply (map2 t). apply Trunc_1. 
+    red; intros. apply Trunc_1.
 Defined.
 
 Definition Equiv_adjoint_map_comp {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ])  (x y z :[Γ])
@@ -221,11 +221,9 @@ Definition Equiv_adjoint_map_comp {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ])  (x y
   eapply composition. eapply inverse. apply (map_comp t).
   eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
   eapply composition. eapply inverse. apply (map_comp t).
-  apply (map2 t). trunc1_eq_expl (A @ z).
-  exists X. red; intros. simpl. 
-  pose (tt0 := t @ ([map A e' ° map A e] @
-        (adjoint (map A e) @ (adjoint (map A e') @ t0)))).
-  trunc1_eq_expl tt0.
+  apply (map2 t). apply Trunc_1.
+  exists X. red; intros. simpl.
+  apply Trunc_1.
 Defined. 
 
 Definition fun_eq_compT {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ])  (x y z :[Γ])
@@ -251,14 +249,14 @@ Next Obligation.
   eapply composition. eapply (map [map t _]). apply Equiv_adjoint_map_comp. 
   eapply composition. eapply inverse. apply (map_comp t).
   eapply composition. eapply inverse. apply (map_comp t).
-  apply (map2 t). trunc1_eq_expl (A @ z).
-  exists X. red; intros. trunc1_eq (t @ t0).
+  apply (map2 t). apply Trunc_1.
+  exists X. red; intros. apply Trunc_1. 
 Defined.
 
 
 Definition Equiv_adjoint_map2 {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x y :[Γ])
            (e e' : x ~1 y) (X : e ~2 e') t t0
-           (H := fun_eq_eq (map2 A X) (identity (identity (|Type0|g))) :
+           (H := fun_eq_eq (map2 A X) (identity (identity (Type0))) :
           [fun_eqT (map A e) (@identity _ _ _Type_id Type0)] ~1
           [fun_eqT (map A e') (@identity _ _ _Type_id Type0)]) :
   (Equiv_adjoint H @ t) @ (adjoint (map A e') @ t0) ~
@@ -274,16 +272,15 @@ Definition Equiv_adjoint_map2 {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x y :[Γ
   eapply composition. eapply inverse. apply (map_comp t).
   eapply composition. eapply (map [map t _]). eapply inverse. apply (map_inv t). 
   eapply composition. eapply inverse. apply (map_comp t).
-  apply (map2 t). trunc1_eq_expl (A @ y).
-  exists X0. red; intros. pose (tt0 := t @ ([map A e'] @ (adjoint (map A e') @ t0))).
-  trunc1_eq_expl tt0.
+  apply (map2 t). apply Trunc_1.
+  exists X0. red; intros. apply Trunc_1. 
 Defined.
 
 Definition fun_eq_map2T {Γ : [Type0]} (A: [ [[Γ]] --> Type0 ]) (x y :[Γ])
            (e e' : x ~1 y) (X : e ~2 e') :
          Equiv_eq (fun_eqT (map A e) (@identity _ _ _Type_id Type0))
                   (fun_eqT (map A e') (@identity _ _ _Type_id Type0)) :=
-  (fun_eq_eq (map2 A X) (identity (identity (|Type0|g))); _).
+  (fun_eq_eq (map2 A X) (identity (identity (Type0))); _).
 Next Obligation. 
   intro. intro. apply equiv_eq_nat_trans. 
   Opaque composition. simpl. red. 
@@ -299,12 +296,12 @@ Next Obligation.
   eapply composition. eapply (map [map t _]). apply Equiv_adjoint_map2.
   eapply composition. eapply inverse. apply (map_comp t).
   eapply composition. eapply inverse. apply (map_comp t).
-  apply (map2 t). trunc1_eq_expl (A @ y).
-  exists X0. red; intros. trunc1_eq (t @ t0).
+  apply (map2 t). apply Trunc_1.
+  exists X0. red; intros. apply Trunc_1.
 Defined.
 
 
-Program Definition fun_eq_id2 {Γ : UGroupoidType} (A B:  [Γ --> _Type]) (x : [Γ]) :
+Program Definition fun_eq_id2 {Γ : GroupoidType} (A B:  [Γ --> _Type]) (x : [Γ]) :
   fun_eq (map A (identity x)) (map B (identity x)) ~1
   identity _.
 eapply composition. apply fun_eq_eq. 

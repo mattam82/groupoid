@@ -93,12 +93,14 @@ Definition apD10 {A} {B:A->Type} {f g : forall x, B x} (h:f=g)
 Class Funext :=
   { isequiv_apD10 :> forall (A : Type) (P : A -> Type) f g, IsEquiv (@apD10 A P f g) }.
 
-Axiom funext : Funext.
+(* Axiom funext : Funext. *)
 
+(*
 Definition path_forall `{Funext} {A : Type} {P : A -> Type} (f g : forall x : A, P x) :
   f == g -> f = g
   :=
   (@apD10 A P f g)^^-1.
+ *)
 
 Definition transport {A : Type} (P : A -> Type) {x y : A} (p : x = y) (u : P x) : P y .
   destruct p. exact u. Defined. 
@@ -165,13 +167,14 @@ Class Contr (A : Type) := BuildContr {
   contr : (forall y : A, center = y)
 }.
 
+(*
 Global Instance contr_forall A {P : A -> Type} {H : forall a, Contr (P a)}
   : Contr (forall a, P a) | 100.
 Proof.
   exists (fun a => @center _ (H a)).
   intro f.  apply path_forall.  intro a.  apply contr.
 Defined.
-
+*)
 
 Definition concat A (x y z : A) (e : x = y) (e' : y = z) : x = z.
 destruct e. exact e'. Defined.
@@ -182,15 +185,16 @@ Definition moveR_E A B (f:A -> B) {H : IsEquiv f} (x : A) (y : B) (p : x = f^^-1
   : (f x = y)
   := ap f p @@ (@eisretr _ _ f _ y).
 
+
 Lemma contr_equiv A B (f : A -> B) `{IsEquiv A B f} `{Contr A}
   : Contr B.
 Proof.
-  exists (f (center A)).
+  exists (f (@center _ H0)). 
   intro y.
   eapply moveR_E.
   apply contr.
 Qed.
-
+ 
 Definition concat_1p {A : Type} {x y : A} (p : x = y) :
   eq_refl @@ p = p.
   apply eq_refl.
@@ -220,12 +224,12 @@ Instance equality_equiv A :
   Equivalence (@equality A) := {}.
 
 Instance concat_morphism (A : Type@{i}) x y z :
-  Proper@{i i i} (equality ==> equality ==> equality) (@concat A x y z).
+  Proper@{i i} (equality ==> equality ==> equality) (@concat A x y z).
 Proof. reduce. destruct x0. destruct X. destruct x1. destruct X0. reflexivity. Defined.
 
 Instance trans_co_eq_inv_arrow_morphism :
   ∀ (A : Type@{i}) (R : crelation@{i i} A),
-    Transitive R → Proper@{j Prop i} (R ==> respectful @{i j i i j i} equality (flip arrow)) R.
+    Transitive R → Proper (R ==> respectful equality (flip arrow)) R.
 Proof. reduce. transitivity y. assumption. now destruct X1. Defined.
 
 Definition concat_pp_A1 {A : Type} {g : A -> A} (p : forall x, x = g x)
@@ -321,11 +325,11 @@ Definition ap_p {A B : Type} (f : A -> B) {x y : A} (p q: x = y) (e : p = q) :
 Defined.
 
 Instance ap_morphism (A : Type@{i}) (B : Type@{j}) x y f :
-  Proper@{k Prop k} (@equality (@equality A x y) ==> @equality (@equality B (f x) (f y))) (@ap A B f x y).
+  Proper (@equality (@equality A x y) ==> @equality (@equality B (f x) (f y))) (@ap A B f x y).
 Proof. reduce. destruct x0. destruct X. reflexivity. Defined.
 
 Instance reflexive_proper_proxy :
-  ∀ (A : Type@{i}) (R : crelation@{i i} A), Reflexive R → ∀ x : A, ProperProxy@{i Prop i} R x.
+  ∀ (A : Type@{i}) (R : crelation@{i i} A), Reflexive R → ∀ x : A, ProperProxy R x.
 Proof. intros. reduce. apply X. Defined.
 
 Definition isequiv_inverse' A B (f:A -> B) (H:IsEquiv f) : IsEquiv (f^^-1) .
@@ -362,7 +366,7 @@ Defined.
 
 (* raise down the number of universes *)
 
-Definition isequiv_inverse A B f H := @isequiv_inverse'@{univ univ1 univ2 univ3 Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop univ14 Prop Prop Prop Prop Prop univ20 Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop Prop } A B f H.
+Definition isequiv_inverse A B f H := @isequiv_inverse' A B f H.
 
 Definition path_contr A {H:Contr A} (x y : A) : x = y
   := concat (eq_sym (@contr _ H x)) (@contr _ H y).
@@ -376,7 +380,7 @@ Definition contr_sigma A {P : A -> Type}
   {H : Contr A} `{H0 : forall a, Contr (P a)}
   : Contr (sigma P).
 Proof.
-  exists (center A; center (P (center A))).
+  exists (@center _ H; @center _ (H0 (@center _ H))).
   intros [a Ha]. refine (path_sigma _ _ _ _).
   simpl. apply H. simpl. apply transport_inv.
   apply (H0 center).

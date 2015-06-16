@@ -152,7 +152,7 @@
 
 Require Export Unicode.Utf8_core.
 Require Import Coq.Program.Tactics.
-Add LoadPath "." as Groupoid.
+(* Add LoadPath "." as Groupoid. *)
 Require Import Groupoid.HoTT_light.
 Require Import Groupoid.groupoid.
 Require Import Groupoid.fun_eq.
@@ -222,7 +222,7 @@ Next Obligation.
   intro. apply equiv_eq_nat_trans. 
   refine [(map2 B) _]. eapply composition. Focus 2.
   apply sum_id_left_map.  
-  simpl_id_bi. exists (identity _). trunc1_eq.
+  simpl_id_bi. exists (identity _). apply Trunc_1.
 Defined.
 
 Next Obligation.
@@ -233,7 +233,7 @@ Next Obligation.
   eapply composition. Focus 2.
   refine [map_comp B _ _]. refine [map2 B _]. 
   exists (inverse (id_R _ _ _)). 
-  trunc1_eq.
+  apply Trunc_1.
 Defined.
 
 Next Obligation. 
@@ -242,7 +242,7 @@ Proof.
   eapply composition. Focus 2.
   refine [map_comp B _ _]. apply (map2 B).
   exists (inverse (id_R _ _ _) ° H).  
-  trunc1_eq.
+  apply Trunc_1.
 Defined.
 
 (* end hide *)
@@ -329,7 +329,7 @@ Next Obligation. intro. apply equiv_eq_nat_trans.
                  apply identity. eapply composition. simpl.
                  eapply inverse. refine [map_comp (F @ (f @ x)) _ _].
                  refine [map2 (F @ (f@x)) _ ]. 
-                 trunc1_eq.
+                 apply Trunc_1.
 Defined.
 Next Obligation. intro. apply equiv_eq_nat_trans.                  
   eapply composition. apply (Dmap2 F (map_comp f e e')).
@@ -344,7 +344,7 @@ Next Obligation. intro. apply equiv_eq_nat_trans.
   apply nat_comp'; [idtac | apply identity].
   eapply composition. eapply inverse. 
   refine [map_comp (F @ (f @ x)) _ _ ].
-  refine [map2 (F @ (f @ x)) _]. trunc1_eq.
+  refine [map2 (F @ (f @ x)) _]. apply Trunc_1.
 Defined.
 Next Obligation.
   intro. apply (Dmap2 F (map2 f H) t).
@@ -468,7 +468,7 @@ Instance BetaT_1 {Δ Γ : Context} {A:Typ Γ} (B:TypDep A) (σ:[Δ -|-> Γ]) (a:
   apply inverse. eapply composition. eapply inverse. apply (map_comp B).
   apply (map2 B).   
   simpl; unfold sum_eq2; simpl. exists (id_R _ _ _).
-  trunc1_eq.
+  apply Trunc_1.
   Defined.
 (* end hide *)
 
@@ -486,17 +486,7 @@ Next Obligation. intros. unfold Var_0_obligation_1. simpl.
                  apply comp; try apply identity. eapply inverse.
                  unfold transport. simpl. unfold groupoid.arrow_comp_obligation_1.
                  unfold Sub_1_obligation_3, Sub_1_obligation_1. simpl.
-                 assert (Equiv_eq2 (map2 A (comp _ _ _ _ _ _ _ (identity [e]) (identity [e']))) (identity (map A ([e'] °[e])))).
-                 match goal with
-                     | [ |- Equiv_eq2 ?e ?e'] =>
-                       let H := fresh in
-                       let H':=fresh in 
-                       set(H':=e) in *; clearbody H';
-                       assert (H:=@center _ (Trunc_2 (Type0) _ _ _ _ H' e'));
-                                         try ((destruct H; apply identity) 
-                                                || (simpl in *; destruct H; apply identity))
-
-                   end.
+                 assert (Equiv_eq2 (map2 A (comp _ _ _ _ _ _ _ (identity [e]) (identity [e']))) (identity (map A ([e'] °[e])))). intro. apply Trunc_1.
                  apply X.
 Defined.
 Next Obligation. intros. apply (Π2 H). Defined.
@@ -569,8 +559,8 @@ Next Obligation. intros. eapply composition; try apply (Dmap (c @ y) (Dmap a e))
                  apply (map [map (F @ x) (map (adjoint (map A e)) (Dmap a e))]). 
                  apply (Dmap (c @ x)). 
 Defined.
-Next Obligation. intros; trunc1_eq. Defined.
-Next Obligation. intros; trunc1_eq. Defined.
+Next Obligation. intros; apply Trunc_1. Defined.
+Next Obligation. intros; apply Trunc_1. Defined.
 
 Definition App0 {Γ} {A:Typ Γ} {F:TypFam A} (c:Elt (Prod F)) (a:Elt A) 
   : Prod_Type0 (F {{a}}) := (λ s, (c @ s) @ (a @ s); App_0 c a).
@@ -599,8 +589,8 @@ Program Instance Lam_0 {Γ} {A:Typ Γ} {F:TypDep A}
   (b:Elt F) (γ:[Γ]) :
   DependentFunctor0 ((LamT F) @ γ) (fun t => b @ (γ ; t)).
 Next Obligation. intros. apply (Dmap b (sum_id_left e)). Defined.
-Next Obligation. intros. trunc1_eq. Defined.
-Next Obligation. intros. trunc1_eq. Defined.
+Next Obligation. intros. apply Trunc_1. Defined.
+Next Obligation. intros. apply Trunc_1. Defined.
 
 Definition Lam_partial0 {Γ} {A:Typ Γ} {F:TypDep A}
   (b:Elt F) (γ:[Γ]) : Prod_Type0 ((LamT F) @ γ) :=
@@ -620,10 +610,10 @@ Program Instance Lam_20 {Γ} {A:Typ Γ} {B:TypDep A} (b:Elt B) :
  DependentFunctor0 (Prod (LamT B)) (Lam_partial b).
 Next Obligation. simpl. red; simpl.
                  exists (fun t => Dmap b (sum_id_right e t)).
-                 red. intros; simpl. trunc1_eq.
+                 red. intros; simpl. apply Trunc_1.
 Defined.
-Next Obligation. intros. intro. trunc1_eq. Defined.
-Next Obligation. intros. intro. trunc1_eq. Defined.
+Next Obligation. intros. intro. apply Trunc_1. Defined.
+Next Obligation. intros. intro. apply Trunc_1. Defined.
 
 Definition Lam0 {Γ} {A:Typ Γ} {B:TypDep A} (b:Elt B)
   : Prod_Type0 (Prod (LamT B)) := (λ γ, (λ t, b @ (γ ; t) ; _); Lam_20 b).
@@ -686,15 +676,15 @@ Next Obligation. exists (Dmap a e). unfold id.
                  apply (α_map (Dmap B e)).
 Defined. 
 Next Obligation. exists (Dmap_id a).
-                 trunc1_eq. Defined.
+                 apply Trunc_1. Defined.
 Next Obligation. assert (Dmap a (e' ° e) ~
           (Dmap a e' ° map [map A e'] (Dmap a e))
           ° (([(map_comp A) e e'] @ (a @ x)) ^-1) ^-1).
                  eapply composition. apply (Dmap_comp a e e').
                  apply comp. apply inverse. apply inv_inv. apply identity.
-                 exists X. trunc1_eq. Defined.
+                 exists X. apply Trunc_1. Defined.
 Next Obligation. exists (Dmap2 a H).
-                 trunc1_eq. Defined.
+                 apply Trunc_1. Defined.
 
 (* end hide *)
 (** %\noindent% Pairing and projections are obtained
@@ -744,9 +734,9 @@ Next Obligation. eapply composition. Focus 2. apply ((Dmap t e).2). simpl. unfol
                  apply id_R.
                  apply X.
 Defined. 
-Next Obligation. trunc1_eq. Defined. 
-Next Obligation. trunc1_eq. Defined. 
-Next Obligation. trunc1_eq. Defined. 
+Next Obligation. apply Trunc_1. Defined. 
+Next Obligation. apply Trunc_1. Defined. 
+Next Obligation. apply Trunc_1. Defined. 
 
 
 Definition Proj2 {Γ} {A:Typ Γ} {B:TypFam A} (t: Elt (Sigma B))
@@ -759,7 +749,7 @@ Instance groupoid_eq1 (T:[_Type]) (a b : [T]): Groupoid (a ~1 b) :=
   IrrRelGroupoid {| eq1 := @eq2 _ _ _ a b|}.
 
 Program Instance setoid_eq1 (T:[_Type]) (a b : [T]): Setoid (a ~1 b).
-Next Obligation. intros. apply is_Trunc_2. Defined.
+Next Obligation. exact tt. Defined.
 
 Program Definition Id_ {Γ} (A: Typ Γ) (a b : Elt A) (γ : [Γ]) : [Type0] :=
   (a @ γ ~1 b @ γ ; setoid_eq1 ([[[A]]] @ γ) (a@γ) (b@γ)). 
@@ -780,27 +770,27 @@ Next Obligation. intros. apply IsoToEquiv. exists (Id_functor a b y x (X^-1)).
                  apply (@Build_Iso_struct _ _ _ (Id_functor a b x y X)).
                  red. red. simpl. 
                  refine (Build_sigma _ _ _).
-                 intro. trunc1_eq.
+                 intro. apply Trunc_1.
                  red. intros. exact tt.
                  red. red. simpl.
                  refine (Build_sigma _ _ _).
-                 intro ; trunc1_eq.
+                 intro ; apply Trunc_1.
                  red. intros. exact tt. 
 Defined.
 Next Obligation. apply equiv_eq_nat_trans. simpl. 
                  unfold Id_functor. red. simpl.
                  refine (Build_sigma _ _ _).
-                 intro. trunc1_eq.
+                 intro. apply Trunc_1.
                  red. intros. exact tt. Defined.
 Next Obligation. apply equiv_eq_nat_trans. simpl. 
                  unfold Id_functor. red. simpl.
                  refine (Build_sigma _ _ _).
-                 intro. trunc1_eq.
+                 intro. apply Trunc_1.
                  red. intros. exact tt. Defined.
 Next Obligation. apply equiv_eq_nat_trans. simpl. 
                  unfold Id_functor. red. simpl.
                  refine (Build_sigma _ _ _).
-                 intro. trunc1_eq.
+                 intro. apply Trunc_1.
                  red. intros. exact tt. Defined.
 (* end hide *)
 (** 
@@ -820,7 +810,7 @@ Definition Id {Γ} (A: Typ Γ) (a b : Elt A)
 
 Program Instance Refl_1 Γ (A: Typ Γ) (a : Elt A) :
 DependentFunctor ([[[Id a a]]]) (λ γ : [Γ], identity (a @ γ)).
-Next Obligation. simpl. trunc1_eq. Defined.
+Next Obligation. simpl. apply Trunc_1. Defined.
 Next Obligation. exact tt. Defined.
 Next Obligation. exact tt. Defined.
 Next Obligation. exact tt. Defined.
@@ -847,7 +837,7 @@ apply (comp_inv _ _ _ _ ((retraction (map A e ^-1) @ (b @ t')) ^-1)).
 apply inverse. eapply composition. eapply inverse. 
 apply (comp_inv _ _ _ _ ((retraction (map A e ^-1) @ (b @ t')) ^-1)).
 apply comp; try apply identity. eapply inv. 
-apply (map2 (adjoint (map A e ^-1))). trunc1_eq. 
+apply (map2 (adjoint (map A e ^-1))). apply Trunc_1. 
 red. intros. exact tt.
 Defined.
 
@@ -859,7 +849,7 @@ Definition J_Pair Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam (depEq a)
            (γ : [Γ]) : 
   Pair (prod_eq (BetaT2 (a:=a) (b:=a)) @ Refl a) @ γ ~1
   Pair (e with BetaT2)@ γ.
-  exists (e @ γ). simpl. trunc1_eq.
+  exists (e @ γ). simpl. apply Trunc_1.
 Defined.
 
 Instance J_1 Γ (A:Typ Γ) (a b:Elt A) (e:Elt (Id a b)) (P:TypFam (depEq a)) :
@@ -887,8 +877,8 @@ apply (map2 (P @ t)). simpl. red.
 match goal with | [ |- sigma (λ α : ?H, _)]
                   => assert H end.
 (* refine (Build_sigma _ _ _). *)
-trunc1_eq. exists H. exact tt.
-exists X. intros x y X'. trunc1_eq.
+apply Trunc_1. exists H. exact tt.
+exists X. intros x y X'. apply Trunc_1.
 Defined.
 
 (* end hide *)
