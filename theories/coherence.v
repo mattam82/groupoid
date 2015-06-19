@@ -24,69 +24,103 @@ Class Interpretation (A B : Type) :=
 Notation "〚 x 〛" := (interp x).
 Notation "〚 x ':>' U 〛" := (interp (B:=U) x).
 
-Fixpoint interp_lenv_aux (l : lenv) (Γ : Context)
-         (interp_typ : lterm -> Typ Γ)
-         (env : nat -> Typ Γ)
-  : Context :=
-  match l with
+(* Inductive opt {A : Type} : Type := *)
+(* | None : opt *)
+(* | Some : A -> opt. *)
+
+(* Arguments opt : clear implicits.  *)
+Axiom cheat : forall {A}, A.
+
+Definition bind_error {A B} : Exc A -> (A -> Exc B) -> Exc B :=
+  fun x f =>
+    match x with
+    | None => None
+    | Some e => f e
+    end.
+
+Definition extend_env Γ (env : nat -> option (Typ Γ)) (A : Typ Γ) : nat -> option (Typ (_Sum0 A)) :=
+  fun x => match x return _ with
+        | 0 => Some (A ⋅⋅ groupoid_interpretation.Sub)
+        | Datatypes.S n =>
+          bind_error (env n)
+                     (fun x => Some (x ⋅⋅ groupoid_interpretation.Sub))
+        end. 
+
+(** Universe inconsistency! Of course, the universe level of a context depends on
+  the types in it... And interp_type should be first-class polymorphic to interpret
+  dependent products. *)
+Program
+Fixpoint interp_lenv_aux (l : lenv) (Γ : Context) (env : nat -> option (Typ Γ)) {struct l} : Context :=
+  match l return _ with
   | nil => Γ
   | cons t l' =>
-    let tint : Typ Γ := interp_typ t in
-    interp_lenv_aux l' (@_Sum0 Γ tint)
-                    (fun x => interp_typ x ⋅⋅ groupoid_interpretation.Sub)
-                    (fun x => match x with
-                           | 0 => tint ⋅⋅ groupoid_interpretation.Sub
-                           | Datatypes.S n => env n ⋅⋅ groupoid_interpretation.Sub
-                           end)
+    let interp_type :=
+        let fix interp_type (Γ : Context) (t : lterm) (env : nat -> option (Typ Γ)) {struct t} : option (Typ Γ) :=
+      match t return option (Typ Γ) with
+      | Srt_l s => None
+      | Ref_l n => env n (* no type quantification allowed *)
+      | Abs_l _ _ => None (* not a type *)
+      | App_l ann f u => (* f should be a type constructor *)
+        None
+      | Pair_l _ _ _ => None
+      | Prod_l dom codom =>
+        match interp_type Γ dom env return option (Typ Γ) with
+        | Some domty =>
+          let env' := extend_env Γ env domty in
+          match interp_type (@_Sum0 Γ domty) codom env' return _ with
+          | Some codomty =>
+            Some (groupoid_interpretation.Prod (A:=domty)
+                 (@groupoid_interpretation.LamT Γ domty cheat))
+          | _ => None
+          end
+        | None => None
+        end
+      | _ => None
+      end
+    in interp_type
+    in
+    let tint : option (Typ Γ) := interp_type Γ t env in
+    match tint return _ with
+    | None => Γ
+    | Some tint =>
+      interp_lenv_aux l' (@_Sum0 Γ tint) (extend_env Γ env tint)
+    end
   end.
 
 Program Definition interp_lenv (l : lenv) :=
-  interp_lenv_aux (rev l) Empty _ _.
-
-Next Obligation.
-  
-  red. red. red. refine {| proj1 := fun x : [Empty] => Empty |}.
-  refine {| _map x y p := identity _ |}; intros; apply identity.
-Defined.
-
-
-Next Obligation.
-  red. intros.
-  red. red. red. refine {| proj1 := fun x : [Empty] => Empty |}.
-  refine {| _map x y p := identity _ |}; intros; apply identity.
-Defined.
+  interp_lenv_aux (rev l) Empty (fun x => None).
 
 Instance typ_interpretation Γ : Interpretation lterm (Typ Γ) :=
   fun x : lterm => _. (* FIXME *)
 Admitted.
 
-Program Fixpoint interp_type (l : lenv) (t : lterm) :
-  option (Typ (interp_lenv l)) :=
-  match t with
+Program Fixpoint interp_type_aux (Γ : Context) (t : lterm) (env : nat -> option (Typ Γ)) {struct t} : option (Typ Γ) :=
+  match t return option (Typ Γ) with
   | Srt_l s => None
-  | Ref_l n => None (* no type quantification allowed *)
+  | Ref_l n => env n (* no type quantification allowed *)
   | Abs_l _ _ => None (* not a type *)
   | App_l ann f u => (* f should be a type constructor *)
     None
   | Pair_l _ _ _ => None
   | Prod_l dom codom =>
-    match interp_type l dom with
+    match interp_type_aux Γ dom env return option (Typ Γ) with
     | Some domty =>
-      match interp_type (dom :: l) codom with
+      let env' := extend_env Γ env domty in
+      match interp_type_aux (@_Sum0 Γ domty) codom env' return _ with
       | Some codomty =>
-        Some (groupoid_interpretation.Prod (A:=domty) _)
+        Some (groupoid_interpretation.Prod (A:=domty)
+                                           (@groupoid_interpretation.LamT Γ domty cheat))
       | _ => None
       end
     | None => None
     end
   | _ => None
   end.
-Next Obligation.
-  unfold interp_lenv in codomty. simpl in codomty.
-  do 3 red. simpl.
-  
-Qed.
-    
+
+Definition interp_type (l : lenv) (t : lterm) : option (Typ (interp_lenv l)) :=
+  interp_type_aux (interp_lenv l) t (fun x => None).
+
+             
                                                                                 
 
 

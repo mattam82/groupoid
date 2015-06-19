@@ -136,6 +136,8 @@ Notation Π1 := proj1.
 Notation Π2 := proj2.
 Notation "[ T ]" := T.1.
 
+Definition id {A} (a : A) := a.
+
 (* end hide *)
 (**
   This section presents our formalization of groupoids in %\Coq% with
