@@ -331,7 +331,7 @@ Definition GroupoidType := {T: Type & Groupoid T}.
 
 (* Definition UGroupoidType := {T: Type & GroupoidP T}. *)
 
-Definition SetoidType := {T: Type & Setoid T}.
+Definition SetoidType := sigma Setoid.
 
 
 Hint Extern 0 (Setoid [?T]) => apply T.2 : typeclass_instances.

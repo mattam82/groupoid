@@ -308,7 +308,7 @@ Defined.
 Definition App_sigma_law Δ Γ (A:Typ Γ) (F:TypFam A) (σ:[Δ -|-> Γ]) (c:Elt (Prod F))
   (a:Elt A): c @@ a °°°° σ with SubstT_sigma_law ~1 (c °°°° σ with Prod_sigma_law) @@ (a °°°° σ).
   refine (Build_sigma _ _ _). 
-  intro t. simpl. exact (identity _). 
+  intro t. simpl. unfold id. exact (identity _). 
   intros t t' e. apply Trunc_1. 
 (* begin hide *)
 Defined.
